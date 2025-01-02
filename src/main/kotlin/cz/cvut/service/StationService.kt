@@ -1,21 +1,14 @@
 package cz.cvut.service
 
-import cz.cvut.database.table.StationTable
 import cz.cvut.model.Station
+import cz.cvut.repository.StationRepository
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.client.plugins.contentnegotiation.*
-import kotlinx.serialization.Serializable
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.*
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
-import java.sql.Timestamp
-import java.time.LocalDateTime
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 object StationService {
     private const val API_URL = "https://opendata.chmi.cz/meteorology/climate/historical/metadata/meta1.json"
@@ -36,6 +29,14 @@ object StationService {
         return parseStations(rawData)
     }
 
+    fun getAllStations(filters: Map<String, String>): List<Station> {
+        return StationRepository.filterStations(filters)
+    }
+
+    fun getStationById(stationId: String): Station? {
+        return StationRepository.getStationById(stationId)
+    }
+
     private fun parseStations(json: String): List<Station> {
         val jsonObject = Json.parseToJsonElement(json).jsonObject
         val dataArray = jsonObject["data"]?.jsonObject?.get("data")?.jsonObject
@@ -46,14 +47,22 @@ object StationService {
             Station(
                 stationId = stationData[0].jsonPrimitive.content,
                 code = stationData[1].jsonPrimitive.content,
-                startDate = ZonedDateTime.parse(stationData[2].jsonPrimitive.content),
-                endDate = ZonedDateTime.parse(stationData[3].jsonPrimitive.content),
+                startDate = stationData[2].jsonPrimitive.content.takeIf { it.isNotEmpty() }?.let { parseLocalDateTime(it) },
+                endDate = parseLocalDateTime(stationData[3].jsonPrimitive.content),
                 location = stationData[4].jsonPrimitive.content,
                 longitude = stationData[5].jsonPrimitive.double,
                 latitude = stationData[6].jsonPrimitive.doubleOrNull ?: -1.0,
                 elevation = stationData[7].jsonPrimitive.doubleOrNull ?: -1.0
             )
         }
+    }
+    private fun parseLocalDateTime(dateTimeString: String): LocalDateTime {
+        val normalizedString = if (dateTimeString.endsWith("Z")) {
+            dateTimeString.removeSuffix("Z")
+        } else {
+            dateTimeString
+        }
+        return LocalDateTime.parse(normalizedString)
     }
 
     private fun deduplicateStations(stations: List<Station>): List<Station> {
@@ -64,26 +73,11 @@ object StationService {
             .filterNotNull()
     }
 
-    private fun saveStations(stations: List<Station>) {
-        transaction {
-            stations.forEach { station ->
-                StationTable.insert {
-                    it[stationId] = station.stationId
-                    it[code] = station.code
-                    it[startDate] = Timestamp.valueOf(station.startDate?.toLocalDateTime()).toLocalDateTime()
-                    it[endDate] = Timestamp.valueOf(station.endDate.toLocalDateTime()).toLocalDateTime()
-                    it[location] = station.location
-                    it[longitude] = station.longitude
-                    it[latitude] = station.latitude
-                    it[elevation] = station.elevation
-                }
-            }
-        }
-    }
+
 
     suspend fun processAndSaveStations() {
         val stations = downloadStations()
         val deduplicatedStations = deduplicateStations(stations)
-        saveStations(deduplicatedStations)
+        StationRepository.saveStations(deduplicatedStations)
     }
 }

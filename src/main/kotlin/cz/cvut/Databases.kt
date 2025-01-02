@@ -12,6 +12,7 @@ fun configureDatabases() {
         password = "temp_password"
     )
     transaction {
+        SchemaUtils.drop(StationTable)
         SchemaUtils.create(StationTable)
     }
 }

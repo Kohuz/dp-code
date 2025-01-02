@@ -3,6 +3,8 @@ package cz.cvut
 import com.ucasoft.ktor.simpleCache.SimpleCache
 import com.ucasoft.ktor.simpleCache.cacheOutput
 import com.ucasoft.ktor.simpleMemoryCache.*
+import cz.cvut.controller.stationRoutes
+import cz.cvut.service.StationService
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.resources.*
@@ -27,8 +29,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
 
-fun Application.configureRouting() {
-    install(Resources)
+fun Application.configureRouting(stationService: StationService) {
     install(RequestValidation) {
         validate<String> { bodyText ->
             if (!bodyText.startsWith("Hello"))
@@ -40,5 +41,7 @@ fun Application.configureRouting() {
         get("/") {
             call.respondText("Hello World!")
          }
+        stationRoutes(stationService)
+
     }
 }
