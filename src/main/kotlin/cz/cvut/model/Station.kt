@@ -20,8 +20,10 @@ data class Station(
         val location: String,
         val longitude: Double,
         val latitude: Double,
-        val elevation: Double
+        val elevation: Double,
+        val stationElements: List<StationElement> = emptyList() // Add relationship
 )
+
 
 object LocalDateTimeSerializer : KSerializer<LocalDateTime> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("LocalDateTime", PrimitiveKind.STRING)

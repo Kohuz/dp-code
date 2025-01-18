@@ -10,8 +10,8 @@ import io.ktor.client.plugins.contentnegotiation.*
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.*
 
-object StationService {
-    private const val API_URL = "https://opendata.chmi.cz/meteorology/climate/historical/metadata/meta1.json"
+class StationService {
+    private val API_URL = "https://opendata.chmi.cz/meteorology/climate/historical/metadata/meta1.json"
 
     private val jsonConfig = Json { ignoreUnknownKeys = true }
 
