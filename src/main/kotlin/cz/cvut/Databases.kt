@@ -1,5 +1,6 @@
 package cz.cvut
 
+import cz.cvut.database.StationElementTable
 import cz.cvut.database.table.StationTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -12,7 +13,7 @@ fun configureDatabases() {
         password = "temp_password"
     )
     transaction {
-        SchemaUtils.drop(StationTable)
-        SchemaUtils.create(StationTable)
+        SchemaUtils.drop(StationTable, StationElementTable)
+        SchemaUtils.create(StationTable, StationElementTable)
     }
 }
