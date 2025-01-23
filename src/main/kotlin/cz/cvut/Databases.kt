@@ -13,7 +13,8 @@ fun configureDatabases() {
         password = "temp_password"
     )
     transaction {
-        SchemaUtils.drop(StationTable, StationElementTable)
+        exec("DROP TABLE IF EXISTS station_element CASCADE")
+        exec("DROP TABLE IF EXISTS station CASCADE")
         SchemaUtils.create(StationTable, StationElementTable)
     }
 }

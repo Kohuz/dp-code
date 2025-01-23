@@ -4,14 +4,14 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class StationElement(
-    val observationType: String,
+data class Measurment(
     val stationId: String,
-    val beginDate: LocalDateTime,
+    val code: String,
+    val startDate: LocalDateTime?,
     val endDate: LocalDateTime,
-    val elementAbbreviation: String,
-    val elementName: String,
-    val unitDescription: String,
-    val height: Double,
-    val schedule: String
+    val location: String,
+    val longitude: Double,
+    val latitude: Double,
+    val elevation: Double,
+    val stationElements: List<StationElement> = emptyList()
 )

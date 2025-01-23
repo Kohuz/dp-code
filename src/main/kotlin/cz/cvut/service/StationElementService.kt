@@ -37,7 +37,7 @@ class StationElementService {
 
     private fun parseStationElements(json: String): List<StationElement> {
         val jsonObject = Json.parseToJsonElement(json).jsonObject
-        val valuesArray = jsonObject["data"]?.jsonObject?.get("values")?.jsonArray ?: return emptyList()
+        val valuesArray = jsonObject["data"]?.jsonObject?.get("data")?.jsonObject?.get("values")?.jsonArray ?: return emptyList()
 
         return valuesArray.map { recordArray ->
             val record = recordArray.jsonArray
@@ -49,7 +49,7 @@ class StationElementService {
                 elementAbbreviation = record[4].jsonPrimitive.content,
                 elementName = record[5].jsonPrimitive.content,
                 unitDescription = record[6].jsonPrimitive.content,
-                height = record[7].jsonPrimitive.double,
+                height = record[7].jsonPrimitive.doubleOrNull ?: -1.0,
                 schedule = record[8].jsonPrimitive.content
             )
         }
