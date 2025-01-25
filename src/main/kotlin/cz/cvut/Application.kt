@@ -1,5 +1,6 @@
 package cz.cvut
 
+import cz.cvut.service.MeasurementService
 import cz.cvut.service.StationElementService
 import cz.cvut.service.StationService
 import cz.cvut.service.di.serviceModule
@@ -29,11 +30,15 @@ fun Application.module() {
     configureRouting(get<StationService>())
     val stationService = get<StationService>()
     val stationElementService = get<StationElementService>()
+    val measurementService = get<MeasurementService>()
     runBlocking {
 
 
         stationService.processAndSaveStations()
-        stationElementService.processAndSaveStationElements()
+        //stationElementService.processAndSaveStationElements()
+        val stations = stationService.getAllStations()
+        val stationIds = stations.map { it.stationId }
+        measurementService.fetchAndSaveMeasurementsForMultipleStations(stationIds)
     }
 
 

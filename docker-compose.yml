@@ -1,15 +1,15 @@
 services:
-  postgres:
-    image: postgres:17
-    container_name: postgres-db
+  mongodb:
+    image: mongo:latest
+    container_name: mongo-db
     ports:
-      - "5432:5432"
+      - "27017:27017"
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: temp_password
-      POSTGRES_DB: dp
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: temp_password
+      MONGO_INITDB_DATABASE: mydatabase
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mongo_data:/data/db
 
 volumes:
-  postgres_data:
+  mongo_data:

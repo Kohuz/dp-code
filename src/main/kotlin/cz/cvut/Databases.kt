@@ -1,6 +1,7 @@
 package cz.cvut
 
 import cz.cvut.database.StationElementTable
+import cz.cvut.database.table.Measurement2Table
 import cz.cvut.database.table.StationTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -15,6 +16,7 @@ fun configureDatabases() {
     transaction {
         exec("DROP TABLE IF EXISTS station_element CASCADE")
         exec("DROP TABLE IF EXISTS station CASCADE")
-        SchemaUtils.create(StationTable, StationElementTable)
+        //SchemaUtils.drop(MeasurementTable)
+        SchemaUtils.create(StationTable, StationElementTable, Measurement2Table)
     }
 }

@@ -1,6 +1,5 @@
 package cz.cvut.utils
 
-import cz.cvut.model.Station
 import kotlinx.datetime.LocalDateTime
 
 object StationUtils {

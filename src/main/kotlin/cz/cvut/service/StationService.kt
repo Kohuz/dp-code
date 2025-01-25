@@ -1,7 +1,7 @@
 package cz.cvut.service
 
-import cz.cvut.model.Station
-import cz.cvut.repository.StationRepository
+import cz.cvut.model.Station.Station
+import cz.cvut.repository.Station.StationRepository
 import cz.cvut.utils.StationUtils.parseLocalDateTime
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -11,7 +11,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.*
 import kotlin.math.sqrt
 
-class StationService {
+class StationService(private val stationRepository: StationRepository) {
     private val API_URL = "https://opendata.chmi.cz/meteorology/climate/historical/metadata/meta1.json"
 
     private val jsonConfig = Json { ignoreUnknownKeys = true }
@@ -29,20 +29,20 @@ class StationService {
         return parseStations(rawData)
     }
 
-    fun getAllStations(): List<Station> {
-        return StationRepository.getStationsList()
+    fun getAllStations(filters: Map<String, List<String>> = emptyMap()): List<Station> {
+        return stationRepository.getStationsList()
     }
 
     fun getStationById(stationId: String): Station? {
-        return StationRepository.getStationById(stationId)
+        return stationRepository.getStationById(stationId)
     }
 
-    fun getClosestStation(latitude: Double, longitude: Double): Station? {
-        val stations = StationRepository.getStationsList()
+    fun getClosestStations(latitude: Double, longitude: Double, count: Int): List<Station> {
+        val stations = stationRepository.getStationsList()
 
-        return stations.minByOrNull { station ->
-            calculateApproximateDistance(latitude, longitude, station.latitude, station.longitude)
-        }
+        return stations.sortedBy {
+            calculateApproximateDistance(latitude, longitude, it.latitude, it.longitude)
+        }.take(count)
     }
 
     private fun parseStations(json: String): List<Station> {
@@ -76,7 +76,7 @@ class StationService {
     suspend fun processAndSaveStations() {
         val stations = downloadStations()
         val deduplicatedStations = deduplicateStations(stations)
-        StationRepository.saveStations(deduplicatedStations)
+        stationRepository.saveStations(deduplicatedStations)
     }
 
     // Approximate distance calculation using Pythagorean theorem (for short distances)

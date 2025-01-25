@@ -1,7 +1,7 @@
 package cz.cvut.service
 
-import cz.cvut.model.StationElement
-import cz.cvut.repository.StationElementRepository
+import cz.cvut.model.StationElement.StationElement
+import cz.cvut.repository.StationElement.StationElementRepository
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*

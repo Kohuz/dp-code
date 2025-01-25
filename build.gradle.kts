@@ -63,4 +63,5 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     implementation("io.insert-koin:koin-ktor:4.0.1")
+    implementation("org.litote.kmongo:kmongo-root:5.2.1")
 }

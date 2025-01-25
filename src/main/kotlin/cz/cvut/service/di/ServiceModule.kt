@@ -1,10 +1,16 @@
 package cz.cvut.service.di
 
+import cz.cvut.repository.Station.StationRepository
+import cz.cvut.repository.measurment.MeasurementRepository
+import cz.cvut.service.MeasurementService
 import cz.cvut.service.StationElementService
 import cz.cvut.service.StationService
 import org.koin.dsl.module
 
 val serviceModule = module {
-    single { StationService() }
     single { StationElementService() }
+    single { StationService(get()) }
+    single { StationRepository()}
+    single { MeasurementService(get()) }
+    single { MeasurementRepository() }
 }
