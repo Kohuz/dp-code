@@ -14,28 +14,25 @@ class MeasurementEntity(id: EntityID<Int>) : IntEntity(id) {
     var value by Measurement2Table.value
     var flag by Measurement2Table.flag
     var quality by Measurement2Table.quality
-    var schedule by Measurement2Table.schedule
 }
-fun MeasurementEntity.toMeasurement(): Measurement {
-    return Measurement(
-        stationId = this.stationId,
-        element = this.element,
-        dateTime = this.dateTime,
-        value = this.value,
-        flag = this.flag,
-        quality = this.quality,
-        schedule = this.schedule
-    )
-}
-
-fun Measurement.toMeasurementEntity(): MeasurementEntity {
-    return MeasurementEntity.new {
-        stationId = this@toMeasurementEntity.stationId
-        element = this@toMeasurementEntity.element
-        dateTime = this@toMeasurementEntity.dateTime
-        value = this@toMeasurementEntity.value
-        flag = this@toMeasurementEntity.flag
-        quality = this@toMeasurementEntity.quality
-        schedule = this@toMeasurementEntity.schedule
-    }
-}
+//fun MeasurementEntity.toMeasurement(): Measurement {
+//    return Measurement(
+//        stationId = this.stationId,
+//        element = this.element,
+//        dateTime = this.dateTime,
+//        value = this.value,
+//        flag = this.flag,
+//        quality = this.quality,
+//    )
+//}
+//
+//fun Measurement.toMeasurementEntity(): MeasurementEntity {
+//    return MeasurementEntity.new {
+//        stationId = this@toMeasurementEntity.stationId
+//        element = this@toMeasurementEntity.element
+//        dateTime = this@toMeasurementEntity.dateTime
+//        value = this@toMeasurementEntity.value
+//        flag = this@toMeasurementEntity.flag
+//        quality = this@toMeasurementEntity.quality
+//    }
+//}

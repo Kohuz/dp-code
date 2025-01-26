@@ -38,7 +38,9 @@ fun Application.module() {
         //stationElementService.processAndSaveStationElements()
         val stations = stationService.getAllStations()
         val stationIds = stations.map { it.stationId }
-        measurementService.fetchAndSaveMeasurementsForMultipleStations(stationIds)
+        stationIds.forEach {
+            measurementService.processJsonAndInsert(it, "C:\\Users\\Jakub\\Desktop\\DP\\DP\\test.csv")
+        }
     }
 
 
