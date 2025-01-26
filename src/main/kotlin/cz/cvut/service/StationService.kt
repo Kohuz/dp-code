@@ -1,7 +1,7 @@
 package cz.cvut.service
 
-import cz.cvut.model.Station.Station
-import cz.cvut.repository.Station.StationRepository
+import cz.cvut.model.station.Station
+import cz.cvut.repository.station.StationRepository
 import cz.cvut.utils.StationUtils.parseLocalDateTime
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*

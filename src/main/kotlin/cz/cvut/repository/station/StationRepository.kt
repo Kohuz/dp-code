@@ -1,11 +1,11 @@
-package cz.cvut.repository.Station
+package cz.cvut.repository.station
 
 import cz.cvut.database.table.StationTable
 
-import cz.cvut.model.Station.Station
-import cz.cvut.model.Station.StationEntity
-import cz.cvut.model.Station.toStation
-import cz.cvut.model.Station.toStationEntity
+import cz.cvut.model.station.Station
+import cz.cvut.model.station.StationEntity
+import cz.cvut.model.station.toStation
+import cz.cvut.model.station.toStationEntity
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class StationRepository {

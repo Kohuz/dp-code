@@ -1,7 +1,7 @@
-package cz.cvut.repository.StationElement
+package cz.cvut.repository.stationElement
 
 import cz.cvut.database.StationElementTable
-import cz.cvut.model.StationElement.StationElement
+import cz.cvut.model.stationElement.StationElement
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.transactions.transaction

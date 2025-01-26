@@ -42,5 +42,16 @@ fun Route.stationRoutes(stationService: StationService)  {
                 call.respond(stations)
             }
         }
+
+//        get("/records") {
+//            val stationId = call.parameters["id"] ?: return@get call.respondText(
+//                "Missing ID", status = HttpStatusCode.BadRequest
+//            )
+//            val station = stationService.getRecordsForStation(stationId)
+//                ?: return@get call.respondText(
+//                    "Station not found", status = HttpStatusCode.NotFound
+//                )
+//            call.respond(station)
+//        }
     }
 }

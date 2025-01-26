@@ -1,4 +1,4 @@
-package cz.cvut.model.StationElement
+package cz.cvut.model.stationElement
 
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable

@@ -64,4 +64,5 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     implementation("io.insert-koin:koin-ktor:4.0.1")
     implementation("org.litote.kmongo:kmongo-root:5.2.1")
+    implementation("org.postgresql:postgresql:42.5.0")
 }

@@ -1,4 +1,4 @@
-package cz.cvut.model.StationElement
+package cz.cvut.model.stationElement
 
 import cz.cvut.database.StationElementTable
 import org.jetbrains.exposed.dao.IntEntity

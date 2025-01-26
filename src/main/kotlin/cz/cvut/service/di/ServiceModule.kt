@@ -1,6 +1,6 @@
 package cz.cvut.service.di
 
-import cz.cvut.repository.Station.StationRepository
+import cz.cvut.repository.station.StationRepository
 import cz.cvut.repository.measurment.MeasurementRepository
 import cz.cvut.service.MeasurementService
 import cz.cvut.service.StationElementService

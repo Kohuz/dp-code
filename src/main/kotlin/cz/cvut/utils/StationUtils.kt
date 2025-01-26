@@ -1,6 +1,9 @@
 package cz.cvut.utils
 
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.format
+import java.time.format.DateTimeFormatter
 
 object StationUtils {
     fun parseLocalDateTime(dateTimeString: String): LocalDateTime {
@@ -11,6 +14,8 @@ object StationUtils {
         }
         return LocalDateTime.parse(normalizedString)
     }
+
+
 
 
 }

@@ -39,7 +39,7 @@ fun Application.module() {
         val stations = stationService.getAllStations()
         val stationIds = stations.map { it.stationId }
         stationIds.forEach {
-            measurementService.processJsonAndInsert(it, "C:\\Users\\Jakub\\Desktop\\DP\\DP\\test.csv")
+            measurementService.processJsonAndInsert(it, "./test.csv")
         }
     }
 

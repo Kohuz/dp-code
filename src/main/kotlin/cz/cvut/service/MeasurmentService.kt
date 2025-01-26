@@ -5,8 +5,9 @@ import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.*
-import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 
 class MeasurementService(private val repository: MeasurementRepository) {
@@ -26,52 +27,47 @@ class MeasurementService(private val repository: MeasurementRepository) {
             val jsonObject = Json.parseToJsonElement(rawData).jsonObject
 
 
-        val valuesArray = jsonObject["data"]
-            ?.jsonObject?.get("data")
-            ?.jsonObject?.get("values")
-            ?.jsonArray ?: error("Invalid JSON structure")
+            val valuesArray = jsonObject["data"]
+                ?.jsonObject?.get("data")
+                ?.jsonObject?.get("values")
+                ?.jsonArray ?: error("Invalid JSON structure")
 
-        val header = "STATION,ELEMENT,VTYPE,DT,VAL,FLAG,QUALITY\n"
+            val header = "STATION,ELEMENT,VTYPE,DT,VAL,FLAG,QUALITY\n"
 
-        val csvData = buildString {
-            append(header)
-            for (entry in valuesArray) {
-                val row = entry.jsonArray
-                val station = row[0].jsonPrimitive.content
-                val element = row[1].jsonPrimitive.content
-                val vtype = row[2].jsonPrimitive.content
-                val dt = row[3].jsonPrimitive.content
-                val valCol = row[4].jsonPrimitive.contentOrNull ?: ""
-                val flag = row[5].jsonPrimitive.contentOrNull ?: ""
-                val quality = row[6].jsonPrimitive.double
+            val csvData = buildString {
+                append(header)
+                for (entry in valuesArray) {
+                    val row = entry.jsonArray
+                    val station = row[0].jsonPrimitive.content
+                    val element = row[1].jsonPrimitive.content
+                    val vtype = row[2].jsonPrimitive.content
+                    val dt = row[3].jsonPrimitive.content
+                    val valCol = row[4].jsonPrimitive.contentOrNull ?: ""
+                    val flag = row[5].jsonPrimitive.contentOrNull ?: ""
+                    val quality = row[6].jsonPrimitive.double
 
-                append("$station,$element,$vtype,$dt,$valCol,$flag,$quality\n")
+                    append("$station,$element,$vtype,$dt,$valCol,$flag,$quality\n")
+                }
             }
-        }
 
-        File(csvFilePath).writeText(csvData)
 
-        transaction {
-            val sql = """
-            COPY measurement2 (station_id, element, vtype, date_time, value, flag, quality)
-            FROM '${csvFilePath}'
-            WITH (FORMAT csv, HEADER true, DELIMITER ',');
-        """.trimIndent()
-            exec(sql)
-        }
-        }
-        catch (e: Exception) {
+            File(csvFilePath).writeText(csvData)
+
+            repository.saveAllMeasurements(csvFilePath)
+        } catch (e: Exception) {
             println("Error fetching or saving measurements for station $stationId: ${e.message}")
         }
     }
 
-    private fun parseMeasurements(json: String): List<List<String>> {
-        val jsonObject = Json.parseToJsonElement(json).jsonObject
-        val values = jsonObject["data"]?.jsonObject
-            ?.get("data")?.jsonObject?.get("values")?.jsonArray ?: return emptyList()
+//    fun getMeasurements(stationId: String, dateFrom: String, dateTo: String, element: String) {
+//        repository.getMeasurementsByStationandDateandElement(stationId, dateFrom, dateTo, element)
+//    }
 
-        return values.map { array ->
-            array.jsonArray.map { it.jsonPrimitive.contentOrNull ?: "" }
-        }
+    fun getStatsLongTerm(date: String, stationId: String) {
+
+    }
+
+    fun getStats() {
+
     }
 }

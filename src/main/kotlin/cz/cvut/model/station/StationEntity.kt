@@ -1,9 +1,9 @@
-package cz.cvut.model.Station
+package cz.cvut.model.station
 
 import cz.cvut.database.StationElementTable
 import cz.cvut.database.table.StationTable
-import cz.cvut.model.StationElement.StationElementEntity
-import cz.cvut.model.StationElement.toStationElement
+import cz.cvut.model.stationElement.StationElementEntity
+import cz.cvut.model.stationElement.toStationElement
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
