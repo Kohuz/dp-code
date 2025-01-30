@@ -9,6 +9,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.*
 import java.io.File
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 class MeasurementService(private val repository: MeasurementRepository) {
     private val BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/daily/dly-"
@@ -59,15 +61,23 @@ class MeasurementService(private val repository: MeasurementRepository) {
         }
     }
 
-//    fun getMeasurements(stationId: String, dateFrom: String, dateTo: String, element: String) {
-//        repository.getMeasurementsByStationandDateandElement(stationId, dateFrom, dateTo, element)
-//    }
+    fun getMeasurements(stationId: String, dateFrom: String, dateTo: String, element: String) {
+
+        repository.getMeasurementsByStationandDateandElement(stationId, LocalDate.parse(dateFrom), LocalDate.parse(dateTo), element)
+    }
 
     fun getStatsLongTerm(date: String, stationId: String) {
+        val parsedDate = LocalDate.parse(date)
+        val temperatureStats = repository.getTemperatureStats(date, stationId)
+        val precipitationStats = repository.getPrecipitationStats(date, stationId)
+        val windStats = repository.getWindStats(date, stationId)
+        val snowStats = repository.getSnowStats(date, stationId)
 
     }
 
-    fun getStats() {
+    fun getStats(date: String, stationId: String) {
+
+        repository.getStats(LocalDate.parse(date), stationId)
 
     }
 }

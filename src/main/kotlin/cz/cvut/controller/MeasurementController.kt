@@ -28,14 +28,14 @@ fun Route.measuremenRoutes(measurmentService: MeasurementService) {
 //            call.respond(measurements)
 //        }
 
-//        get("statsDay/{id}") {
-//            val date = call.request.queryParameters["date"]?.toDoubleOrNull()
-//            val stationId = call.parameters["id"] ?: return@get call.respondText(
-//                "Missing ID", status = HttpStatusCode.BadRequest
-//            )
-//            val stats = measurmentService.getStats(date, stationId)
-//            call.respond(stats)
-//        }
+        get("statsDay/{id}") {
+            val date = call.request.queryParameters["date"]?.toDoubleOrNull()
+            val stationId = call.parameters["id"] ?: return@get call.respondText(
+                "Missing ID", status = HttpStatusCode.BadRequest
+            )
+            val stats = measurmentService.getStats(date, stationId)
+            call.respond(stats)
+        }
         get("statsDayLongTerm/{id}") {
             val date = call.request.queryParameters["date"]
             val stationId = call.parameters["id"] ?: return@get call.respondText(

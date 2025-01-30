@@ -16,6 +16,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class MeasurementRepository {
+    data class StationStat (val record: Double, val average: Double)
 
     fun saveAllMeasurements(csvFilePath: String) {
         transaction {
@@ -44,4 +45,20 @@ class MeasurementRepository {
                 .map { it.toMeasurement() }
         }
     }
+
+    fun getStats(date: LocalDate, stationId: String) {
+        return transaction {
+            MeasurementEntity
+        }
+    }
+
+    fun getTemperatureStats(date: String, stationId: String): StationStat {
+        val record =  transaction {
+
+        }
+        val average = transaction {
+
+        }
+    }
+
 }
