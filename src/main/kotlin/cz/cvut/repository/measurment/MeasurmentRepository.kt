@@ -1,17 +1,9 @@
 package cz.cvut.repository.measurment
 
-import cz.cvut.database.StationElementTable
-import cz.cvut.database.table.MeasurementTable
-import cz.cvut.model.measurment.Measurement
+import cz.cvut.database.table.DailyMeasurementTable
 import cz.cvut.model.measurment.MeasurementEntity
 import cz.cvut.model.measurment.toMeasurement
-import cz.cvut.model.stationElement.StationElement
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.greater
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -37,10 +29,10 @@ class MeasurementRepository {
         return transaction {
             MeasurementEntity
                     .find {
-                MeasurementTable.stationId eq stationId and
-                        (MeasurementTable.date greaterEq dateFrom) and
-                        (MeasurementTable.date lessEq dateTo) and
-                        (MeasurementTable.element eq element)
+                DailyMeasurementTable.stationId eq stationId and
+                        (DailyMeasurementTable.date greaterEq dateFrom) and
+                        (DailyMeasurementTable.date lessEq dateTo) and
+                        (DailyMeasurementTable.element eq element)
             }
                 .map { it.toMeasurement() }
         }
@@ -52,13 +44,13 @@ class MeasurementRepository {
         }
     }
 
-    fun getTemperatureStats(date: String, stationId: String): StationStat {
-        val record =  transaction {
-
-        }
-        val average = transaction {
-
-        }
-    }
+//    fun getTemperatureStats(date: String, stationId: String): StationStat {
+//        val record =  transaction {
+//
+//        }
+//        val average = transaction {
+//
+//        }
+//    }
 
 }

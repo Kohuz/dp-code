@@ -29,7 +29,9 @@ fun Route.measuremenRoutes(measurmentService: MeasurementService) {
 //        }
 
         get("statsDay/{id}") {
-            val date = call.request.queryParameters["date"]?.toDoubleOrNull()
+            val date = call.parameters["date"] ?: return@get call.respondText(
+                "Missing date", status = HttpStatusCode.BadRequest
+            )
             val stationId = call.parameters["id"] ?: return@get call.respondText(
                 "Missing ID", status = HttpStatusCode.BadRequest
             )

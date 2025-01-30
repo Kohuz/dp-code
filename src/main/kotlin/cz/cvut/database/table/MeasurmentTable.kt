@@ -2,9 +2,8 @@ package cz.cvut.database.table
 
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.kotlin.datetime.date
-import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
-object MeasurementTable : IntIdTable() {
+object DailyMeasurementTable : IntIdTable() {
     val stationId = varchar("station_id", 50)
     val element = varchar("element", 50)
     val date = date("date")

@@ -1,19 +1,19 @@
 package cz.cvut.model.measurment
 
-import cz.cvut.database.table.MeasurementTable
+import cz.cvut.database.table.DailyMeasurementTable
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 
 class MeasurementEntity(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<MeasurementEntity>(MeasurementTable)
+    companion object : IntEntityClass<MeasurementEntity>(DailyMeasurementTable)
 
-    var stationId by MeasurementTable.stationId
-    var element by MeasurementTable.element
-    var date by MeasurementTable.date
-    var value by MeasurementTable.value
-    var flag by MeasurementTable.flag
-    var quality by MeasurementTable.quality
+    var stationId by DailyMeasurementTable.stationId
+    var element by DailyMeasurementTable.element
+    var date by DailyMeasurementTable.date
+    var value by DailyMeasurementTable.value
+    var flag by DailyMeasurementTable.flag
+    var quality by DailyMeasurementTable.quality
 }
 fun MeasurementEntity.toMeasurement(): Measurement {
     return Measurement(
