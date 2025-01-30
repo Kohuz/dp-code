@@ -1,12 +1,8 @@
 package cz.cvut.database.table
 
-import cz.cvut.database.table.DailyMeasurementTable.double
-import cz.cvut.database.table.DailyMeasurementTable.nullable
-import cz.cvut.database.table.DailyMeasurementTable.varchar
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.kotlin.datetime.date
 
-object MonthlyMeasurementTable : IntIdTable() {
+object MeasurementMonthlyTable : IntIdTable() {
     val stationId = varchar("station_id", 50)
     val element = varchar("element", 10)
     val year = integer("year")

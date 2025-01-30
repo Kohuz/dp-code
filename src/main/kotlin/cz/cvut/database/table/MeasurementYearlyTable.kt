@@ -1,11 +1,8 @@
 package cz.cvut.database.table
 
-import cz.cvut.database.table.DailyMeasurementTable.double
-import cz.cvut.database.table.DailyMeasurementTable.nullable
-import cz.cvut.database.table.DailyMeasurementTable.varchar
 import org.jetbrains.exposed.dao.id.IntIdTable
 
-object YearlyMeasurementTable : IntIdTable() {
+object MeasurementYearlyTable : IntIdTable() {
     val stationId = varchar("station_id", 50)
     val observationType = varchar("observation_type", 10) // Matches "ELEMENT"
     val year = integer("year")

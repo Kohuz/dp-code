@@ -39,7 +39,7 @@ fun Application.module() {
         val stations = stationService.getAllStations()
         val stationIds = stations.map { it.stationId }
         stationIds.forEach {
-            measurementService.processHistoricalJsonAndInsert(it, "./test.csv")
+            measurementService.processHistoricalDailyJsonAndInsert(it, "./test.csv")
         }
     }
 

@@ -13,7 +13,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 class MeasurementService(private val repository: MeasurementRepository) {
-    private val HISTORICAL_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/daily/dly-"
     private val client = HttpClient {
         install(io.ktor.client.plugins.contentnegotiation.ContentNegotiation) {
             json()
@@ -21,7 +20,8 @@ class MeasurementService(private val repository: MeasurementRepository) {
     }
 
     suspend fun processHistoricalDailyJsonAndInsert(stationId: String, csvFilePath: String) {
-        val url = "$HISTORICAL_BASE_URL$stationId.json"
+        val HISTORICAL_DAILY_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/daily/dly-"
+        val url = "$HISTORICAL_DAILY_BASE_URL$stationId.json"
 
         try {
             val response: HttpResponse = client.get(url)
@@ -55,26 +55,26 @@ class MeasurementService(private val repository: MeasurementRepository) {
 
             File(csvFilePath).writeText(csvData)
 
-            repository.saveAllMeasurements(csvFilePath)
+            repository.saveHistoricalDaily(csvFilePath)
         } catch (e: Exception) {
             println("Error fetching or saving measurements for station $stationId: ${e.message}")
         }
     }
     suspend fun processHistoricalMonthlyJsonAndInsert(stationId: String, csvFilePath: String) {
-        val url = "$HISTORICAL_BASE_URL$stationId.json"
+        val HISTORICAL_MONTHLY_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/monthly/mly-"
+        val url = "$HISTORICAL_MONTHLY_BASE_URL$stationId.json"
 
         try {
             val response: HttpResponse = client.get(url)
             val rawData = response.bodyAsText()
             val jsonObject = Json.parseToJsonElement(rawData).jsonObject
 
-
             val valuesArray = jsonObject["data"]
                 ?.jsonObject?.get("data")
                 ?.jsonObject?.get("values")
                 ?.jsonArray ?: error("Invalid JSON structure")
 
-            val header = "STATION,ELEMENT,VTYPE,DT,VAL,FLAG,QUALITY\n"
+            val header = "STATION,ELEMENT,YEAR,MONTH,TIMEFUNCTION,MDFUNCTION,VALUE,FLAG_REPEAT,FLAG_INTERRUPTED\n"
 
             val csvData = buildString {
                 append(header)
@@ -82,39 +82,42 @@ class MeasurementService(private val repository: MeasurementRepository) {
                     val row = entry.jsonArray
                     val station = row[0].jsonPrimitive.content
                     val element = row[1].jsonPrimitive.content
-                    val vtype = row[2].jsonPrimitive.content
-                    val dt = row[3].jsonPrimitive.content
-                    val valCol = row[4].jsonPrimitive.contentOrNull ?: ""
-                    val flag = row[5].jsonPrimitive.contentOrNull ?: ""
-                    val quality = row[6].jsonPrimitive.double
+                    val year = row[2].jsonPrimitive.content
+                    val month = row[3].jsonPrimitive.content
+                    val timeFunction = row[4].jsonPrimitive.content
+                    val mdFunction = row[5].jsonPrimitive.content
+                    val value = row[6].jsonPrimitive.contentOrNull ?: ""
+                    val flagRepeat = row[7].jsonPrimitive.contentOrNull ?: ""
+                    val flagInterrupted = row[8].jsonPrimitive.contentOrNull ?: ""
 
-                    append("$station,$element,$vtype,$dt,$valCol,$flag,$quality\n")
+                    append("$station,$element,$year,$month,$timeFunction,$mdFunction,$value,$flagRepeat,$flagInterrupted\n")
                 }
             }
 
-
             File(csvFilePath).writeText(csvData)
 
-            repository.saveAllMeasurements(csvFilePath)
+            repository.saveHistoricalMonthly(csvFilePath)
         } catch (e: Exception) {
-            println("Error fetching or saving measurements for station $stationId: ${e.message}")
+            println("Error fetching or saving monthly measurements for station $stationId: ${e.message}")
         }
     }
+
     suspend fun processHistoricalYearlyJsonAndInsert(stationId: String, csvFilePath: String) {
-        val url = "$HISTORICAL_BASE_URL$stationId.json"
+        val HISTORICAL_YEARLY_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/yearly/roky-"
+
+        val url = "$HISTORICAL_YEARLY_BASE_URL$stationId.json"
 
         try {
             val response: HttpResponse = client.get(url)
             val rawData = response.bodyAsText()
             val jsonObject = Json.parseToJsonElement(rawData).jsonObject
 
-
             val valuesArray = jsonObject["data"]
                 ?.jsonObject?.get("data")
                 ?.jsonObject?.get("values")
                 ?.jsonArray ?: error("Invalid JSON structure")
 
-            val header = "STATION,ELEMENT,VTYPE,DT,VAL,FLAG,QUALITY\n"
+            val header = "STATION,ELEMENT,YEAR,TIMEFUNCTION,MDFUNCTION,VALUE,FLAG_REPEAT,FLAG_INTERRUPTED\n"
 
             val csvData = buildString {
                 append(header)
@@ -122,65 +125,66 @@ class MeasurementService(private val repository: MeasurementRepository) {
                     val row = entry.jsonArray
                     val station = row[0].jsonPrimitive.content
                     val element = row[1].jsonPrimitive.content
-                    val vtype = row[2].jsonPrimitive.content
-                    val dt = row[3].jsonPrimitive.content
-                    val valCol = row[4].jsonPrimitive.contentOrNull ?: ""
-                    val flag = row[5].jsonPrimitive.contentOrNull ?: ""
-                    val quality = row[6].jsonPrimitive.double
+                    val year = row[2].jsonPrimitive.content
+                    val timeFunction = row[3].jsonPrimitive.content
+                    val mdFunction = row[4].jsonPrimitive.content
+                    val value = row[5].jsonPrimitive.contentOrNull ?: ""
+                    val flagRepeat = row[6].jsonPrimitive.contentOrNull ?: ""
+                    val flagInterrupted = row[7].jsonPrimitive.contentOrNull ?: ""
 
-                    append("$station,$element,$vtype,$dt,$valCol,$flag,$quality\n")
+                    append("$station,$element,$year,$timeFunction,$mdFunction,$value,$flagRepeat,$flagInterrupted\n")
                 }
             }
 
-
             File(csvFilePath).writeText(csvData)
 
-            repository.saveAllMeasurements(csvFilePath)
+            repository.saveHistoricalYearly(csvFilePath)
         } catch (e: Exception) {
-            println("Error fetching or saving measurements for station $stationId: ${e.message}")
+            println("Error fetching or saving yearly measurements for station $stationId: ${e.message}")
         }
     }
 
-    suspend fun processRecentDailyJsonAndInsert(stationId: String, csvFilePath: String) {
-        val url = "$HISTORICAL_BASE_URL$stationId.json"
 
-        try {
-            val response: HttpResponse = client.get(url)
-            val rawData = response.bodyAsText()
-            val jsonObject = Json.parseToJsonElement(rawData).jsonObject
-
-
-            val valuesArray = jsonObject["data"]
-                ?.jsonObject?.get("data")
-                ?.jsonObject?.get("values")
-                ?.jsonArray ?: error("Invalid JSON structure")
-
-            val header = "STATION,ELEMENT,VTYPE,DT,VAL,FLAG,QUALITY\n"
-
-            val csvData = buildString {
-                append(header)
-                for (entry in valuesArray) {
-                    val row = entry.jsonArray
-                    val station = row[0].jsonPrimitive.content
-                    val element = row[1].jsonPrimitive.content
-                    val vtype = row[2].jsonPrimitive.content
-                    val dt = row[3].jsonPrimitive.content
-                    val valCol = row[4].jsonPrimitive.contentOrNull ?: ""
-                    val flag = row[5].jsonPrimitive.contentOrNull ?: ""
-                    val quality = row[6].jsonPrimitive.double
-
-                    append("$station,$element,$vtype,$dt,$valCol,$flag,$quality\n")
-                }
-            }
-
-
-            File(csvFilePath).writeText(csvData)
-
-            repository.saveAllMeasurements(csvFilePath)
-        } catch (e: Exception) {
-            println("Error fetching or saving measurements for station $stationId: ${e.message}")
-        }
-    }
+//    suspend fun processRecentDailyJsonAndInsert(stationId: String, csvFilePath: String) {
+//        val url = ""
+//
+//        try {
+//            val response: HttpResponse = client.get(url)
+//            val rawData = response.bodyAsText()
+//            val jsonObject = Json.parseToJsonElement(rawData).jsonObject
+//
+//
+//            val valuesArray = jsonObject["data"]
+//                ?.jsonObject?.get("data")
+//                ?.jsonObject?.get("values")
+//                ?.jsonArray ?: error("Invalid JSON structure")
+//
+//            val header = "STATION,ELEMENT,VTYPE,DT,VAL,FLAG,QUALITY\n"
+//
+//            val csvData = buildString {
+//                append(header)
+//                for (entry in valuesArray) {
+//                    val row = entry.jsonArray
+//                    val station = row[0].jsonPrimitive.content
+//                    val element = row[1].jsonPrimitive.content
+//                    val vtype = row[2].jsonPrimitive.content
+//                    val dt = row[3].jsonPrimitive.content
+//                    val valCol = row[4].jsonPrimitive.contentOrNull ?: ""
+//                    val flag = row[5].jsonPrimitive.contentOrNull ?: ""
+//                    val quality = row[6].jsonPrimitive.double
+//
+//                    append("$station,$element,$vtype,$dt,$valCol,$flag,$quality\n")
+//                }
+//            }
+//
+//
+//            File(csvFilePath).writeText(csvData)
+//
+//            repository.saveAllMeasurements(csvFilePath)
+//        } catch (e: Exception) {
+//            println("Error fetching or saving measurements for station $stationId: ${e.message}")
+//        }
+//    }
 
 
     fun getMeasurements(stationId: String, dateFrom: String, dateTo: String, element: String) {

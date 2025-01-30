@@ -1,8 +1,7 @@
 package cz.cvut
 
 import cz.cvut.database.StationElementTable
-import cz.cvut.database.table.DailyMeasurementTable
-import cz.cvut.database.table.StationTable
+import cz.cvut.database.table.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -20,10 +19,13 @@ fun configureDatabases() {
         password = "temp_password"
     )
     transaction {
-        exec("DROP TABLE IF EXISTS station_element CASCADE")
-        exec("DROP TABLE IF EXISTS station CASCADE")
-        exec("DROP TABLE IF EXISTS measurement CASCADE")
+//        exec("DROP TABLE IF EXISTS station_element CASCADE")
+//        exec("DROP TABLE IF EXISTS station CASCADE")
+//        exec("DROP TABLE IF EXISTS measurement_daily CASCADE")
+//        exec("DROP TABLE IF EXISTS measurement_monthly CASCADE")
+//        exec("DROP TABLE IF EXISTS measurement_yearly CASCADE")
+
         //SchemaUtils.drop(MeasurementTable)
-        SchemaUtils.create(StationTable, StationElementTable, DailyMeasurementTable)
+        SchemaUtils.create(StationTable, StationElementTable, MeasurementDailyTable, MeasurementMonthlyTable, MeasurementYearlyTable )
     }
 }
