@@ -39,7 +39,10 @@ fun Application.module() {
         val stations = stationService.getAllStations()
         val stationIds = stations.map { it.stationId }
         stationIds.forEach {
-            measurementService.processHistoricalDailyJsonAndInsert(it)
+            //measurementService.processHistoricalDailyJsonAndInsert(it)
+            //measurementService.processHistoricalMonthlyJsonAndInsert(it)
+            //measurementService.processHistoricalYearlyJsonAndInsert(it)
+            measurementService.processLatestJsonAndInsert(it)
         }
     }
 

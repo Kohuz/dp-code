@@ -21,11 +21,12 @@ fun configureDatabases() {
     transaction {
         exec("DROP TABLE IF EXISTS station_element CASCADE")
         exec("DROP TABLE IF EXISTS station CASCADE")
-        exec("DROP TABLE IF EXISTS measurement_daily CASCADE")
-        exec("DROP TABLE IF EXISTS measurement_monthly CASCADE")
-        exec("DROP TABLE IF EXISTS measurement_yearly CASCADE")
+        exec("DROP TABLE IF EXISTS measurementdaily CASCADE")
+        exec("DROP TABLE IF EXISTS measurementmonthly CASCADE")
+        exec("DROP TABLE IF EXISTS measurementyearly CASCADE")
+
 
         //SchemaUtils.drop(MeasurementTable)
-        SchemaUtils.create(StationTable, StationElementTable, MeasurementDailyTable, MeasurementMonthlyTable, MeasurementYearlyTable )
+        SchemaUtils.create(StationTable, StationElementTable, MeasurementDailyTable, MeasurementMonthlyTable, MeasurementYearlyTable, MeasurementLatest)
     }
 }

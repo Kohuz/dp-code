@@ -6,40 +6,59 @@ import cz.cvut.model.measurment.toMeasurement
 import kotlinx.datetime.LocalDate
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.postgresql.copy.CopyManager
+import org.postgresql.core.BaseConnection
+import java.io.StringReader
 
 class MeasurementRepository {
     data class StationStat (val record: Double, val average: Double)
 
-    fun saveHistoricalDaily(csvFilePath: String) {
+    fun saveHistoricalDaily(csvData: String) {
         transaction {
-            val sql = """
-            COPY measurementdaily (station_id, element, vtype, date, value, flag, quality)
-            FROM '$csvFilePath'
-            WITH (FORMAT csv, HEADER true, DELIMITER ',');
-        """.trimIndent()
-            exec(sql)
-        }
+            val connection = this.connection.connection as BaseConnection
+            val copyManager = CopyManager(connection)
+            val sql = "COPY measurementdaily (station_id, element, vtype, date, value, flag, quality) FROM STDIN WITH (FORMAT csv, HEADER true, DELIMITER ',')"
 
-    }
-    fun saveHistoricalMonthly(csvFilePath: String) {
-        transaction {
-            val sql = """
-        COPY measurementmonthly (station_id, element, year, month, time_function, md_function, value, flag_repeat, flag_interrupted)
-        FROM '$csvFilePath'
-        WITH (FORMAT csv, HEADER true, DELIMITER ',');
-        """.trimIndent()
-            exec(sql)
+            copyManager.copyIn(sql, StringReader(csvData))
         }
     }
 
-    fun saveHistoricalYearly(csvFilePath: String) {
+    fun saveHistoricalMonthly(csvData: String) {
         transaction {
+            val connection = this.connection.connection as BaseConnection
+            val copyManager = CopyManager(connection)
             val sql = """
-        COPY measurementyearly (station_id, element, year, time_function, md_function, value, flag_repeat, flag_interrupted)
-        FROM '$csvFilePath'
-        WITH (FORMAT csv, HEADER true, DELIMITER ',');
-        """.trimIndent()
-            exec(sql)
+                COPY measurementmonthly (station_id, element, year, month, time_function, md_function, value, flag_repeat, flag_interrupted)
+                FROM STDIN WITH (FORMAT csv, HEADER true, DELIMITER ',')
+            """.trimIndent()
+
+            copyManager.copyIn(sql, StringReader(csvData))
+        }
+    }
+
+    fun saveHistoricalYearly(csvData: String) {
+        transaction {
+            val connection = this.connection.connection as BaseConnection
+            val copyManager = CopyManager(connection)
+            val sql = """
+                COPY measurementyearly (station_id, element, year, time_function, md_function, value, flag_repeat, flag_interrupted)
+                FROM STDIN WITH (FORMAT csv, HEADER true, DELIMITER ',')
+            """.trimIndent()
+
+            copyManager.copyIn(sql, StringReader(csvData))
+        }
+    }
+
+    fun saveLatestMeasurements(csvData: String) {
+        transaction {
+            val connection = this.connection.connection as BaseConnection
+            val copyManager = CopyManager(connection)
+            val sql = """
+                COPY measurementlatest (station_id, element, vtype, timestamp, value, flag, quality)
+                FROM STDIN WITH (FORMAT csv, HEADER true, DELIMITER ',')
+            """.trimIndent()
+
+            copyManager.copyIn(sql, StringReader(csvData))
         }
     }
 

@@ -53,20 +53,15 @@ class MeasurementService(private val repository: MeasurementRepository) {
                 }
             }
 
-            transaction {
-                val connection = this.connection.connection as BaseConnection // Get the raw PostgreSQL connection
-                val copyManager = CopyManager(connection)
-                val sql = "COPY measurementdaily (station_id, element, vtype, date, value, flag, quality) FROM STDIN WITH (FORMAT csv, HEADER true, DELIMITER ',')"
+            repository.saveHistoricalDaily(csvData)
 
-                copyManager.copyIn(sql, StringReader(csvData)) // Send the CSV data directly
-            }
 
         } catch (e: Exception) {
             println("Error fetching or saving measurements for station $stationId: ${e.message}")
         }
     }
 
-    suspend fun processHistoricalMonthlyJsonAndInsert(stationId: String, csvFilePath: String) {
+    suspend fun processHistoricalMonthlyJsonAndInsert(stationId: String) {
         val HISTORICAL_MONTHLY_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/monthly/mly-"
         val url = "$HISTORICAL_MONTHLY_BASE_URL$stationId.json"
 
@@ -80,10 +75,8 @@ class MeasurementService(private val repository: MeasurementRepository) {
                 ?.jsonObject?.get("values")
                 ?.jsonArray ?: error("Invalid JSON structure")
 
-            val header = "STATION,ELEMENT,YEAR,MONTH,TIMEFUNCTION,MDFUNCTION,VALUE,FLAG_REPEAT,FLAG_INTERRUPTED\n"
-
             val csvData = buildString {
-                append(header)
+                append("station_id,element,year,month,time_function,md_function,value,flag_repeat,flag_interrupted\n")
                 for (entry in valuesArray) {
                     val row = entry.jsonArray
                     val station = row[0].jsonPrimitive.content
@@ -100,17 +93,15 @@ class MeasurementService(private val repository: MeasurementRepository) {
                 }
             }
 
-            File(csvFilePath).writeText(csvData)
+            repository.saveHistoricalMonthly(csvData)
 
-            repository.saveHistoricalMonthly(csvFilePath)
         } catch (e: Exception) {
             println("Error fetching or saving monthly measurements for station $stationId: ${e.message}")
         }
     }
 
-    suspend fun processHistoricalYearlyJsonAndInsert(stationId: String, csvFilePath: String) {
-        val HISTORICAL_YEARLY_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/yearly/roky-"
-
+    suspend fun processHistoricalYearlyJsonAndInsert(stationId: String) {
+        val HISTORICAL_YEARLY_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/yearly/yrs-"
         val url = "$HISTORICAL_YEARLY_BASE_URL$stationId.json"
 
         try {
@@ -123,10 +114,8 @@ class MeasurementService(private val repository: MeasurementRepository) {
                 ?.jsonObject?.get("values")
                 ?.jsonArray ?: error("Invalid JSON structure")
 
-            val header = "STATION,ELEMENT,YEAR,TIMEFUNCTION,MDFUNCTION,VALUE,FLAG_REPEAT,FLAG_INTERRUPTED\n"
-
             val csvData = buildString {
-                append(header)
+                append("station_id,element,year,time_function,md_function,value,flag_repeat,flag_interrupted\n")
                 for (entry in valuesArray) {
                     val row = entry.jsonArray
                     val station = row[0].jsonPrimitive.content
@@ -142,13 +131,13 @@ class MeasurementService(private val repository: MeasurementRepository) {
                 }
             }
 
-            File(csvFilePath).writeText(csvData)
+            repository.saveHistoricalYearly(csvData)
 
-            repository.saveHistoricalYearly(csvFilePath)
         } catch (e: Exception) {
             println("Error fetching or saving yearly measurements for station $stationId: ${e.message}")
         }
     }
+
 
 
 //    suspend fun processRecentDailyJsonAndInsert(stationId: String, csvFilePath: String) {
@@ -191,6 +180,60 @@ class MeasurementService(private val repository: MeasurementRepository) {
 //            println("Error fetching or saving measurements for station $stationId: ${e.message}")
 //        }
 //    }
+
+
+    suspend fun processLatestJsonAndInsert(stationId: String) {
+        val BASE_URL = "https://opendata.chmi.cz/meteorology/climate/now/data/"
+
+        try {
+            val latestFileName = getAllFilesForStation(BASE_URL, stationId)
+            val url = "$BASE_URL$latestFileName"
+
+            val response: HttpResponse = client.get(url)
+            val rawData = response.bodyAsText()
+            val jsonObject = Json.parseToJsonElement(rawData).jsonObject
+
+            val valuesArray = jsonObject["data"]
+                ?.jsonObject?.get("data")
+                ?.jsonObject?.get("values")
+                ?.jsonArray ?: error("Invalid JSON structure")
+
+            val csvData = buildString {
+                append("station_id,element,vtype,timestamp,value,flag,quality\n")
+                for (entry in valuesArray) {
+                    val row = entry.jsonArray
+                    val station = row[0].jsonPrimitive.content
+                    val element = row[1].jsonPrimitive.content
+                    val vtype = row[2].jsonPrimitive.content
+                    val timestamp = row[3].jsonPrimitive.content
+                    val value = row[4].jsonPrimitive.contentOrNull ?: ""
+                    val flag = row[5].jsonPrimitive.contentOrNull ?: ""
+                    val quality = row[6].jsonPrimitive.doubleOrNull ?: 0.0
+
+                    append("$station,$element,$vtype,$timestamp,$value,$flag,$quality\n")
+                }
+            }
+
+            repository.saveLatestMeasurements(csvData)
+
+        } catch (e: Exception) {
+            println("Error fetching or saving latest measurements for station $stationId: ${e.message}")
+        }
+    }
+
+    suspend fun getAllFilesForStation(baseUrl: String, stationId: String): List<String> {
+        return try {
+            val response: HttpResponse = client.get(baseUrl)
+            val htmlContent = response.bodyAsText()
+
+            val regex = Regex("""10m-0-20000-0-$stationId-\d{8}\.json""")
+            regex.findAll(htmlContent).map { it.value }.toList()
+        } catch (e: Exception) {
+            println("Error fetching file list for station $stationId: ${e.message}")
+            emptyList()
+        }
+    }
+
 
 
     fun getMeasurements(stationId: String, dateFrom: String, dateTo: String, element: String) {
