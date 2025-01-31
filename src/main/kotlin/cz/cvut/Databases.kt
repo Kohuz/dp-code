@@ -7,17 +7,17 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun configureDatabases() {
-//    Database.connect(
-//        "jdbc:postgresql://localhost:5433/dp",
-//        user = "postgres",
-//        password = "123456"
-//    )
-
     Database.connect(
         "jdbc:postgresql://localhost:5432/dp",
-        user = "root",
-        password = "temp_password"
+        user = "postgres",
+        password = "123456"
     )
+
+//    Database.connect(
+//        "jdbc:postgresql://localhost:5432/dp",
+//        user = "root",
+//        password = "temp_password"
+//    )
     transaction {
         exec("DROP TABLE IF EXISTS station_element CASCADE")
         exec("DROP TABLE IF EXISTS station CASCADE")

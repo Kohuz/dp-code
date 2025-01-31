@@ -8,7 +8,11 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.*
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.postgresql.copy.CopyManager
+import org.postgresql.core.BaseConnection
 import java.io.File
+import java.io.StringReader
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
@@ -19,7 +23,7 @@ class MeasurementService(private val repository: MeasurementRepository) {
         }
     }
 
-    suspend fun processHistoricalDailyJsonAndInsert(stationId: String, csvFilePath: String) {
+    suspend fun processHistoricalDailyJsonAndInsert(stationId: String) {
         val HISTORICAL_DAILY_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/daily/dly-"
         val url = "$HISTORICAL_DAILY_BASE_URL$stationId.json"
 
@@ -28,16 +32,13 @@ class MeasurementService(private val repository: MeasurementRepository) {
             val rawData = response.bodyAsText()
             val jsonObject = Json.parseToJsonElement(rawData).jsonObject
 
-
             val valuesArray = jsonObject["data"]
                 ?.jsonObject?.get("data")
                 ?.jsonObject?.get("values")
                 ?.jsonArray ?: error("Invalid JSON structure")
 
-            val header = "STATION,ELEMENT,VTYPE,DT,VAL,FLAG,QUALITY\n"
-
             val csvData = buildString {
-                append(header)
+                append("station_id,element,vtype,date,value,flag,quality\n") // Ensure column names match the table
                 for (entry in valuesArray) {
                     val row = entry.jsonArray
                     val station = row[0].jsonPrimitive.content
@@ -46,20 +47,25 @@ class MeasurementService(private val repository: MeasurementRepository) {
                     val dt = row[3].jsonPrimitive.content
                     val valCol = row[4].jsonPrimitive.contentOrNull ?: ""
                     val flag = row[5].jsonPrimitive.contentOrNull ?: ""
-                    val quality = row[6].jsonPrimitive.double
+                    val quality = row[6].jsonPrimitive.doubleOrNull ?: 0.0
 
                     append("$station,$element,$vtype,$dt,$valCol,$flag,$quality\n")
                 }
             }
 
+            transaction {
+                val connection = this.connection.connection as BaseConnection // Get the raw PostgreSQL connection
+                val copyManager = CopyManager(connection)
+                val sql = "COPY measurementdaily (station_id, element, vtype, date, value, flag, quality) FROM STDIN WITH (FORMAT csv, HEADER true, DELIMITER ',')"
 
-            File(csvFilePath).writeText(csvData)
+                copyManager.copyIn(sql, StringReader(csvData)) // Send the CSV data directly
+            }
 
-            repository.saveHistoricalDaily(csvFilePath)
         } catch (e: Exception) {
             println("Error fetching or saving measurements for station $stationId: ${e.message}")
         }
     }
+
     suspend fun processHistoricalMonthlyJsonAndInsert(stationId: String, csvFilePath: String) {
         val HISTORICAL_MONTHLY_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/monthly/mly-"
         val url = "$HISTORICAL_MONTHLY_BASE_URL$stationId.json"

@@ -13,8 +13,8 @@ class MeasurementRepository {
     fun saveHistoricalDaily(csvFilePath: String) {
         transaction {
             val sql = """
-            COPY measurement_daily (station_id, element, vtype, date, value, flag, quality)
-            FROM '/data/test2.csv'
+            COPY measurementdaily (station_id, element, vtype, date, value, flag, quality)
+            FROM '$csvFilePath'
             WITH (FORMAT csv, HEADER true, DELIMITER ',');
         """.trimIndent()
             exec(sql)
@@ -24,7 +24,7 @@ class MeasurementRepository {
     fun saveHistoricalMonthly(csvFilePath: String) {
         transaction {
             val sql = """
-        COPY measurement_monthly (station_id, element, year, month, time_function, md_function, value, flag_repeat, flag_interrupted)
+        COPY measurementmonthly (station_id, element, year, month, time_function, md_function, value, flag_repeat, flag_interrupted)
         FROM '$csvFilePath'
         WITH (FORMAT csv, HEADER true, DELIMITER ',');
         """.trimIndent()
@@ -35,7 +35,7 @@ class MeasurementRepository {
     fun saveHistoricalYearly(csvFilePath: String) {
         transaction {
             val sql = """
-        COPY measurement_yearly (station_id, element, year, time_function, md_function, value, flag_repeat, flag_interrupted)
+        COPY measurementyearly (station_id, element, year, time_function, md_function, value, flag_repeat, flag_interrupted)
         FROM '$csvFilePath'
         WITH (FORMAT csv, HEADER true, DELIMITER ',');
         """.trimIndent()
