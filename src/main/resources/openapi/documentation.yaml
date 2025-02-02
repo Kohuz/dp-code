@@ -1,14 +1,14 @@
-openapi: "3.0.3"
+openapi: "3.1.0"
 info:
-  title: "Application API"
-  description: "Application API"
+  title: "DP API"
+  description: "DP API"
   version: "1.0.0"
 servers:
-  - url: "http://0.0.0.0:8080"
+- url: "http://localhost:8081"
 paths:
   /:
     get:
-      description: "Hello World!"
+      description: ""
       responses:
         "200":
           description: "OK"
@@ -19,5 +19,168 @@ paths:
               examples:
                 Example#1:
                   value: "Hello World!"
+  /stations:
+    get:
+      description: ""
+      parameters:
+      - name: "filters"
+        in: "query"
+        required: false
+        schema:
+          type: "object"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Station"
+  /stations/{id}:
+    get:
+      description: ""
+      parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "404":
+          description: "Not Found"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Station not found"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Station"
+  /stations/closest:
+    get:
+      description: ""
+      parameters:
+      - name: "lat"
+        in: "query"
+        required: true
+        schema:
+          type: "number"
+      - name: "long"
+        in: "query"
+        required: true
+        schema:
+          type: "number"
+      - name: "count"
+        in: "query"
+        required: false
+        schema:
+          type: "integer"
+      responses:
+        "404":
+          description: "Not Found"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "No stations found"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Station"
+  /json/kotlinx-serialization:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Map_String"
 components:
-  schemas: { }
+  schemas:
+    LocalDateTime:
+      type: "object"
+      properties: {}
+    StationElement:
+      type: "object"
+      properties:
+        stationId:
+          type: "string"
+        observationType:
+          type: "string"
+        beginDate:
+          $ref: "#/components/schemas/LocalDateTime"
+        endDate:
+          $ref: "#/components/schemas/LocalDateTime"
+        elementAbbreviation:
+          type: "string"
+        elementName:
+          type: "string"
+        unitDescription:
+          type: "string"
+        height:
+          type: "number"
+          format: "double"
+        schedule:
+          type: "string"
+      required:
+      - "stationId"
+      - "observationType"
+      - "endDate"
+      - "elementAbbreviation"
+      - "elementName"
+      - "unitDescription"
+      - "schedule"
+    Station:
+      type: "object"
+      properties:
+        stationId:
+          type: "string"
+        code:
+          type: "string"
+        startDate:
+          $ref: "#/components/schemas/LocalDateTime"
+        endDate:
+          $ref: "#/components/schemas/LocalDateTime"
+        location:
+          type: "string"
+        longitude:
+          type: "number"
+          format: "double"
+        latitude:
+          type: "number"
+          format: "double"
+        elevation:
+          type: "number"
+          format: "double"
+        stationElements:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/StationElement"
+      required:
+      - "stationId"
+      - "code"
+      - "endDate"
+      - "location"
+      - "longitude"
+      - "latitude"
+      - "elevation"
+      - "stationElements"
+    Map:
+      type: "object"
+      properties: {}
+    Map_String:
+      type: "string"

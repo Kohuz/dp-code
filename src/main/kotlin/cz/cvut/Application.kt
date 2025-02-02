@@ -7,6 +7,7 @@ import cz.cvut.service.di.serviceModule
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.resources.*
 import kotlinx.coroutines.runBlocking
 import org.koin.ktor.ext.get
 import org.koin.ktor.plugin.Koin
@@ -24,6 +25,7 @@ fun Application.module() {
         json()
     }
 
+    install(Resources)
     configureHTTP()
     configureSerialization()
     configureDatabases()
@@ -32,8 +34,6 @@ fun Application.module() {
     val stationElementService = get<StationElementService>()
     val measurementService = get<MeasurementService>()
     runBlocking {
-
-
         //stationService.processAndSaveStations()
         //stationElementService.processAndSaveStationElements()
         val stations = stationService.getAllStations()
@@ -42,10 +42,11 @@ fun Application.module() {
 //            measurementService.processHistoricalDailyJsonAndInsert(it)
 //            measurementService.processHistoricalMonthlyJsonAndInsert(it)
 //            measurementService.processHistoricalYearlyJsonAndInsert(it)
-            //measurementService.processStationFiles()
-
+            //
+           // measurementService.processRecentDailyJsonAndInsert(it)
             //measurementService.processLatestJsonAndInsert(1, it)
         }
+       // measurementService.processStationFiles()
 
     }
 

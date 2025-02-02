@@ -29,8 +29,8 @@ class StationService(private val stationRepository: StationRepository) {
         return parseStations(rawData)
     }
 
-    fun getAllStations(filters: Map<String, List<String>> = emptyMap()): List<Station> {
-        return stationRepository.getStationsList()
+    fun getAllStations(filters: Map<String, String> = emptyMap()): List<Station> {
+        return stationRepository.getStationsFiltered(filters)
     }
 
     fun getStationById(stationId: String): Station? {
@@ -38,8 +38,7 @@ class StationService(private val stationRepository: StationRepository) {
     }
 
     fun getClosestStations(latitude: Double, longitude: Double, count: Int): List<Station> {
-        val stations = stationRepository.getStationsList()
-
+        val stations = stationRepository.getStationsList();
         return stations.sortedBy {
             calculateApproximateDistance(latitude, longitude, it.latitude, it.longitude)
         }.take(count)

@@ -12,6 +12,7 @@ import io.ktor.server.plugins.cachingheaders.*
 import io.ktor.server.plugins.compression.*
 import io.ktor.server.plugins.conditionalheaders.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.plugins.requestvalidation.RequestValidation
 import io.ktor.server.plugins.requestvalidation.ValidationResult
@@ -46,8 +47,13 @@ fun Application.configureHTTP() {
             invalidateAt = 10.seconds
         }
     }
+
+    install(CORS) {
+        anyHost()
+        allowHeader(HttpHeaders.ContentType)
+    }
     routing {
-        swaggerUI(path = "openapi")
+        swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
     }
     routing {
         cacheOutput(2.seconds) {

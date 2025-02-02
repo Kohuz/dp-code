@@ -13,6 +13,7 @@ import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
 import java.io.File
 import java.io.StringReader
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
@@ -141,7 +142,6 @@ class MeasurementService(private val repository: MeasurementRepository) {
 
     suspend fun processRecentDailyJsonAndInsert(stationId: String) {
         val BASE_URL_RECENT = "https://opendata.chmi.cz/meteorology/climate/recent/data/daily/"
-        val client = HttpClient(CIO)
 
         val now = YearMonth.now()
         val lastYear = now.year - 1

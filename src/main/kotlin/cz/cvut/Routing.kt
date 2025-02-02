@@ -30,13 +30,6 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
 
 fun Application.configureRouting(stationService: StationService) {
-    install(RequestValidation) {
-        validate<String> { bodyText ->
-            if (!bodyText.startsWith("Hello"))
-                ValidationResult.Invalid("Body text should start with 'Hello'")
-            else ValidationResult.Valid
-        }
-    }
     routing {
         get("/") {
             call.respondText("Hello World!")
