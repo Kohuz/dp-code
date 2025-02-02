@@ -27,6 +27,7 @@ fun configureDatabases() {
 
 
         //SchemaUtils.drop(MeasurementTable)
+        SchemaUtils.create(ElementCodelistTable)
         //SchemaUtils.create(StationTable, StationElementTable, MeasurementDailyTable, MeasurementMonthlyTable, MeasurementYearlyTable, MeasurementLatest)
 
 

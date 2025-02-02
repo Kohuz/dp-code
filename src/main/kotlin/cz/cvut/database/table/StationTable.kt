@@ -12,5 +12,4 @@ object StationTable : IntIdTable() {
     val longitude = double("longitude")
     val latitude = double("latitude")
     val elevation = double("elevation")
-
 }
