@@ -34,16 +34,19 @@ fun Application.module() {
     runBlocking {
 
 
-        stationService.processAndSaveStations()
+        //stationService.processAndSaveStations()
         //stationElementService.processAndSaveStationElements()
         val stations = stationService.getAllStations()
         val stationIds = stations.map { it.stationId }
         stationIds.forEach {
-            //measurementService.processHistoricalDailyJsonAndInsert(it)
-            //measurementService.processHistoricalMonthlyJsonAndInsert(it)
-            //measurementService.processHistoricalYearlyJsonAndInsert(it)
-            measurementService.processLatestJsonAndInsert(it)
+//            measurementService.processHistoricalDailyJsonAndInsert(it)
+//            measurementService.processHistoricalMonthlyJsonAndInsert(it)
+//            measurementService.processHistoricalYearlyJsonAndInsert(it)
+            //measurementService.processStationFiles()
+
+            //measurementService.processLatestJsonAndInsert(1, it)
         }
+
     }
 
 

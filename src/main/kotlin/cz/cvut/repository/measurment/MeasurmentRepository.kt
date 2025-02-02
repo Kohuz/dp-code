@@ -54,7 +54,7 @@ class MeasurementRepository {
             val connection = this.connection.connection as BaseConnection
             val copyManager = CopyManager(connection)
             val sql = """
-                COPY measurementlatest (station_id, element, vtype, timestamp, value, flag, quality)
+                COPY measurementlatest (station_id, element, timestamp, value, flag, quality)
                 FROM STDIN WITH (FORMAT csv, HEADER true, DELIMITER ',')
             """.trimIndent()
 

@@ -139,98 +139,182 @@ class MeasurementService(private val repository: MeasurementRepository) {
     }
 
 
+    suspend fun processRecentDailyJsonAndInsert(stationId: String) {
+        val BASE_URL_RECENT = "https://opendata.chmi.cz/meteorology/climate/recent/data/daily/"
+        val client = HttpClient(CIO)
 
-//    suspend fun processRecentDailyJsonAndInsert(stationId: String, csvFilePath: String) {
-//        val url = ""
-//
-//        try {
-//            val response: HttpResponse = client.get(url)
-//            val rawData = response.bodyAsText()
-//            val jsonObject = Json.parseToJsonElement(rawData).jsonObject
-//
-//
-//            val valuesArray = jsonObject["data"]
-//                ?.jsonObject?.get("data")
-//                ?.jsonObject?.get("values")
-//                ?.jsonArray ?: error("Invalid JSON structure")
-//
-//            val header = "STATION,ELEMENT,VTYPE,DT,VAL,FLAG,QUALITY\n"
-//
-//            val csvData = buildString {
-//                append(header)
-//                for (entry in valuesArray) {
-//                    val row = entry.jsonArray
-//                    val station = row[0].jsonPrimitive.content
-//                    val element = row[1].jsonPrimitive.content
-//                    val vtype = row[2].jsonPrimitive.content
-//                    val dt = row[3].jsonPrimitive.content
-//                    val valCol = row[4].jsonPrimitive.contentOrNull ?: ""
-//                    val flag = row[5].jsonPrimitive.contentOrNull ?: ""
-//                    val quality = row[6].jsonPrimitive.double
-//
-//                    append("$station,$element,$vtype,$dt,$valCol,$flag,$quality\n")
-//                }
-//            }
-//
-//
-//            File(csvFilePath).writeText(csvData)
-//
-//            repository.saveAllMeasurements(csvFilePath)
-//        } catch (e: Exception) {
-//            println("Error fetching or saving measurements for station $stationId: ${e.message}")
-//        }
-//    }
+        val now = YearMonth.now()
+        val lastYear = now.year - 1
+        val lastYearMonths = (1..12).map { "%02d".format(it) } // 01 to 12
+
+        val thisYear = now.year
+        val thisYearMonths = (1 until now.monthValue).map { "%02d".format(it) } // Only past months this year
+
+        val filePatterns = mutableListOf<String>()
+
+        // Add last year's files
+        lastYearMonths.forEach { month ->
+            filePatterns.add("$BASE_URL_RECENT$month/dly-0-20000-0-$stationId-${lastYear}$month.json")
+        }
+
+        // Add this year's files
+        thisYearMonths.forEach { month ->
+            filePatterns.add("$BASE_URL_RECENT/dly-0-20000-0-$stationId-${thisYear}$month.json")
+        }
+
+        for (url in filePatterns) {
+            try {
+                val response: HttpResponse = client.get(url)
+                val rawData = response.bodyAsText()
+                val jsonObject = Json.parseToJsonElement(rawData).jsonObject
+
+                val valuesArray = jsonObject["data"]
+                    ?.jsonObject?.get("data")
+                    ?.jsonObject?.get("values")
+                    ?.jsonArray ?: error("Invalid JSON structure")
+
+                val csvData = buildString {
+                    append("station_id,element,vtype,date,value,flag,quality\n")
+                    for (entry in valuesArray) {
+                        val row = entry.jsonArray
+                        val station = row[0].jsonPrimitive.content
+                        val element = row[1].jsonPrimitive.content
+                        val vtype = row[2].jsonPrimitive.content
+                        val dt = row[3].jsonPrimitive.content
+                        val valCol = row[4].jsonPrimitive.contentOrNull ?: ""
+                        val flag = row[5].jsonPrimitive.contentOrNull ?: ""
+                        val quality = row[6].jsonPrimitive.doubleOrNull ?: 0.0
+
+                        append("$station,$element,$vtype,$dt,$valCol,$flag,$quality\n")
+                    }
+                }
+
+                repository.saveHistoricalDaily(csvData)
+
+            } catch (e: Exception) {
+                println("Error fetching or saving measurements for $url: ${e.message}")
+            }
+        }
+    }
 
 
-    suspend fun processLatestJsonAndInsert(stationId: String) {
+
+
+
+    suspend fun processStationFiles(forTodayOnly: Boolean = false) {
         val BASE_URL = "https://opendata.chmi.cz/meteorology/climate/now/data/"
 
         try {
-            val latestFileName = getAllFilesForStation(BASE_URL, stationId)
-            val url = "$BASE_URL$latestFileName"
+            val response: HttpResponse = client.get(BASE_URL)
+            val htmlContent = response.bodyAsText()
 
-            val response: HttpResponse = client.get(url)
-            val rawData = response.bodyAsText()
-            val jsonObject = Json.parseToJsonElement(rawData).jsonObject
+            // Extract all filenames
+            val regex = Regex("""1h-[^"]+\.json""")
+            val allFiles = regex.findAll(htmlContent)
+                .map { it.value }
 
-            val valuesArray = jsonObject["data"]
-                ?.jsonObject?.get("data")
-                ?.jsonObject?.get("values")
-                ?.jsonArray ?: error("Invalid JSON structure")
+            // Get today's date in the desired format
+            val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+            val todayDate = java.time.LocalDate.now().format(formatter)
 
-            val csvData = buildString {
-                append("station_id,element,vtype,timestamp,value,flag,quality\n")
-                for (entry in valuesArray) {
-                    val row = entry.jsonArray
-                    val station = row[0].jsonPrimitive.content
-                    val element = row[1].jsonPrimitive.content
-                    val vtype = row[2].jsonPrimitive.content
-                    val timestamp = row[3].jsonPrimitive.content
-                    val value = row[4].jsonPrimitive.contentOrNull ?: ""
-                    val flag = row[5].jsonPrimitive.contentOrNull ?: ""
-                    val quality = row[6].jsonPrimitive.doubleOrNull ?: 0.0
+            // Filter files based on todayDate if the flag is set
+            val filteredFiles = if (forTodayOnly) {
+                allFiles.filter { it.contains(todayDate) }
+            } else {
+                allFiles
+            }
 
-                    append("$station,$element,$vtype,$timestamp,$value,$flag,$quality\n")
+            // Group files by station ID
+            val stationFiles = filteredFiles.groupBy { filename -> filename.split("-")[4] }
+
+            for ((stationId, files) in stationFiles) {
+                for (fileName in files) {
+                    val url = "$BASE_URL$fileName" // Construct the correct URL
+
+                    val fileResponse: HttpResponse = client.get(url)
+                    val rawData = fileResponse.bodyAsText()
+                    val jsonObject = Json.parseToJsonElement(rawData).jsonObject
+
+                    val valuesArray = jsonObject["data"]
+                        ?.jsonObject?.get("data")
+                        ?.jsonObject?.get("values")
+                        ?.jsonArray ?: error("Invalid JSON structure")
+
+                    val csvData = buildString {
+                        append("station_id,element,timestamp,value,flag,quality\n")
+                        for (entry in valuesArray) {
+                            val row = entry.jsonArray
+                            val station = row[0].jsonPrimitive.content
+                            val element = row[1].jsonPrimitive.content
+                            val timestamp = row[2].jsonPrimitive.content
+                            val value = row[3].jsonPrimitive.contentOrNull ?: ""
+                            val flag = row[4].jsonPrimitive.contentOrNull ?: ""
+                            val quality = row[5].jsonPrimitive.doubleOrNull ?: 0.0
+
+                            append("$station,$element,$timestamp,$value,$flag,$quality\n")
+                        }
+                    }
+
+                    repository.saveLatestMeasurements(csvData)
                 }
             }
 
-            repository.saveLatestMeasurements(csvData)
+        } catch (e: Exception) {
+            println("Error processing station files: ${e.message}")
+        }
+    }
+
+
+
+
+    suspend fun processLatestJsonAndInsert(lastX: Int, stationId: String) {
+        val BASE_URL = "https://opendata.chmi.cz/meteorology/climate/now/data/"
+
+        try {
+            val latestFileNames = getLastThreeFilenames(lastX, stationId)
+
+            for (fileName in latestFileNames) {
+                val url = "$BASE_URL$fileName"
+
+                val response: HttpResponse = client.get(url)
+                val rawData = response.bodyAsText()
+                val jsonObject = Json.parseToJsonElement(rawData).jsonObject
+
+                val valuesArray = jsonObject["data"]
+                    ?.jsonObject?.get("data")
+                    ?.jsonObject?.get("values")
+                    ?.jsonArray ?: error("Invalid JSON structure")
+
+                val csvData = buildString {
+                    append("station_id,element,timestamp,value,flag,quality\n")
+                    for (entry in valuesArray) {
+                        val row = entry.jsonArray
+                        val station = row[0].jsonPrimitive.content
+                        val element = row[1].jsonPrimitive.content
+                        val timestamp = row[2].jsonPrimitive.content
+                        val value = row[3].jsonPrimitive.contentOrNull ?: ""
+                        val flag = row[4].jsonPrimitive.contentOrNull ?: ""
+                        val quality = row[5].jsonPrimitive.doubleOrNull ?: 0.0
+
+                        append("$station,$element,$timestamp,$value,$flag,$quality\n")
+                    }
+                }
+
+                repository.saveLatestMeasurements(csvData)
+            }
 
         } catch (e: Exception) {
             println("Error fetching or saving latest measurements for station $stationId: ${e.message}")
         }
     }
 
-    suspend fun getAllFilesForStation(baseUrl: String, stationId: String): List<String> {
-        return try {
-            val response: HttpResponse = client.get(baseUrl)
-            val htmlContent = response.bodyAsText()
 
-            val regex = Regex("""10m-0-20000-0-$stationId-\d{8}\.json""")
-            regex.findAll(htmlContent).map { it.value }.toList()
-        } catch (e: Exception) {
-            println("Error fetching file list for station $stationId: ${e.message}")
-            emptyList()
+
+    fun getLastThreeFilenames(lastX: Int, stationId: String): List<String> {
+        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+        return (lastX downTo 0).map {
+            val date = java.time.LocalDate.now().minusDays(it.toLong()).format(formatter)
+            "10m-$stationId-$date.json"
         }
     }
 

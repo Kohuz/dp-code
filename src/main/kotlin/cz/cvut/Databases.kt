@@ -19,14 +19,16 @@ fun configureDatabases() {
 //        password = "temp_password"
 //    )
     transaction {
-        exec("DROP TABLE IF EXISTS station_element CASCADE")
-        exec("DROP TABLE IF EXISTS station CASCADE")
-        exec("DROP TABLE IF EXISTS measurementdaily CASCADE")
-        exec("DROP TABLE IF EXISTS measurementmonthly CASCADE")
-        exec("DROP TABLE IF EXISTS measurementyearly CASCADE")
+//        exec("DROP TABLE IF EXISTS station_element CASCADE")
+//        exec("DROP TABLE IF EXISTS station CASCADE")
+//        exec("DROP TABLE IF EXISTS measurementdaily CASCADE")
+//        exec("DROP TABLE IF EXISTS measurementmonthly CASCADE")
+//        exec("DROP TABLE IF EXISTS measurementyearly CASCADE")
 
 
         //SchemaUtils.drop(MeasurementTable)
-        SchemaUtils.create(StationTable, StationElementTable, MeasurementDailyTable, MeasurementMonthlyTable, MeasurementYearlyTable, MeasurementLatest)
+        //SchemaUtils.create(StationTable, StationElementTable, MeasurementDailyTable, MeasurementMonthlyTable, MeasurementYearlyTable, MeasurementLatest)
+
+
     }
 }
