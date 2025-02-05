@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 fun configureDatabases() {
     Database.connect(
-        "jdbc:postgresql://localhost:5432/dp",
+        "jdbc:postgresql://localhost:5433/dp",
         user = "postgres",
         password = "123456"
     )
@@ -26,8 +26,7 @@ fun configureDatabases() {
 //        exec("DROP TABLE IF EXISTS measurementyearly CASCADE")
 
 
-        //SchemaUtils.drop(MeasurementTable)
-        SchemaUtils.create(ElementCodelistTable)
+        //SchemaUtils.create(ElementCodelistTable)
         //SchemaUtils.create(StationTable, StationElementTable, MeasurementDailyTable, MeasurementMonthlyTable, MeasurementYearlyTable, MeasurementLatest)
 
 

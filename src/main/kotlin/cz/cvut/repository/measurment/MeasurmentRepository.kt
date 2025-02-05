@@ -1,6 +1,7 @@
 package cz.cvut.repository.measurment
 
 import cz.cvut.database.table.MeasurementDailyTable
+import cz.cvut.database.table.MeasurementLatest
 import cz.cvut.model.measurment.MeasurementEntity
 import cz.cvut.model.measurment.toMeasurement
 import kotlinx.datetime.LocalDate
@@ -83,6 +84,18 @@ class MeasurementRepository {
     fun getStats(date: LocalDate, stationId: String) {
         return transaction {
             MeasurementEntity
+        }
+    }
+
+    fun getRecentMeasurements(stationId: String) {
+        return transaction {
+            MeasurementLatest
+        }
+    }
+
+    fun getLatestMeasurement(stationId: String) {
+        return transaction {
+            MeasurementLatest
         }
     }
 

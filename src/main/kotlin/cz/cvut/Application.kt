@@ -34,21 +34,21 @@ fun Application.module() {
     val stationElementService = get<StationElementService>()
     val measurementService = get<MeasurementService>()
     runBlocking {
-        //stationService.processAndSaveStations()
-        stationElementService.processAndSaveStationElements()
-        stationElementService.downloadStationElementsNow()
+        //tationService.processAndSaveStations()
+        //stationElementService.processAndSaveStationElements()
+        //stationElementService.downloadStationElementsNow()
         val stations = stationService.getAllStations()
         val stationIds = stations.map { it.stationId }
         stationIds.forEach {
 //            measurementService.processHistoricalDailyJsonAndInsert(it)
 //            measurementService.processHistoricalMonthlyJsonAndInsert(it)
 //            measurementService.processHistoricalYearlyJsonAndInsert(it)
-            //
-           // measurementService.processRecentDailyJsonAndInsert(it)
-            //measurementService.processLatestJsonAndInsert(1, it)
+//
+//            measurementService.processRecentDailyJsonAndInsert(it)
+//            measurementService.processLatestJsonAndInsert(1, it)
 
         }
-       // measurementService.processStationFiles()
+        //measurementService.processStationFiles()
 
     }
 

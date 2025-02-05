@@ -339,4 +339,12 @@ class MeasurementService(private val repository: MeasurementRepository) {
         repository.getStats(LocalDate.parse(date), stationId)
 
     }
+
+    fun getActualMeasurements(stationId: String) {
+        repository.getLatestMeasurement(stationId)
+    }
+
+    fun getRecentMeasurements(stationId: String) {
+        repository.getRecentMeasurements(stationId)
+    }
 }
