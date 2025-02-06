@@ -2,7 +2,7 @@ package cz.cvut.repository.measurment
 
 import cz.cvut.database.table.MeasurementDailyTable
 import cz.cvut.database.table.MeasurementLatest
-import cz.cvut.model.measurment.MeasurementEntity
+import cz.cvut.model.measurment.MeasurementDailyEntity
 import cz.cvut.model.measurment.toMeasurement
 import kotlinx.datetime.LocalDate
 import org.jetbrains.exposed.sql.and
@@ -70,7 +70,7 @@ class MeasurementRepository {
         dateTo: LocalDate,
         element: String) {
         return transaction {
-            MeasurementEntity
+            MeasurementDailyEntity
                     .find {
                 MeasurementDailyTable.stationId eq stationId and
                         (MeasurementDailyTable.date greaterEq dateFrom) and
@@ -83,7 +83,7 @@ class MeasurementRepository {
 
     fun getStats(date: LocalDate, stationId: String) {
         return transaction {
-            MeasurementEntity
+            MeasurementDailyEntity
         }
     }
 

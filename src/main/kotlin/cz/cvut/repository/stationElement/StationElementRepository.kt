@@ -2,11 +2,9 @@ package cz.cvut.repository.stationElement
 
 import cz.cvut.database.StationElementTable
 import cz.cvut.database.table.ElementCodelistTable
-import cz.cvut.database.table.ElementCodelistTable.abbreviation
-import cz.cvut.model.ElementCodelist
+import cz.cvut.model.stationElement.ElementCodelist
 import cz.cvut.model.stationElement.StationElement
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.transactions.transaction
 

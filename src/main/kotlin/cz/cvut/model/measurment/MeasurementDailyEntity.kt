@@ -5,8 +5,8 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 
-class MeasurementEntity(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<MeasurementEntity>(MeasurementDailyTable)
+class MeasurementDailyEntity(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<MeasurementDailyEntity>(MeasurementDailyTable)
 
     var stationId by MeasurementDailyTable.stationId
     var element by MeasurementDailyTable.element
@@ -15,8 +15,8 @@ class MeasurementEntity(id: EntityID<Int>) : IntEntity(id) {
     var flag by MeasurementDailyTable.flag
     var quality by MeasurementDailyTable.quality
 }
-fun MeasurementEntity.toMeasurement(): Measurement {
-    return Measurement(
+fun MeasurementDailyEntity.toMeasurement(): MeasurementDaily {
+    return MeasurementDaily(
         stationId = this.stationId,
         element = this.element,
         date = this.date,
@@ -26,8 +26,8 @@ fun MeasurementEntity.toMeasurement(): Measurement {
     )
 }
 
-fun Measurement.toMeasurementEntity(): MeasurementEntity {
-    return MeasurementEntity.new {
+fun MeasurementDaily.toMeasurementEntity(): MeasurementDailyEntity {
+    return MeasurementDailyEntity.new {
         stationId = this@toMeasurementEntity.stationId
         element = this@toMeasurementEntity.element
         date = this@toMeasurementEntity.date

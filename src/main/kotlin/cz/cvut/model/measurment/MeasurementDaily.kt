@@ -1,11 +1,10 @@
 package cz.cvut.model.measurment
 
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Measurement(
+data class MeasurementDaily(
     val stationId: String,
     val element: String,
     val date: LocalDate,

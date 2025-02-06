@@ -1,6 +1,6 @@
 package cz.cvut.service
 
-import cz.cvut.model.ElementCodelist
+import cz.cvut.model.stationElement.ElementCodelist
 import cz.cvut.model.stationElement.StationElement
 import cz.cvut.repository.stationElement.StationElementRepository
 import io.ktor.client.*

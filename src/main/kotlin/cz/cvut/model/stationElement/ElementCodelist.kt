@@ -1,4 +1,4 @@
-package cz.cvut.model
+package cz.cvut.model.stationElement
 
 data class ElementCodelist(
     val abbreviation: String,
