@@ -4,7 +4,7 @@ info:
   description: "DP API"
   version: "1.0.0"
 servers:
-- url: "http://localhost:8081"
+- url: "https://DP"
 paths:
   /:
     get:
@@ -19,15 +19,181 @@ paths:
               examples:
                 Example#1:
                   value: "Hello World!"
+  /measurements/{stationId}:
+    get:
+      description: ""
+      parameters:
+      - name: "dateFrom"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "dateTo"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "element"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "resolution"
+        in: "query"
+        required: false
+        schema:
+          type: "string"
+      - name: "stationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required query parameters: dateFrom, dateTo, resolution\
+                    \ and element"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+  /measurements/{stationId}/actual:
+    get:
+      description: ""
+      parameters:
+      - name: "stationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required parameter: stationId"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+  /measurements/{stationId}/dayRecords/{date}:
+    get:
+      description: ""
+      parameters:
+      - name: "stationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "date"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required parameter: date"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+  /measurements/{stationId}/recent:
+    get:
+      description: ""
+      parameters:
+      - name: "stationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required parameter: stationId"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
+  /measurements/{stationId}/statsDayLongTerm:
+    get:
+      description: ""
+      parameters:
+      - name: "stationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "date"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required parameter: date"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
   /stations:
     get:
       description: ""
       parameters:
-      - name: "filters"
+      - name: "elevationMin"
         in: "query"
         required: false
         schema:
-          type: "object"
+          type: "number"
+      - name: "elevationMax"
+        in: "query"
+        required: false
+        schema:
+          type: "number"
+      - name: "active"
+        in: "query"
+        required: false
+        schema:
+          type: "boolean"
       responses:
         "200":
           description: "OK"
@@ -111,6 +277,9 @@ paths:
                 $ref: "#/components/schemas/Map_String"
 components:
   schemas:
+    Unit:
+      type: "object"
+      properties: {}
     LocalDateTime:
       type: "object"
       properties: {}
@@ -175,9 +344,6 @@ components:
       - "code"
       - "endDate"
       - "location"
-      - "longitude"
-      - "latitude"
-      - "elevation"
       - "stationElements"
     Map:
       type: "object"

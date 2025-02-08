@@ -6,16 +6,9 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.*
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.postgresql.copy.CopyManager
-import org.postgresql.core.BaseConnection
-import java.io.File
-import java.io.StringReader
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 
 class MeasurementService(private val repository: MeasurementRepository) {
     private val client = HttpClient {
@@ -144,22 +137,22 @@ class MeasurementService(private val repository: MeasurementRepository) {
         val BASE_URL_RECENT = "https://opendata.chmi.cz/meteorology/climate/recent/data/daily/"
 
         val now = YearMonth.now()
-        val lastYear = now.year - 1
-        val lastYearMonths = (1..12).map { "%02d".format(it) } // 01 to 12
-
-        val thisYear = now.year
-        val thisYearMonths = (1 until now.monthValue).map { "%02d".format(it) } // Only past months this year
+        val currentYear = now.year
+        val previousYear = currentYear - 1
+        val currentMonth = now.monthValue
 
         val filePatterns = mutableListOf<String>()
 
-        // Add last year's files
-        lastYearMonths.forEach { month ->
-            filePatterns.add("$BASE_URL_RECENT$month/dly-0-20000-0-$stationId-${lastYear}$month.json")
-        }
+        // Add the current month's file (located in the root)
+        filePatterns.add("$BASE_URL_RECENT/dly-$stationId-$currentYear${"%02d".format(currentMonth)}.json")
 
-        // Add this year's files
-        thisYearMonths.forEach { month ->
-            filePatterns.add("$BASE_URL_RECENT/dly-0-20000-0-$stationId-${thisYear}$month.json")
+        // Add past months (in their respective folders, but for last year)
+        (1..12).forEach { month ->
+            if (month != currentMonth) { // Skip the current month (already added above)
+                val formattedMonth = "%02d".format(month)
+                val fileUrl = "$BASE_URL_RECENT$formattedMonth/dly-$stationId-$previousYear$formattedMonth.json"
+                filePatterns.add(fileUrl)
+            }
         }
 
         for (url in filePatterns) {
@@ -201,7 +194,9 @@ class MeasurementService(private val repository: MeasurementRepository) {
 
 
 
-    suspend fun processStationFiles(forTodayOnly: Boolean = false) {
+
+
+    suspend fun proccessLatestJsonAndInsert(forTodayOnly: Boolean = false) {
         val BASE_URL = "https://opendata.chmi.cz/meteorology/climate/now/data/"
 
         try {
@@ -326,12 +321,10 @@ class MeasurementService(private val repository: MeasurementRepository) {
 
     fun getStatsLongTerm(date: String, stationId: String) {
         val parsedDate = LocalDate.parse(date)
-
-
     }
 
     fun getRecords(date: String, stationId: String) {
-        repository.getRecords(LocalDate.parse(date), stationId)
+//        repository.getRecords(LocalDate.parse(date), stationId)
     }
 
     fun getActualMeasurements(stationId: String) {

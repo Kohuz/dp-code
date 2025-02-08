@@ -14,10 +14,10 @@ fun Route.measurementRoutes(measurementService: MeasurementService) {
         val element = call.request.queryParameters["element"]
         val resolution = call.request.queryParameters["resolution"]
 
-        if (dateFrom == null || dateTo == null || element.isNullOrBlank()) {
+        if (dateFrom == null || dateTo == null || element.isNullOrBlank() || resolution.isNullOrBlank()) {
             return@get call.respond(
                 HttpStatusCode.BadRequest,
-                "Missing required query parameters: dateFrom, dateTo, and element"
+                "Missing required query parameters: dateFrom, dateTo, resolution and element"
             )
         }
         val measurements = measurementService.getMeasurements(resource.stationId, dateFrom, dateTo, element,resolution)

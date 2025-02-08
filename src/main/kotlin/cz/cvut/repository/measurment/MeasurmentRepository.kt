@@ -137,6 +137,21 @@ class MeasurementRepository {
         }
     }
 
+//    fun getMeasurementsByStationAndElement(stationId: String, date: LocalDate): List<MeasurementDaily> {
+//        return transaction {
+//            val dayOfMonth = date.dayOfMonth
+//            val month = date.monthValue
+//
+//            MeasurementDailyEntity.find {
+//                (MeasurementDailyTable.stationId eq stationId) and
+//                        ((MeasurementDailyTable.date eq date) or
+//                                ((MeasurementDailyTable.date.dayOfMonth eq dayOfMonth) and
+//                                        (MeasurementDailyTable.date.monthValue eq month)))
+//            }.map { it.toMeasurement() }
+//        }
+//    }
+
+
 //    fun getStats(date: LocalDate, stationId: String): Map<String, StationStat> {
 //        return transaction {
 //            MeasurementDailyEntity

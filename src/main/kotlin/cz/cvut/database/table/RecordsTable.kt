@@ -4,11 +4,10 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.kotlin.datetime.date
 
 
-object RecordsTable : IntIdTable() {
-        val stationId = varchar("station_id", 50)
-        val element = varchar("element", 50)
-        val timestamp = date("timestamp")
-        val value = double("value")
-    }
-
+object StationRecordTable : IntIdTable() {
+    val station = reference("station_id", StationTable)
+    val element = varchar("element", 50)
+    val recordType = varchar("record_type", 20) // e.g., "max", "min", "avg"
+    val value = double("value").nullable()
+    val recordDate = date("record_date")
 }

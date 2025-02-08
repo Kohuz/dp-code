@@ -25,7 +25,7 @@ class StationElementService {
     }
 
 
-    suspend fun downloadStationElementsNow() {
+    suspend fun downloadElementCodelist() {
         val currentDate = Clock.System.now().toLocalDateTime(TimeZone.UTC).date
         val API_URL = "https://opendata.chmi.cz/meteorology/climate/now/metadata/meta2-${currentDate.year}${"%02d".format(currentDate.monthNumber)}${"%02d".format(currentDate.dayOfMonth)}.json"
 
