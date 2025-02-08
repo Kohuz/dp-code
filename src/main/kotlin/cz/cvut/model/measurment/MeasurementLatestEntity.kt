@@ -1,19 +1,24 @@
 package cz.cvut.model.measurement
 
-import cz.cvut.database.table.MeasurementLatest
+import cz.cvut.database.table.MeasurementDailyTable
+import cz.cvut.database.table.MeasurementLatestTable
+import cz.cvut.model.measurment.MeasurementDailyEntity
+import cz.cvut.model.station.StationEntity
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 
 class MeasurementLatestEntity(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<MeasurementLatestEntity>(MeasurementLatest)
+    companion object : IntEntityClass<MeasurementLatestEntity>(MeasurementLatestTable)
 
-    var stationId by MeasurementLatest.stationId
-    var element by MeasurementLatest.element
-    var timestamp by MeasurementLatest.timestamp
-    var value by MeasurementLatest.value
-    var flag by MeasurementLatest.flag
-    var quality by MeasurementLatest.quality
+    var stationId by MeasurementLatestTable.stationId
+    var element by MeasurementLatestTable.element
+    var timestamp by MeasurementLatestTable.timestamp
+    var value by MeasurementLatestTable.value
+    var flag by MeasurementLatestTable.flag
+    var quality by MeasurementLatestTable.quality
+
+    var station by StationEntity referencedOn MeasurementDailyTable.station
 }
 
 fun MeasurementLatestEntity.toMeasurement(): cz.cvut.model.measurement.MeasurementLatest {
@@ -27,11 +32,11 @@ fun MeasurementLatestEntity.toMeasurement(): cz.cvut.model.measurement.Measureme
     )
 }
 
-fun MeasurementLatest.toMeasurementEntity(): MeasurementLatestEntity {
-    return MeasurementLatestEntity.new {
+fun MeasurementLatest.toMeasurementEntity(): MeasurementDailyEntity {
+    return MeasurementDailyEntity.new {
         stationId = this@toMeasurementEntity.stationId
         element = this@toMeasurementEntity.element
-        timestamp = this@toMeasurementEntity.timestamp.toString()
+        date = this@toMeasurementEntity.timestamp
         value = this@toMeasurementEntity.value
         flag = this@toMeasurementEntity.flag
         quality = this@toMeasurementEntity.quality

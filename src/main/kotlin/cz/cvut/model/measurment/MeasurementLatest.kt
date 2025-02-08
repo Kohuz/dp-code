@@ -9,7 +9,7 @@ data class MeasurementLatest(
     val stationId: String,
     val element: String,
     val timestamp: LocalDate,
-    val value: String?,
+    val value: Double?,
     val flag: String? = null,
     val quality: Double?
 )

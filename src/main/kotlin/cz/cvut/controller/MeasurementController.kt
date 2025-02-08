@@ -3,17 +3,16 @@ package cz.cvut.controller
 import cz.cvut.resources.MeasurementResource
 import cz.cvut.service.MeasurementService
 import io.ktor.server.routing.*
-import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.http.*
 import io.ktor.server.resources.*
-import io.ktor.server.routing.get
 
 fun Route.measurementRoutes(measurementService: MeasurementService) {
     get<MeasurementResource> { resource ->
         val dateFrom = call.request.queryParameters["dateFrom"]
         val dateTo = call.request.queryParameters["dateTo"]
         val element = call.request.queryParameters["element"]
+        val resolution = call.request.queryParameters["resolution"]
 
         if (dateFrom == null || dateTo == null || element.isNullOrBlank()) {
             return@get call.respond(
@@ -21,18 +20,18 @@ fun Route.measurementRoutes(measurementService: MeasurementService) {
                 "Missing required query parameters: dateFrom, dateTo, and element"
             )
         }
-        val measurements = measurementService.getMeasurements(resource.stationId, dateFrom, dateTo, element)
+        val measurements = measurementService.getMeasurements(resource.stationId, dateFrom, dateTo, element,resolution)
         call.respond(measurements)
     }
 
-    get<MeasurementResource.StatsDay> { resource ->
+    get<MeasurementResource.DayRecords> { resource ->
         if (resource.date.isBlank()) {
             return@get call.respond(
                 HttpStatusCode.BadRequest,
                 "Missing required parameter: date"
             )
         }
-        val stats = measurementService.getStats(resource.date, resource.parent.stationId)
+        val stats = measurementService.getRecords(resource.date, resource.parent.stationId)
         call.respond(stats)
     }
 

@@ -11,4 +11,6 @@ object MeasurementDailyTable : IntIdTable() {
     val value = double("value").nullable()
     val flag = varchar("flag", 10).nullable()
     val quality = double("quality").nullable()
+    val station = reference("stationId", StationTable)
+
 }

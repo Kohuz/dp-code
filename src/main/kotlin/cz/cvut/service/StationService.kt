@@ -29,8 +29,8 @@ class StationService(private val stationRepository: StationRepository) {
         return parseStations(rawData)
     }
 
-    fun getAllStations(filters: Map<String, String> = emptyMap()): List<Station> {
-        return stationRepository.getStationsFiltered(filters)
+    fun getAllStations(elevationMin: Double?, elevationMax: Double?, active: Boolean?): List<Station> {
+        return stationRepository.getStationsFiltered(elevationMin, elevationMax, active)
     }
 
     fun getStationById(stationId: String): Station? {

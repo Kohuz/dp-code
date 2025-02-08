@@ -3,7 +3,11 @@ package cz.cvut.resources
 import io.ktor.resources.*
 
 @Resource("/stations")
-class StationsResource(val filters: Map<String, String>? = null)
+data class StationsResource(
+    val elevationMin: Double? = null,
+    val elevationMax: Double? = null,
+    val active: Boolean? = null
+)
 
 @Resource("/stations/{id}")
 class StationByIdResource(val id: String)

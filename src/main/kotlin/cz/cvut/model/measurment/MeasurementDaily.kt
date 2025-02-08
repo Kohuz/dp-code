@@ -11,6 +11,5 @@ data class MeasurementDaily(
     val value: Double?,
     val flag: String? = null,
     val quality: Double?,
-    val observationType: String? = null,
     val schedule: String? = null,
 )

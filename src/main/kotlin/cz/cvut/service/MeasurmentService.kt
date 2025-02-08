@@ -320,24 +320,18 @@ class MeasurementService(private val repository: MeasurementRepository) {
 
 
 
-    fun getMeasurements(stationId: String, dateFrom: String, dateTo: String, element: String) {
-
-        repository.getMeasurementsByStationandDateandElement(stationId, LocalDate.parse(dateFrom), LocalDate.parse(dateTo), element)
+    fun getMeasurements(stationId: String, dateFrom: String, dateTo: String, element: String, resolution: String) { //TODO: resolution
+        repository.getMeasurementsByStationandDateandElement(stationId, LocalDate.parse(dateFrom), LocalDate.parse(dateTo), element, resolution)
     }
 
     fun getStatsLongTerm(date: String, stationId: String) {
         val parsedDate = LocalDate.parse(date)
-//        val temperatureStats = repository.getTemperatureStats(date, stationId)
-//        val precipitationStats = repository.getPrecipitationStats(date, stationId)
-//        val windStats = repository.getWindStats(date, stationId)
-//        val snowStats = repository.getSnowStats(date, stationId)
+
 
     }
 
-    fun getStats(date: String, stationId: String) {
-
-        repository.getStats(LocalDate.parse(date), stationId)
-
+    fun getRecords(date: String, stationId: String) {
+        repository.getRecords(LocalDate.parse(date), stationId)
     }
 
     fun getActualMeasurements(stationId: String) {

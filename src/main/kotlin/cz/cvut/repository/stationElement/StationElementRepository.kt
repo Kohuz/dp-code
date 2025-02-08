@@ -2,6 +2,8 @@ package cz.cvut.repository.stationElement
 
 import cz.cvut.database.StationElementTable
 import cz.cvut.database.table.ElementCodelistTable
+import cz.cvut.model.measurement.ElementCodelistEntity
+import cz.cvut.model.measurement.toElementCodelist
 import cz.cvut.model.stationElement.ElementCodelist
 import cz.cvut.model.stationElement.StationElement
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -57,4 +59,11 @@ object StationElementRepository {
             }
         }
     }
+
+    fun getElementsCodelist(): List<ElementCodelist> {
+        return transaction {
+            ElementCodelistEntity.all().map { it.toElementCodelist() }
+        }
+    }
+
 }

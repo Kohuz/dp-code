@@ -1,6 +1,5 @@
 package cz.cvut
 
-import cz.cvut.database.StationElementTable
 import cz.cvut.database.table.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -28,6 +27,8 @@ fun configureDatabases() {
 
         //SchemaUtils.create(ElementCodelistTable)
         //SchemaUtils.create(StationTable, StationElementTable, MeasurementDailyTable, MeasurementMonthlyTable, MeasurementYearlyTable, MeasurementLatest)
+        SchemaUtils.drop(MeasurementLatestTable)
+        SchemaUtils.create(MeasurementLatestTable)
 
 
     }

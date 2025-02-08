@@ -1,6 +1,8 @@
 package cz.cvut.model.measurement
 
+import cz.cvut.database.table.MeasurementDailyTable
 import cz.cvut.database.table.MeasurementYearlyTable
+import cz.cvut.model.station.StationEntity
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -16,6 +18,8 @@ class MeasurementYearlyEntity(id: EntityID<Int>) : IntEntity(id) {
     var value by MeasurementYearlyTable.value
     var flagRepeat by MeasurementYearlyTable.flagRepeat
     var flagInterrupted by MeasurementYearlyTable.flagInterrupted
+
+    var station by StationEntity referencedOn MeasurementDailyTable.station
 }
 
 fun MeasurementYearlyEntity.toMeasurement(): MeasurementYearly {

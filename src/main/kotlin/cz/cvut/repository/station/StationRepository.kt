@@ -27,30 +27,17 @@ class StationRepository {
         }
     }
 
-//    fun getStations(filters: Map<String, String>): List<Station> {
-//        return transaction {
-//            StationEntity.find {
-//                (filters["elevationMin"]?.toDoubleOrNull()?.let { StationTable.elevation greaterEq it } ?: Op.TRUE) and
-//                        (filters["elevationMax"]?.toDoubleOrNull()?.let { StationTable.elevation lessEq it } ?: Op.TRUE) and
-//                        (if (filters["active"].toBooleanStrictOrNull() == true) {
-//                            StationTable.endDate eq LocalDateTime.parse("3999-12-31T23:59:00.000000")
-//                        } else Op.TRUE)
-//            }.map { it.toStation() }
-//        }
-//    }
-
-    fun getStationsFiltered(filters: Map<String, String>): List<Station> {
-                return transaction {
+    fun getStationsFiltered(elevationMin: Double? = null, elevationMax: Double? = null, active: Boolean? = null): List<Station> {
+        return transaction {
             StationEntity.find {
-                (filters["elevationMin"]?.toDoubleOrNull()?.let { StationTable.elevation greaterEq it } ?: Op.TRUE) and
-                        (filters["elevationMax"]?.toDoubleOrNull()?.let { StationTable.elevation lessEq it } ?: Op.TRUE) and
-                        (if (filters["active"]?.toBooleanStrictOrNull() == true) {
+                (elevationMin?.let { StationTable.elevation greaterEq it } ?: Op.TRUE) and
+                        (elevationMax?.let { StationTable.elevation lessEq it } ?: Op.TRUE) and
+                        (if (active == true) {
                             StationTable.endDate eq LocalDateTime.parse("3999-12-31T23:59:00.000000")
                         } else Op.TRUE)
             }.map { it.toStation() }
         }
     }
-
     fun getStationsList(): List<Station> {
         return transaction {
             StationEntity.all().map { it.toStation() }

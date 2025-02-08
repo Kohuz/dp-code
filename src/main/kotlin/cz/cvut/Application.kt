@@ -37,7 +37,7 @@ fun Application.module() {
         //tationService.processAndSaveStations()
         //stationElementService.processAndSaveStationElements()
         //stationElementService.downloadStationElementsNow()
-        val stations = stationService.getAllStations()
+        val stations = stationService.getAllStations(params.elevationMin, params.elevationMax, params.active)
         val stationIds = stations.map { it.stationId }
         stationIds.forEach {
 //            measurementService.processHistoricalDailyJsonAndInsert(it)
@@ -45,7 +45,7 @@ fun Application.module() {
 //            measurementService.processHistoricalYearlyJsonAndInsert(it)
 //
 //            measurementService.processRecentDailyJsonAndInsert(it)
-//            measurementService.processLatestJsonAndInsert(1, it)
+            measurementService.processLatestJsonAndInsert(3, it)
 
         }
         //measurementService.processStationFiles()
