@@ -3,7 +3,6 @@ package cz.cvut.database.table
 import org.jetbrains.exposed.dao.id.IntIdTable
 
 object MeasurementMonthlyTable : IntIdTable() {
-    val stationId = varchar("station_id", 50)
     val element = varchar("element", 10)
     val year = integer("year")
     val month = integer("month")
@@ -12,4 +11,6 @@ object MeasurementMonthlyTable : IntIdTable() {
     val value = double("value").nullable()
     val flagRepeat = varchar("flag_repeat", 10).nullable()
     val flagInterrupted = varchar("flag_interrupted", 10).nullable()
+    val station = reference("stationId", StationTable.stationId)
+
 }
