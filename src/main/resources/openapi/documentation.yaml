@@ -90,36 +90,6 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Unit"
-  /measurements/{stationId}/dayRecords/{date}:
-    get:
-      description: ""
-      parameters:
-      - name: "stationId"
-        in: "path"
-        required: true
-        schema:
-          type: "string"
-      - name: "date"
-        in: "path"
-        required: true
-        schema:
-          type: "string"
-      responses:
-        "400":
-          description: "Bad Request"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Missing required parameter: date"
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Unit"
   /measurements/{stationId}/recent:
     get:
       description: ""
@@ -147,7 +117,11 @@ paths:
                 $ref: "#/components/schemas/Unit"
   /measurements/{stationId}/statsDayLongTerm:
     get:
-      description: ""
+      description: "get<MeasurementResource.AllTimeRecordsStation> { resource -> <br>\
+        \ val stationId = resource.parent.stationId <br> if (stationId.isBlank())\
+        \ { <br> return@get call.respond( <br> HttpStatusCode.BadRequest, <br> \"\
+        Missing required parameter: stationId\" <br> ) <br> } <br> val records = measurementService.getAllTimeRecordsStation(stationId)\
+        \ <br> call.respond(records) <br> }"
       parameters:
       - name: "stationId"
         in: "path"

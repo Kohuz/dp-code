@@ -10,6 +10,6 @@ object MeasurementDailyTable : IntIdTable() {
     val value = double("value").nullable()
     val flag = varchar("flag", 10).nullable()
     val quality = double("quality").nullable()
-    val station = reference("stationId", StationTable.stationId)
-
+    val stationId = varchar("stationId", 50)
+    val schedule = varchar("schedule", 50).nullable() // Added if needed
 }

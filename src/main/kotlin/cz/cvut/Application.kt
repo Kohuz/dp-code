@@ -1,5 +1,6 @@
 package cz.cvut
 
+import cz.cvut.service.MeasurementDownloadService
 import cz.cvut.service.MeasurementService
 import cz.cvut.service.StationElementService
 import cz.cvut.service.StationService
@@ -35,6 +36,8 @@ fun Application.module() {
     val stationService = get<StationService>()
     val stationElementService = get<StationElementService>()
     val measurementService = get<MeasurementService>()
+    val measurementDownloadService = get<MeasurementDownloadService>()
+
     runBlocking {
         //stationService.processAndSaveStations()
         //stationElementService.processAndSaveStationElements()
@@ -52,7 +55,7 @@ fun Application.module() {
 
         }
         activeStationIds.forEach {
-            measurementService.processRecentDailyJsonAndInsert(it)
+            measurementDownloadService.processRecentDailyJsonAndInsert(it)
         }
         //measurementService.proccessLatestJsonAndInsert()
 

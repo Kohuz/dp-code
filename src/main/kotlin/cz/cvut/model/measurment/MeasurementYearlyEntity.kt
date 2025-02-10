@@ -19,7 +19,7 @@ class MeasurementYearlyEntity(id: EntityID<Int>) : IntEntity(id) {
     var flagRepeat by MeasurementYearlyTable.flagRepeat
     var flagInterrupted by MeasurementYearlyTable.flagInterrupted
 
-    var station by StationEntity referencedOn MeasurementDailyTable.station
+    var station by StationEntity referencedOn MeasurementDailyTable.stationId
 }
 
 fun MeasurementYearlyEntity.toMeasurement(): MeasurementYearly {

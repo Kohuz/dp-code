@@ -18,7 +18,7 @@ class MeasurementLatestEntity(id: EntityID<Int>) : IntEntity(id) {
     var flag by MeasurementLatestTable.flag
     var quality by MeasurementLatestTable.quality
 
-    var station by StationEntity referencedOn MeasurementDailyTable.station
+    var station by StationEntity referencedOn MeasurementDailyTable.stationId
 }
 
 fun MeasurementLatestEntity.toMeasurement(): cz.cvut.model.measurement.MeasurementLatest {

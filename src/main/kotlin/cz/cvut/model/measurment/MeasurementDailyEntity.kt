@@ -16,7 +16,6 @@ class MeasurementDailyEntity(id: EntityID<Int>) : IntEntity(id) {
     var flag by MeasurementDailyTable.flag
     var quality by MeasurementDailyTable.quality
 
-    var station by StationEntity referencedOn MeasurementDailyTable.station
 }
 fun MeasurementDailyEntity.toMeasurement(): MeasurementDaily {
     return MeasurementDaily(

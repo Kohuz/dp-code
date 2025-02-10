@@ -25,18 +25,18 @@ fun Route.measurementRoutes(measurementService: MeasurementService) {
     }
 
 
-
-    get<MeasurementResource.AllTimeRecordsStation> { resource ->
-        val stationId = resource.parent.stationId
-        if (stationId.isBlank()) {
-            return@get call.respond(
-                HttpStatusCode.BadRequest,
-                "Missing required parameter: stationId"
-            )
-        }
-        val records = measurementService.getAllTimeRecordsStation(stationId)
-        call.respond(records)
-    }
+//
+//    get<MeasurementResource.AllTimeRecordsStation> { resource ->
+//        val stationId = resource.parent.stationId
+//        if (stationId.isBlank()) {
+//            return@get call.respond(
+//                HttpStatusCode.BadRequest,
+//                "Missing required parameter: stationId"
+//            )
+//        }
+//        val records = measurementService.getAllTimeRecordsStation(stationId)
+//        call.respond(records)
+//    }
 
     get<MeasurementResource.StatsDayLongTerm> { resource ->
         if (resource.date.isBlank()) {
