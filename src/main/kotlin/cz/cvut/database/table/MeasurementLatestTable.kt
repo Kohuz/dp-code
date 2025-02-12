@@ -4,7 +4,7 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.kotlin.datetime.date
 
 object MeasurementLatestTable : IntIdTable() {
-    val stationId = varchar("station_id", 50)
+    val stationId = reference("station_id", StationTable.stationId)
     val element = varchar("element", 50)
     val timestamp = date("timestamp")
     val value = double("value").nullable()

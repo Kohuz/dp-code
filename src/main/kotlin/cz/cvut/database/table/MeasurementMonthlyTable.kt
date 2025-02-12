@@ -11,6 +11,6 @@ object MeasurementMonthlyTable : IntIdTable() {
     val value = double("value").nullable()
     val flagRepeat = varchar("flag_repeat", 10).nullable()
     val flagInterrupted = varchar("flag_interrupted", 10).nullable()
-    val stationId = varchar("station_id", 50)
+    val stationId = reference("station_id", StationTable.stationId)
 
 }

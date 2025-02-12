@@ -1,9 +1,6 @@
 package cz.cvut
 
-import cz.cvut.service.MeasurementDownloadService
-import cz.cvut.service.MeasurementService
-import cz.cvut.service.StationElementService
-import cz.cvut.service.StationService
+import cz.cvut.service.*
 import cz.cvut.service.di.serviceModule
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -20,71 +17,109 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    installDependencies()
+    configureServer()
 
+    val stationService = get<StationService>()
+    val stationElementService = get<StationElementService>()
+    val measurementDownloadService = get<MeasurementDownloadService>()
+
+    launchBackgroundProcessing(stationService, stationElementService, measurementDownloadService)
+    schedulePeriodicTasks(measurementDownloadService, stationService)
+}
+
+private fun Application.installDependencies() {
     install(Koin) {
         modules(serviceModule)
     }
     install(ContentNegotiation) {
         json()
     }
-
     install(Resources)
+}
+
+private fun Application.configureServer() {
     configureHTTP()
     configureSerialization()
     configureDatabases()
-    configureRouting(get<StationService>(), get<MeasurementService>())
-    val stationService = get<StationService>()
-    val stationElementService = get<StationElementService>()
-    val measurementService = get<MeasurementService>()
-    val measurementDownloadService = get<MeasurementDownloadService>()
+    configureRouting(get(), get())
+}
 
-    runBlocking {
-        //stationService.processAndSaveStations()
-        //stationElementService.processAndSaveStationElements()
-        //stationElementService.downloadStationElementCodelist()
-        val stations = stationService.getAllStations()
-        val stationIds = stations.map { it.stationId }
-        val activeStations = stationService.getAllStations(active = true)
-        val activeStationIds = stations.map { it.stationId }
-        stationIds.forEach {
-//            measurementService.processHistoricalDailyJsonAndInsert(it)
-//            measurementService.processHistoricalMonthlyJsonAndInsert(it)
-//            measurementService.processHistoricalYearlyJsonAndInsert(it)
-//
-            //measurementService.processLatestJsonAndInsert(3, it)
-
-        }
-        activeStationIds.forEach {
-            measurementDownloadService.processRecentDailyJsonAndInsert(it)
-        }
-        //measurementService.proccessLatestJsonAndInsert()
-
+private fun CoroutineScope.launchBackgroundProcessing(
+    stationService: StationService,
+    stationElementService: StationElementService,
+    measurementDownloadService: MeasurementDownloadService
+) {
+    launch {
+        processStationsAndMeasurements(stationService, stationElementService, measurementDownloadService)
     }
 }
-//fun Application.schedulePeriodicTasks(measurementService: MeasurementService) {
-//    val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-//
-//    // Hourly task
-//    scope.launch {
-//        while (isActive) {
-//            try {
-//                measurementService.processLatestJsonAndInsert()
-//            } catch (e: Exception) {
-//                log.error("Error processing latest measurements", e)
-//            }
-//            delay(1.hours)
-//        }
-//    }
-//
-//    // Daily task
-//    scope.launch {
-//        while (isActive) {
-//            try {
-//                measurementService.processDailyStats() // Replace with actual function
-//            } catch (e: Exception) {
-//                log.error("Error processing daily stats", e)
-//            }
-//            delay(1.days)
-//        }
-//    }
-//}
+
+private suspend fun processStationsAndMeasurements(
+    stationService: StationService,
+    stationElementService: StationElementService,
+    measurementDownloadService: MeasurementDownloadService
+) {
+    stationService.processAndSaveStations()
+    stationElementService.processAndSaveStationElements()
+    stationElementService.downloadElementCodelist()
+
+    val stationIds = stationService.getAllStations().map { it.stationId }
+    val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
+
+    processHistoricalMeasurements(stationIds, measurementDownloadService)
+    processRecentMeasurements(activeStationIds, measurementDownloadService)
+
+    measurementDownloadService.proccessLatestJsonAndInsert()
+}
+
+private suspend fun processHistoricalMeasurements(
+    stationIds: List<String>,
+    measurementDownloadService: MeasurementDownloadService
+) {
+    stationIds.forEach { stationId ->
+        measurementDownloadService.processHistoricalDailyJsonAndInsert(stationId)
+        measurementDownloadService.processHistoricalMonthlyJsonAndInsert(stationId)
+        measurementDownloadService.processHistoricalYearlyJsonAndInsert(stationId)
+        measurementDownloadService.processLatestJsonAndInsert(3, stationId)
+    }
+}
+
+private suspend fun processRecentMeasurements(
+    activeStationIds: List<String>,
+    measurementDownloadService: MeasurementDownloadService
+) {
+    activeStationIds.forEach { stationId ->
+        measurementDownloadService.processRecentDailyJsonAndInsert(stationId)
+    }
+}
+
+fun Application.schedulePeriodicTasks(
+    measurementDownloadService: MeasurementDownloadService,
+    stationService: StationService
+) {
+    val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    scope.launch {
+        while (isActive) {
+            try {
+                measurementDownloadService.proccessLatestJsonAndInsert()
+            } catch (e: Exception) {
+                log.error("Error processing latest measurements", e)
+            }
+            delay(1.hours)
+        }
+    }
+
+    scope.launch {
+        while (isActive) {
+            try {
+                val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
+                processRecentMeasurements(activeStationIds, measurementDownloadService)
+            } catch (e: Exception) {
+                log.error("Error processing daily stats", e)
+            }
+            delay(1.days)
+        }
+    }
+}
