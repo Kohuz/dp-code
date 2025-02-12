@@ -5,9 +5,11 @@ import com.ucasoft.ktor.simpleCache.cacheOutput
 import com.ucasoft.ktor.simpleMemoryCache.*
 import cz.cvut.controller.measurementRoutes
 import cz.cvut.controller.recordRoutes
+import cz.cvut.controller.stationElementCodelist
 import cz.cvut.controller.stationRoutes
 import cz.cvut.service.MeasurementService
 import cz.cvut.service.RecordService
+import cz.cvut.service.StationElementService
 import cz.cvut.service.StationService
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -33,7 +35,11 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
 
-fun Application.configureRouting(stationService: StationService, measurementService: MeasurementService, recordService: RecordService) {
+fun Application.configureRouting(
+    stationService: StationService,
+    measurementService: MeasurementService,
+    recordService: RecordService,
+    stationElementService: StationElementService) {
     routing {
         get("/") {
             call.respondText("Hello World!")
@@ -41,6 +47,7 @@ fun Application.configureRouting(stationService: StationService, measurementServ
         stationRoutes(stationService)
         measurementRoutes(measurementService, stationService)
         recordRoutes(recordService, stationService)
+        stationElementCodelist(stationElementService)
 
     }
 }

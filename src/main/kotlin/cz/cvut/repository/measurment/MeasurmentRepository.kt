@@ -1,13 +1,11 @@
 package cz.cvut.repository.measurment
 
-import cz.cvut.database.table.MeasurementDailyTable
-import cz.cvut.database.table.MeasurementLatestTable
-import cz.cvut.database.table.MeasurementMonthlyTable
-import cz.cvut.database.table.MeasurementYearlyTable
+import cz.cvut.database.table.*
 import cz.cvut.model.measurement.MeasurementLatestEntity
 import cz.cvut.model.measurement.MeasurementMonthlyEntity
 import cz.cvut.model.measurement.MeasurementYearlyEntity
 import cz.cvut.model.measurement.toMeasurement
+import cz.cvut.model.measurment.MeasurementDaily
 import cz.cvut.model.measurment.MeasurementDailyEntity
 import cz.cvut.model.measurment.toMeasurement
 import kotlinx.datetime.LocalDate
@@ -122,7 +120,7 @@ class MeasurementRepository {
     fun getRecentMeasurements(stationId: String) {
         transaction {
             val latestMeasurements = MeasurementLatestEntity.find { MeasurementLatestTable.stationId eq stationId }
-                .orderBy(MeasurementLatestTable.timestamp to org.jetbrains.exposed.sql.SortOrder.DESC)
+                .orderBy(MeasurementLatestTable.timestamp to SortOrder.DESC)
                 .limit(24)
                 .toList()
         }
@@ -137,50 +135,24 @@ class MeasurementRepository {
         }
     }
 
-//    fun getMeasurementsByStationAndElement(stationId: String, date: LocalDate): List<MeasurementDaily> {
-//        return transaction {
-//            val dayOfMonth = date.dayOfMonth
-//            val month = date.monthValue
-//
-//            MeasurementDailyEntity.find {
-//                (MeasurementDailyTable.stationId eq stationId) and
-//                        ((MeasurementDailyTable.date eq date) or
-//                                ((MeasurementDailyTable.date.dayOfMonth eq dayOfMonth) and
-//                                        (MeasurementDailyTable.date.monthValue eq month)))
-//            }.map { it.toMeasurement() }
-//        }
-//    }
+    fun getStatsDayLongTerm(stationId: String): List<MeasurementDaily> {
+        return MeasurementDailyEntity
+            .find { MeasurementDailyTable.stationId eq stationId }
+            .map { it.toMeasurement()}
+    }
 
+    // Fetches all measurements for a specific station on a given date (day-specific) without filtering by element
+    fun getStatsDay(stationId: String, date: LocalDate): List<MeasurementDaily> {
+        return MeasurementDailyEntity
+            .find {
+                (MeasurementDailyTable.stationId eq stationId) and (MeasurementDailyTable.date eq date) }
+            .map { it.toMeasurement()}
 
-//    fun getStats(date: LocalDate, stationId: String): Map<String, StationStat> {
-//        return transaction {
-//            MeasurementDailyEntity
-//                .find {
-//                    (Extract(MeasurementDailyTable.date, DatePart.DAY) eq date.dayOfMonth) and
-//                            (Extract(MeasurementDailyTable.date, DatePart.MONTH) eq date.monthValue) and
-//                            (MeasurementDaily.stationId eq stationId)
-//                }
-//                .groupBy { it.element }
-//                .mapValues { (_, measurements) ->
-//                    val values = measurements.mapNotNull { it.value }
-//                    StationStat(
-//                        record = values.maxOrNull() ?: Double.NaN,
-//                        average = values.average().takeIf { values.isNotEmpty() } ?: Double.NaN
-//                    )
-//                }
-//        }
-//    }
+    }
 
 
 
 
-//    fun getTemperatureStats(date: String, stationId: String): StationStat {
-//        val record =  transaction {
-//
-//        }
-//        val average = transaction {
-//
-//        }
-//    }
+
 
 }

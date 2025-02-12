@@ -43,7 +43,7 @@ private fun Application.configureServer() {
     configureHTTP()
     configureSerialization()
     configureDatabases()
-    configureRouting(get(), get(), get())
+    configureRouting(get(), get(), get(), get())
 }
 
 private fun CoroutineScope.launchBackgroundProcessing(

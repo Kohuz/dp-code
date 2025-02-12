@@ -19,8 +19,6 @@ class MeasurementService(private val repository: MeasurementRepository) {
         val parsedDate = LocalDate.parse(date)
     }
 
-
-
     fun getActualMeasurements(stationId: String) {
         repository.getLatestMeasurement(stationId)
     }
@@ -29,11 +27,4 @@ class MeasurementService(private val repository: MeasurementRepository) {
         repository.getRecentMeasurements(stationId)
     }
 
-    fun getAllTimeRecords() {
-
-    }
-
-    fun getAllTimeRecordsStation(stationId: String) {
-
-    }
 }

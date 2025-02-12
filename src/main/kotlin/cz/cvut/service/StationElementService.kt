@@ -42,6 +42,10 @@ class StationElementService(private val stationElementRepository: StationElement
         return parseAndSaveElementCodelist(rawData)
     }
 
+    fun getElementsCodelist(): List<ElementCodelist>{
+        return stationElementRepository.getElementsCodelist()
+    }
+
     private suspend fun downloadStationElements(): List<StationElement> {
         val API_URL = "https://opendata.chmi.cz/meteorology/climate/historical/metadata/meta2.json"
 
