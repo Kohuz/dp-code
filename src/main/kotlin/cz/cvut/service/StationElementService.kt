@@ -14,13 +14,13 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.*
 
-class StationElementService {
+class StationElementService(private val stationElementRepository: StationElementRepository){
     private val jsonConfig = Json { ignoreUnknownKeys = true }
 
     suspend fun processAndSaveStationElements() {
         val stationElements = downloadStationElements()
         val deduplicatedStationElements = deduplicateStationElements(stationElements)
-        StationElementRepository.saveStationElements(deduplicatedStationElements)
+        stationElementRepository.saveStationElements(deduplicatedStationElements)
         saveUniqueElements(deduplicatedStationElements)
     }
 
@@ -91,7 +91,7 @@ class StationElementService {
             )
         }.distinctBy { it.abbreviation }
 
-        StationElementRepository.saveUniqueElements(uniqueCodelist)
+        stationElementRepository.saveUniqueElements(uniqueCodelist)
     }
 
 
@@ -108,7 +108,7 @@ class StationElementService {
             ElementCodelist(it.elementAbbreviation, it.elementName, it.unitDescription)
         }.distinctBy { Triple(it.abbreviation, it.name, it.unit) }
 
-        StationElementRepository.saveUniqueElements(uniqueElements)
+        stationElementRepository.saveUniqueElements(uniqueElements)
     }
 
 

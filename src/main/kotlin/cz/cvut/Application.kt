@@ -1,7 +1,8 @@
 package cz.cvut
 
 import cz.cvut.service.*
-import cz.cvut.service.di.serviceModule
+import cz.cvut.service.di.RepositoryModule
+import cz.cvut.service.di.ServiceModule
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
@@ -30,7 +31,7 @@ fun Application.module() {
 
 private fun Application.installDependencies() {
     install(Koin) {
-        modules(serviceModule)
+        modules(RepositoryModule, ServiceModule)
     }
     install(ContentNegotiation) {
         json()
@@ -42,7 +43,7 @@ private fun Application.configureServer() {
     configureHTTP()
     configureSerialization()
     configureDatabases()
-    configureRouting(get(), get())
+    configureRouting(get(), get(), get())
 }
 
 private fun CoroutineScope.launchBackgroundProcessing(

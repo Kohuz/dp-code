@@ -1,74 +1,73 @@
 package cz.cvut.controller
 
-import cz.cvut.resources.MeasurementResource
+import cz.cvut.resources.*
 import cz.cvut.service.MeasurementService
-import io.ktor.server.routing.*
+import cz.cvut.service.StationService
+import io.ktor.server.application.*
 import io.ktor.server.response.*
-import io.ktor.http.*
 import io.ktor.server.resources.*
+import io.ktor.server.routing.*
+import io.ktor.http.*
 
-fun Route.measurementRoutes(measurementService: MeasurementService) {
-    get<MeasurementResource> { resource ->
+fun Route.measurementRoutes(measurementService: MeasurementService, stationService: StationService) {
+
+    get<MeasurementResource> { params ->
+        if (params.stationId.isBlank()) {
+            return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: stationId")
+        }
+        if (!stationService.exists(params.stationId)) {
+            return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${params.stationId} not found")
+        }
+
         val dateFrom = call.request.queryParameters["dateFrom"]
         val dateTo = call.request.queryParameters["dateTo"]
         val element = call.request.queryParameters["element"]
         val resolution = call.request.queryParameters["resolution"]
 
-        if (dateFrom == null || dateTo == null || element.isNullOrBlank() || resolution.isNullOrBlank()) {
+        if (dateFrom.isNullOrBlank() || dateTo.isNullOrBlank() || element.isNullOrBlank() || resolution.isNullOrBlank()) {
             return@get call.respond(
                 HttpStatusCode.BadRequest,
-                "Missing required query parameters: dateFrom, dateTo, resolution and element"
+                "Missing required query parameters: dateFrom, dateTo, resolution, and element"
             )
         }
-        val measurements = measurementService.getMeasurements(resource.stationId, dateFrom, dateTo, element,resolution)
+
+        val measurements = measurementService.getMeasurements(params.stationId, dateFrom, dateTo, element, resolution)
         call.respond(measurements)
     }
 
-
-//
-//    get<MeasurementResource.AllTimeRecordsStation> { resource ->
-//        val stationId = resource.parent.stationId
-//        if (stationId.isBlank()) {
-//            return@get call.respond(
-//                HttpStatusCode.BadRequest,
-//                "Missing required parameter: stationId"
-//            )
-//        }
-//        val records = measurementService.getAllTimeRecordsStation(stationId)
-//        call.respond(records)
-//    }
-
-    get<MeasurementResource.StatsDayLongTerm> { resource ->
-        if (resource.date.isBlank()) {
-            return@get call.respond(
-                HttpStatusCode.BadRequest,
-                "Missing required parameter: date"
-            )
+    get<MeasurementStatsDayLongTermResource> { resource ->
+        if (resource.stationId.isBlank()) {
+            return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: stationId")
         }
-        val statsLongTerm = measurementService.getStatsLongTerm(resource.date, resource.parent.stationId)
+        if (!stationService.exists(resource.stationId)) {
+            return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${resource.stationId} not found")
+        }
+
+        val statsLongTerm = measurementService.getStatsLongTerm(resource.date, resource.stationId)
         call.respond(statsLongTerm)
     }
 
-    get<MeasurementResource.Actual> { resource ->
-        val stationId = resource.parent.stationId
-        if (stationId.isBlank()) {
-            return@get call.respond(
-                HttpStatusCode.BadRequest,
-                "Missing required parameter: stationId"
-            )
+    get<MeasurementActualResource> { params ->
+        if (params.stationId.isBlank()) {
+            return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: stationId")
         }
-        val actualMeasurements = measurementService.getActualMeasurements(stationId)
+        if (!stationService.exists(params.stationId)) {
+            return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${params.stationId} not found")
+        }
+
+        val actualMeasurements = measurementService.getActualMeasurements(params.stationId)
         call.respond(actualMeasurements)
     }
-    get<MeasurementResource.Recent> { resource ->
-        val stationId = resource.parent.stationId
-        if (stationId.isBlank()) {
-            return@get call.respond(
-                HttpStatusCode.BadRequest,
-                "Missing required parameter: stationId"
-            )
+
+    get<MeasurementRecentResource> { params ->
+        if (params.stationId.isBlank()) {
+            return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: stationId")
         }
-        val actualMeasurements = measurementService.getRecentMeasurements(stationId)
-        call.respond(actualMeasurements)
+        if (!stationService.exists(params.stationId)) {
+            return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${params.stationId} not found")
+        }
+
+        val recentMeasurements = measurementService.getRecentMeasurements(params.stationId)
+        call.respond(recentMeasurements)
     }
 }

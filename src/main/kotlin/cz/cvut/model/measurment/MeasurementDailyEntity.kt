@@ -11,7 +11,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 class MeasurementDailyEntity(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<MeasurementDailyEntity>(MeasurementDailyTable)
 
-    var stationId by MeasurementDailyTable.stationId // Keep stationId reference as it is
+    var stationId by MeasurementDailyTable.stationId
     var element by MeasurementDailyTable.element
     var date by MeasurementDailyTable.date
     var value by MeasurementDailyTable.value

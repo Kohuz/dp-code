@@ -78,6 +78,11 @@ class StationService(private val stationRepository: StationRepository) {
         stationRepository.saveStations(deduplicatedStations)
     }
 
+    fun exists(stationId: String): Boolean {
+        return getStationById(stationId) != null
+    }
+
+
     // Approximate distance calculation using Pythagorean theorem (for short distances)
     private fun calculateApproximateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
         val latDiff = lat2 - lat1

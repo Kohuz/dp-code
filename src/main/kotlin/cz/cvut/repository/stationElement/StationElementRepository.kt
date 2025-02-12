@@ -10,7 +10,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.transactions.transaction
 
-object StationElementRepository {
+class StationElementRepository {
     fun saveStationElements(elements: List<StationElement>) {
         transaction {
             elements.forEach { element ->
