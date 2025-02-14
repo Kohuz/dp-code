@@ -24,9 +24,10 @@ fun Application.module() {
     val stationService = get<StationService>()
     val stationElementService = get<StationElementService>()
     val measurementDownloadService = get<MeasurementDownloadService>()
+    val recordService = get<RecordService>()
 
-    launchBackgroundProcessing(stationService, stationElementService, measurementDownloadService)
-    schedulePeriodicTasks(measurementDownloadService, stationService)
+    launchBackgroundProcessing(stationService, stationElementService, measurementDownloadService, recordService)
+    schedulePeriodicTasks(measurementDownloadService, stationService, recordService)
 }
 
 private fun Application.installDependencies() {
@@ -49,55 +50,70 @@ private fun Application.configureServer() {
 private fun CoroutineScope.launchBackgroundProcessing(
     stationService: StationService,
     stationElementService: StationElementService,
-    measurementDownloadService: MeasurementDownloadService
+    measurementDownloadService: MeasurementDownloadService,
+    recordService: RecordService
 ) {
+    runBlocking {
+        stationService.processAndSaveStations()
+        stationElementService.processAndSaveStationElements()
+        stationElementService.downloadElementCodelist()
+    }
     launch {
-        processStationsAndMeasurements(stationService, stationElementService, measurementDownloadService)
+        processStationsAndMeasurements(stationService, stationElementService, measurementDownloadService, recordService)
     }
 }
 
 private suspend fun processStationsAndMeasurements(
     stationService: StationService,
     stationElementService: StationElementService,
-    measurementDownloadService: MeasurementDownloadService
+    measurementDownloadService: MeasurementDownloadService,
+    recordService: RecordService
 ) {
-    stationService.processAndSaveStations()
-    stationElementService.processAndSaveStationElements()
-    stationElementService.downloadElementCodelist()
+//    stationService.processAndSaveStations()
+//    stationElementService.processAndSaveStationElements()
+//    stationElementService.downloadElementCodelist()
 
     val stationIds = stationService.getAllStations().map { it.stationId }
     val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
 
-    processHistoricalMeasurements(stationIds, measurementDownloadService)
-    processRecentMeasurements(activeStationIds, measurementDownloadService)
+    processHistoricalMeasurements(stationIds, measurementDownloadService, recordService)
+    processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
 
     measurementDownloadService.proccessLatestJsonAndInsert()
 }
 
 private suspend fun processHistoricalMeasurements(
     stationIds: List<String>,
-    measurementDownloadService: MeasurementDownloadService
+    measurementDownloadService: MeasurementDownloadService,
+    recordService: RecordService
 ) {
+
     stationIds.forEach { stationId ->
         measurementDownloadService.processHistoricalDailyJsonAndInsert(stationId)
         measurementDownloadService.processHistoricalMonthlyJsonAndInsert(stationId)
         measurementDownloadService.processHistoricalYearlyJsonAndInsert(stationId)
         measurementDownloadService.processLatestJsonAndInsert(3, stationId)
+
+        recordService.calculateAndInsertRecords(stationId)
     }
 }
 
 private suspend fun processRecentMeasurements(
     activeStationIds: List<String>,
-    measurementDownloadService: MeasurementDownloadService
+    measurementDownloadService: MeasurementDownloadService,
+    recordService: RecordService
 ) {
     activeStationIds.forEach { stationId ->
         measurementDownloadService.processRecentDailyJsonAndInsert(stationId)
+
+        recordService.calculateAndInsertRecords(stationId)
     }
 }
 
 fun Application.schedulePeriodicTasks(
     measurementDownloadService: MeasurementDownloadService,
-    stationService: StationService
+    stationService: StationService,
+    recordService: RecordService
 ) {
     val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -116,7 +132,7 @@ fun Application.schedulePeriodicTasks(
         while (isActive) {
             try {
                 val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
-                processRecentMeasurements(activeStationIds, measurementDownloadService)
+                processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
             } catch (e: Exception) {
                 log.error("Error processing daily stats", e)
             }

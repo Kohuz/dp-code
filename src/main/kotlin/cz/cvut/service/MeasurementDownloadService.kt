@@ -1,6 +1,6 @@
 package cz.cvut.service
 
-import cz.cvut.repository.measurment.MeasurementRepository
+import cz.cvut.repository.measurement.MeasurementRepository
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*

@@ -47,7 +47,7 @@ fun Route.measurementRoutes(measurementService: MeasurementService, stationServi
         call.respond(statsLongTerm)
     }
 
-    get<MeasurementStatsDayLongTermResource> { resource ->
+    get<MeasurementStatsDayResource> { resource ->
         if (resource.stationId.isBlank()) {
             return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: stationId")
         }

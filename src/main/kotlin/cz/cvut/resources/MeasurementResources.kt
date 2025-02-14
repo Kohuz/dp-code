@@ -9,7 +9,7 @@ class MeasurementResource(val stationId: String)
 class MeasurementStatsDayLongTermResource(val stationId: String, val date: String)
 
 @Resource("/measurements/{stationId}/statsDay")
-class MeasurementStatsDayTermResource(val stationId: String, val date: String)
+class MeasurementStatsDayResource(val stationId: String, val date: String)
 
 @Resource("/measurements/{stationId}/actual")
 class MeasurementActualResource(val stationId: String)

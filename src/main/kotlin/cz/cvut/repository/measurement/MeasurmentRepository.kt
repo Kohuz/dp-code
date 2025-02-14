@@ -1,4 +1,4 @@
-package cz.cvut.repository.measurment
+package cz.cvut.repository.measurement
 
 import cz.cvut.database.table.*
 import cz.cvut.model.measurement.MeasurementLatestEntity
@@ -8,17 +8,19 @@ import cz.cvut.model.measurement.toMeasurement
 import cz.cvut.model.measurment.MeasurementDaily
 import cz.cvut.model.measurment.MeasurementDailyEntity
 import cz.cvut.model.measurment.toMeasurement
+import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaInstant
 import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.json.Extract
-import org.jetbrains.exposed.sql.kotlin.datetime.date
-import org.jetbrains.exposed.sql.max
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
 import java.io.StringReader
+import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities.Local
+import kotlin.time.Duration.Companion.days
 
 class MeasurementRepository {
     data class StationStat (val record: Double, val average: Double)
@@ -118,8 +120,8 @@ class MeasurementRepository {
 
 
     fun getRecentMeasurements(stationId: String) {
-        transaction {
-            val latestMeasurements = MeasurementLatestEntity.find { MeasurementLatestTable.stationId eq stationId }
+        return transaction {
+            MeasurementLatestEntity.find { MeasurementLatestTable.stationId eq stationId }
                 .orderBy(MeasurementLatestTable.timestamp to SortOrder.DESC)
                 .limit(24)
                 .toList()
@@ -150,6 +152,13 @@ class MeasurementRepository {
 
     }
 
+//    fun deleteOldLatestMeasurements() {
+//        transaction {
+//            MeasurementLatestTable.deleteWhere {
+//                MeasurementLatestTable.timestamp lessEq (LocalDate.minusDays(7) - 2.days)
+//            }
+//        }
+//    }
 
 
 

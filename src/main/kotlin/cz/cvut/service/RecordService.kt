@@ -3,6 +3,7 @@ package cz.cvut.service
 import cz.cvut.model.record.StationRecord
 import cz.cvut.repository.record.RecordRepository
 import kotlinx.datetime.LocalDate
+import org.jetbrains.exposed.sql.SortOrder
 
 class RecordService(private val recordRepository: RecordRepository) {
 
@@ -35,4 +36,37 @@ class RecordService(private val recordRepository: RecordRepository) {
         return stationRecords.groupBy { it.element }
             .map { (_, records) -> getHighestAndLowest(records) }
     }
+
+    fun calculateAndInsertRecords(stationId: String) {
+        val elements = recordRepository.getElementsForStation(stationId)
+
+        elements.forEach { element ->
+            val maxRecord = recordRepository.getRecord(stationId, element, SortOrder.DESC)
+            val minRecord = recordRepository.getRecord(stationId, element, SortOrder.ASC)
+
+            maxRecord?.let { (value, date) ->
+                recordRepository.insertRecord(
+                    StationRecord(
+                        stationId = stationId,
+                        element = element,
+                        recordType = "max",
+                        value = value,
+                        recordDate = LocalDate.parse(date)
+                    )
+                )
+            }
+            minRecord?.let { (value, date) ->
+                recordRepository.insertRecord(
+                    StationRecord(
+                        stationId = stationId,
+                        element = element,
+                        recordType = "min",
+                        value = value,
+                        recordDate = LocalDate.parse(date)
+                    )
+                )
+            }
+        }
+    }
+
 }

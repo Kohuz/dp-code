@@ -1,15 +1,8 @@
 package cz.cvut.service
 
 import cz.cvut.model.measurment.MeasurementDaily
-import cz.cvut.repository.measurment.MeasurementRepository
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.serialization.kotlinx.json.*
+import cz.cvut.repository.measurement.MeasurementRepository
 import kotlinx.datetime.LocalDate
-import kotlinx.serialization.json.*
-import java.time.YearMonth
-import java.time.format.DateTimeFormatter
 
 class MeasurementService(private val measurementRepository: MeasurementRepository) {
     fun getMeasurements(stationId: String, dateFrom: String, dateTo: String, element: String, resolution: String) { //TODO: resolution
