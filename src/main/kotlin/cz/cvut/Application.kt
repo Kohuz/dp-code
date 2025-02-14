@@ -76,8 +76,16 @@ private suspend fun processStationsAndMeasurements(
     val stationIds = stationService.getAllStations().map { it.stationId }
     val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
 
-    processHistoricalMeasurements(stationIds, measurementDownloadService, recordService)
-    processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
+    runBlocking {
+
+        processHistoricalMeasurements(stationIds, measurementDownloadService, recordService)
+        processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
+
+    }
+
+    stationIds.forEach { stationId ->
+        recordService.calculateAndInsertRecords(stationId)
+    }
 
     measurementDownloadService.proccessLatestJsonAndInsert()
 }
@@ -92,10 +100,10 @@ private suspend fun processHistoricalMeasurements(
         measurementDownloadService.processHistoricalDailyJsonAndInsert(stationId)
         measurementDownloadService.processHistoricalMonthlyJsonAndInsert(stationId)
         measurementDownloadService.processHistoricalYearlyJsonAndInsert(stationId)
-        measurementDownloadService.processLatestJsonAndInsert(3, stationId)
-
-        recordService.calculateAndInsertRecords(stationId)
+        measurementDownloadService.proccessLatestJsonAndInsert(false)
     }
+
+
 }
 
 private suspend fun processRecentMeasurements(
@@ -106,7 +114,7 @@ private suspend fun processRecentMeasurements(
     activeStationIds.forEach { stationId ->
         measurementDownloadService.processRecentDailyJsonAndInsert(stationId)
 
-        recordService.calculateAndInsertRecords(stationId)
+       // recordService.calculateAndInsertRecords(stationId)
     }
 }
 
@@ -120,7 +128,7 @@ fun Application.schedulePeriodicTasks(
     scope.launch {
         while (isActive) {
             try {
-                measurementDownloadService.proccessLatestJsonAndInsert()
+                measurementDownloadService.proccessLatestJsonAndInsert(true)
             } catch (e: Exception) {
                 log.error("Error processing latest measurements", e)
             }
