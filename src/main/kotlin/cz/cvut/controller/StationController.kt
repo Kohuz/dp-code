@@ -10,7 +10,7 @@ import cz.cvut.resources.*
 fun Route.stationRoutes(stationService: StationService) {
 
     get<StationsResource> { params ->
-        val stations = stationService.getAllStations(params.elevationMin, params.elevationMax, params.active)
+        val stations = stationService.getAllStations(params.elevationMin, params.elevationMax, params.active, params.name)
         call.respond(stations)
     }
 

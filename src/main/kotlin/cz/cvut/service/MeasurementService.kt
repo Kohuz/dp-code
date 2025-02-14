@@ -11,23 +11,25 @@ import kotlinx.serialization.json.*
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
-class MeasurementService(private val repository: MeasurementRepository) {
+class MeasurementService(private val measurementRepository: MeasurementRepository) {
     fun getMeasurements(stationId: String, dateFrom: String, dateTo: String, element: String, resolution: String) { //TODO: resolution
-        repository.getMeasurementsByStationandDateandElement(stationId, LocalDate.parse(dateFrom), LocalDate.parse(dateTo), element, resolution)
+        measurementRepository.getMeasurementsByStationandDateandElement(stationId, LocalDate.parse(dateFrom), LocalDate.parse(dateTo), element, resolution)
     }
 
     fun getActualMeasurements(stationId: String) {
-        repository.getLatestMeasurement(stationId)
+        measurementRepository.getLatestMeasurement(stationId)
     }
 
     fun getRecentMeasurements(stationId: String) {
-        repository.getRecentMeasurements(stationId)
+        measurementRepository.getRecentMeasurements(stationId)
     }
 
-    fun getStatsDayLongTerm(stationId: String, day: Int): List<Pair<MeasurementDaily?, MeasurementDaily?>> {
-        val records = recordRepository.getStatsDayLongTerm(stationId)
+    fun getStatsDayLongTerm(stationId: String, date: String): List<Pair<MeasurementDaily?, MeasurementDaily?>> {
+        val parsedDate = LocalDate.parse(date)
+        val records = measurementRepository.getStatsDayLongTerm(stationId)
         val filteredRecords = records.filter {
-            it.recordDate.dayOfMonth == day
+            it.date.dayOfMonth == parsedDate.dayOfMonth &&
+            it.date.month == parsedDate.month
         }
 
         return filteredRecords
@@ -39,9 +41,9 @@ class MeasurementService(private val repository: MeasurementRepository) {
             }
     }
 
-    // Filters and processes day-specific stats for a given date and station (date filtering done in the service)
-    fun getStatsDay(stationId: String, date: LocalDate): List<Pair<StationRecord?, StationRecord?>> {
-        val records = recordRepository.getStatsDay(stationId, date)
+    fun getStatsDay(stationId: String, date: String): List<Pair<MeasurementDaily?, MeasurementDaily?>> {
+        val parsedDate = LocalDate.parse(date)
+        val records = measurementRepository.getStatsDay(stationId, parsedDate)
 
         return records
             .groupBy { it.element }

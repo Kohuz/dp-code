@@ -6,7 +6,8 @@ import io.ktor.resources.*
 data class StationsResource(
     val elevationMin: Double? = null,
     val elevationMax: Double? = null,
-    val active: Boolean? = null
+    val active: Boolean? = null,
+    val name: String? = null
 )
 
 @Resource("/stations/{id}")

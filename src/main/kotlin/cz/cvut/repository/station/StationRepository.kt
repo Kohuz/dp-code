@@ -33,7 +33,10 @@ class StationRepository {
         }
     }
 
-    fun getStationsFiltered(elevationMin: Double? = null, elevationMax: Double? = null, active: Boolean? = null): List<Station> {
+    fun getStationsFiltered(elevationMin: Double? = null,
+                            elevationMax: Double? = null,
+                            active: Boolean? = null,
+                            name: String? = null): List<Station> {
         return transaction {
             StationEntity.find {
                 (elevationMin?.let { StationTable.elevation greaterEq it } ?: Op.TRUE) and
@@ -42,7 +45,8 @@ class StationRepository {
                             true -> StationTable.endDate eq LocalDateTime.parse("3999-12-31T23:59:00.000000")
                             false -> StationTable.endDate neq LocalDateTime.parse("3999-12-31T23:59:00.000000")
                             null -> Op.TRUE
-                        })
+                        }) and
+                        (name?.let { StationTable.location like "%${it.lowercase()}%" } ?: Op.TRUE)
             }.map { it.toStation() }
         }
     }
