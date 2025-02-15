@@ -9,4 +9,5 @@ val ServiceModule = module {
     single { MeasurementService(get()) }
     single { MeasurementDownloadService(get())}
     single { RecordService(get())}
+    single { StationDownloadService(get())}
 }

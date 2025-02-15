@@ -28,6 +28,7 @@ fun configureDatabases() {
         exec("DROP TABLE IF EXISTS elementcodelist CASCADE")
 
 
+        exec("DROP TABLE IF EXISTS measurementlatest CASCADE")
 
         SchemaUtils.create(
             StationTable,
@@ -38,6 +39,9 @@ fun configureDatabases() {
             MeasurementLatestTable,
             ElementCodelistTable,
             StationRecordTable
+        )
+        SchemaUtils.create(
+            MeasurementLatestTable
         )
 
     }

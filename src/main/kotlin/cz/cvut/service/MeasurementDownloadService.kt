@@ -21,6 +21,9 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
         val HISTORICAL_DAILY_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/daily/dly-"
         val url = "$HISTORICAL_DAILY_BASE_URL$stationId.json"
 
+        // Define the allowed elements
+        val allowedElements = setOf("TMA", "TMI", "Fmax", "SNO", "SCE", "SVH")
+
         try {
             val response: HttpResponse = client.get(url)
             val rawData = response.bodyAsText()
@@ -43,12 +46,15 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
                     val flag = row[5].jsonPrimitive.contentOrNull ?: ""
                     val quality = row[6].jsonPrimitive.doubleOrNull ?: 0.0
 
-                    append("$station,$element,$vtype,$dt,$valCol,$flag,$quality\n")
+                    // Only append if the element is in the allowed set
+                    if (element in allowedElements) {
+                        append("$station,$element,$vtype,$dt,$valCol,$flag,$quality\n")
+                    }
                 }
             }
 
+            // Save the filtered data
             repository.saveHistoricalDaily(csvData)
-
 
         } catch (e: Exception) {
             println("Error fetching or saving measurements for station $stationId: ${e.message}")
@@ -220,7 +226,8 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
             }
 
             // Group files by station ID
-            val stationFiles = filteredFiles.groupBy { filename -> filename.split("-")[4] }
+            val stationFiles = filteredFiles.distinct().groupBy { filename -> filename.split("-")[4] }
+
 
             for ((stationId, files) in stationFiles) {
                 for (fileName in files) {
@@ -259,57 +266,4 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
         }
     }
 
-
-
-//
-//    suspend fun processLatestJsonAndInsert(lastX: Int, stationId: String) {
-//        val BASE_URL = "https://opendata.chmi.cz/meteorology/climate/now/data/"
-//
-//        try {
-//            val latestFileNames = getLastThreeFilenames(lastX, stationId)
-//
-//            for (fileName in latestFileNames) {
-//                val url = "$BASE_URL$fileName"
-//
-//                val response: HttpResponse = client.get(url)
-//                val rawData = response.bodyAsText()
-//                val jsonObject = Json.parseToJsonElement(rawData).jsonObject
-//
-//                val valuesArray = jsonObject["data"]
-//                    ?.jsonObject?.get("data")
-//                    ?.jsonObject?.get("values")
-//                    ?.jsonArray ?: error("Invalid JSON structure")
-//
-//                val csvData = buildString {
-//                    append("station_id,element,timestamp,value,flag,quality\n")
-//                    for (entry in valuesArray) {
-//                        val row = entry.jsonArray
-//                        val station = row[0].jsonPrimitive.content
-//                        val element = row[1].jsonPrimitive.content
-//                        val timestamp = row[2].jsonPrimitive.content
-//                        val value = row[3].jsonPrimitive.contentOrNull ?: ""
-//                        val flag = row[4].jsonPrimitive.contentOrNull ?: ""
-//                        val quality = row[5].jsonPrimitive.doubleOrNull ?: 0.0
-//
-//                        append("$station,$element,$timestamp,$value,$flag,$quality\n")
-//                    }
-//                }
-//
-//                repository.saveLatestMeasurements(csvData)
-//            }
-//
-//        } catch (e: Exception) {
-//            println("Error fetching or saving latest measurements for station $stationId: ${e.message}")
-//        }
-//    }
-//
-//
-//
-//    fun getLastThreeFilenames(lastX: Int, stationId: String): List<String> {
-//        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
-//        return (lastX downTo 0).map {
-//            val date = java.time.LocalDate.now().minusDays(it.toLong()).format(formatter)
-//            "10m-$stationId-$date.json"
-//        }
-//    }
 }
