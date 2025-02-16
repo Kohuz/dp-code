@@ -65,6 +65,8 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
         val HISTORICAL_MONTHLY_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/monthly/mly-"
         val url = "$HISTORICAL_MONTHLY_BASE_URL$stationId.json"
 
+        val allowedElements = setOf("TMA", "TMI", "Fmax", "SNO", "SCE", "SVH")
+
         try {
             val response: HttpResponse = client.get(url)
             val rawData = response.bodyAsText()
@@ -89,7 +91,9 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
                     val flagRepeat = row[7].jsonPrimitive.contentOrNull ?: ""
                     val flagInterrupted = row[8].jsonPrimitive.contentOrNull ?: ""
 
-                    append("$station,$element,$year,$month,$timeFunction,$mdFunction,$value,$flagRepeat,$flagInterrupted\n")
+                    if (element in allowedElements) {
+                        append("$station,$element,$year,$month,$timeFunction,$mdFunction,$value,$flagRepeat,$flagInterrupted\n")
+                    }
                 }
             }
 
@@ -103,6 +107,7 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
     suspend fun processHistoricalYearlyJsonAndInsert(stationId: String) {
         val HISTORICAL_YEARLY_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/yearly/yrs-"
         val url = "$HISTORICAL_YEARLY_BASE_URL$stationId.json"
+        val allowedElements = setOf("TMA", "TMI", "Fmax", "SNO", "SCE", "SVH")
 
         try {
             val response: HttpResponse = client.get(url)
@@ -127,7 +132,9 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
                     val flagRepeat = row[6].jsonPrimitive.contentOrNull ?: ""
                     val flagInterrupted = row[7].jsonPrimitive.contentOrNull ?: ""
 
-                    append("$station,$element,$year,$timeFunction,$mdFunction,$value,$flagRepeat,$flagInterrupted\n")
+                    if (element in allowedElements) {
+                        append("$station,$element,$year,$timeFunction,$mdFunction,$value,$flagRepeat,$flagInterrupted\n")
+                    }
                 }
             }
 
