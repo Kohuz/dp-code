@@ -26,6 +26,7 @@
         val stationService = get<StationService>()
         val stationElementService = get<StationElementService>()
         val measurementDownloadService = get<MeasurementDownloadService>()
+        val measurementService = get<MeasurementService>()
         val recordService = get<RecordService>()
         val stationDownloadService = get<StationDownloadService>()
 
@@ -57,11 +58,11 @@
         measurementDownloadService: MeasurementDownloadService,
         recordService: RecordService
     ) {
-        runBlocking {
-            stationDownloadService.processAndSaveStations()
-            stationElementService.processAndSaveStationElements()
-            stationElementService.downloadElementCodelist()
-        }
+//        runBlocking {
+//            stationDownloadService.processAndSaveStations()
+//            stationElementService.processAndSaveStationElements()
+//            stationElementService.downloadElementCodelist()
+//        }
         launch {
             processStationsAndMeasurements(stationService, measurementDownloadService, recordService)
         }
@@ -81,16 +82,16 @@
         val stationIds = stationService.getAllStations().map { it.stationId }
         val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
 
-        runBlocking {
-
-            processHistoricalMeasurements(stationIds, measurementDownloadService, recordService)
-            processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
-
-        }
-
-//        stationIds.forEach { stationId ->
-//            recordService.calculateAndInsertRecords(stationId)
+//        runBlocking {
+//
+//            processHistoricalMeasurements(stationIds, measurementDownloadService, recordService)
+//            processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
+//
 //        }
+
+        stationIds.forEach { stationId ->
+            recordService.calculateAndInsertRecords(stationId)
+        }
 
         measurementDownloadService.proccessLatestJsonAndInsert()
     }
@@ -105,7 +106,6 @@
             measurementDownloadService.processHistoricalDailyJsonAndInsert(stationId)
             measurementDownloadService.processHistoricalMonthlyJsonAndInsert(stationId)
             measurementDownloadService.processHistoricalYearlyJsonAndInsert(stationId)
-           // measurementDownloadService.proccessLatestJsonAndInsert(false)
         }
 
 
@@ -117,11 +117,16 @@
         recordService: RecordService
     ) {
         activeStationIds.forEach { stationId ->
-            measurementDownloadService.processRecentDailyJsonAndInsert(stationId)
+           measurementDownloadService.processRecentDailyJsonAndInsert(stationId)
 
-           // recordService.calculateAndInsertRecords(stationId)
+           recordService.calculateAndInsertRecords(stationId)
         }
     }
+
+//    private suspend fun deleteOldLatestMeasurements(measurementService: MeasurementService) {
+//        measurementService.deleteOldLatest()
+//    }
+
 
     fun Application.schedulePeriodicTasks(
         measurementDownloadService: MeasurementDownloadService,

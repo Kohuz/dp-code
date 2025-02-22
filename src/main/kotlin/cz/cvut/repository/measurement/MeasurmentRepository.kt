@@ -8,9 +8,7 @@ import cz.cvut.model.measurement.toMeasurement
 import cz.cvut.model.measurment.MeasurementDaily
 import cz.cvut.model.measurment.MeasurementDailyEntity
 import cz.cvut.model.measurment.toMeasurement
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.toJavaInstant
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.and
@@ -19,8 +17,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
 import java.io.StringReader
-import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities.Local
-import kotlin.time.Duration.Companion.days
+import java.util.*
+
 
 class MeasurementRepository {
     data class StationStat (val record: Double, val average: Double)
@@ -152,10 +150,14 @@ class MeasurementRepository {
 
     }
 
-//    fun deleteOldLatestMeasurements() {
+//    fun deleteOldLatest(threshold: Int) {
+//        val calendar = Calendar.getInstance()
+//        calendar.add(Calendar.DATE, -threshold)
+//        val today: LocalDate = LocalDate()
+//
 //        transaction {
 //            MeasurementLatestTable.deleteWhere {
-//                MeasurementLatestTable.timestamp lessEq (LocalDate.minusDays(7) - 2.days)
+//                MeasurementLatestTable.timestamp lessEq calendar.time
 //            }
 //        }
 //    }

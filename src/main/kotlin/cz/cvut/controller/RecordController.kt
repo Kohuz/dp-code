@@ -32,7 +32,7 @@ fun Route.recordRoutes(recordService: RecordService, stationService: StationServ
             return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: stationId")
         }
 
-        val station = stationService.getStationById(resource.stationId)
+        stationService.getStationById(resource.stationId)
             ?: return@get call.respond(HttpStatusCode.NotFound, "Station with ID '${resource.stationId}' not found")
 
         val records = recordService.getAllTimeRecordsForStation(resource.stationId)
@@ -44,7 +44,7 @@ fun Route.recordRoutes(recordService: RecordService, stationService: StationServ
             return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameters: stationId and/or date")
         }
 
-        val station = stationService.getStationById(resource.stationId)
+        stationService.getStationById(resource.stationId)
             ?: return@get call.respond(HttpStatusCode.NotFound, "Station with ID '${resource.stationId}' not found")
 
         val records = recordService.getDailyRecordsForStation(resource.stationId, resource.date)

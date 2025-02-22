@@ -47,4 +47,8 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
             }
     }
 
+//    fun deleteOldLatest() {
+//        measurementRepository.deleteOldLatest()
+//    }
+
 }

@@ -42,8 +42,6 @@ class RecordService(private val recordRepository: RecordRepository) {
 
         elements.forEach { element ->
             val maxRecord = recordRepository.getRecord(stationId, element, SortOrder.DESC)
-            val minRecord = recordRepository.getRecord(stationId, element, SortOrder.ASC)
-
             maxRecord?.let { (value, date) ->
                 recordRepository.insertRecord(
                     StationRecord(
@@ -55,16 +53,21 @@ class RecordService(private val recordRepository: RecordRepository) {
                     )
                 )
             }
-            minRecord?.let { (value, date) ->
-                recordRepository.insertRecord(
-                    StationRecord(
-                        stationId = stationId,
-                        element = element,
-                        recordType = "min",
-                        value = value,
-                        recordDate = LocalDate.parse(date)
+            if(element == "T" || element == "TMI" || element == "TMA") {
+                val minRecord = recordRepository.getRecord(stationId, element, SortOrder.ASC)
+
+
+                minRecord?.let { (value, date) ->
+                    recordRepository.insertRecord(
+                        StationRecord(
+                            stationId = stationId,
+                            element = element,
+                            recordType = "min",
+                            value = value,
+                            recordDate = LocalDate.parse(date)
+                        )
                     )
-                )
+            }
             }
         }
     }

@@ -16,13 +16,13 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
             json()
         }
     }
+    val allowedElements = setOf("TMA", "TMI", "T", "Fmax", "SNO", "SCE", "SVH")
+
 
     suspend fun processHistoricalDailyJsonAndInsert(stationId: String) {
         val HISTORICAL_DAILY_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/daily/dly-"
         val url = "$HISTORICAL_DAILY_BASE_URL$stationId.json"
 
-        // Define the allowed elements
-        val allowedElements = setOf("TMA", "TMI", "Fmax", "SNO", "SCE", "SVH")
 
         try {
             val response: HttpResponse = client.get(url)
@@ -65,7 +65,6 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
         val HISTORICAL_MONTHLY_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/monthly/mly-"
         val url = "$HISTORICAL_MONTHLY_BASE_URL$stationId.json"
 
-        val allowedElements = setOf("TMA", "TMI", "Fmax", "SNO", "SCE", "SVH")
 
         try {
             val response: HttpResponse = client.get(url)
@@ -107,7 +106,6 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
     suspend fun processHistoricalYearlyJsonAndInsert(stationId: String) {
         val HISTORICAL_YEARLY_BASE_URL = "https://opendata.chmi.cz/meteorology/climate/historical/data/yearly/yrs-"
         val url = "$HISTORICAL_YEARLY_BASE_URL$stationId.json"
-        val allowedElements = setOf("TMA", "TMI", "Fmax", "SNO", "SCE", "SVH")
 
         try {
             val response: HttpResponse = client.get(url)
@@ -191,7 +189,9 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
                         val flag = row[5].jsonPrimitive.contentOrNull ?: ""
                         val quality = row[6].jsonPrimitive.doubleOrNull ?: 0.0
 
-                        append("$station,$element,$vtype,$dt,$valCol,$flag,$quality\n")
+                        if (element in allowedElements) {
+                            append("$station,$element,$vtype,$dt,$valCol,$flag,$quality\n")
+                        }
                     }
                 }
 
@@ -212,12 +212,12 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
     suspend fun proccessLatestJsonAndInsert(forTodayOnly: Boolean = false) {
         val BASE_URL = "https://opendata.chmi.cz/meteorology/climate/now/data/"
 
-        try {
+
             val response: HttpResponse = client.get(BASE_URL)
             val htmlContent = response.bodyAsText()
 
             // Extract all filenames
-            val regex = Regex("""1h-[^"]+\.json""")
+            val regex = Regex("""10m-[^"]+\.json""")
             val allFiles = regex.findAll(htmlContent)
                 .map { it.value }
 
@@ -240,6 +240,7 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
                 for (fileName in files) {
                     val url = "$BASE_URL$fileName" // Construct the correct URL
 
+                    try {
                     val fileResponse: HttpResponse = client.get(url)
                     val rawData = fileResponse.bodyAsText()
                     val jsonObject = Json.parseToJsonElement(rawData).jsonObject
@@ -260,17 +261,24 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
                             val flag = row[4].jsonPrimitive.contentOrNull ?: ""
                             val quality = row[5].jsonPrimitive.doubleOrNull ?: 0.0
 
-                            append("$station,$element,$timestamp,$value,$flag,$quality\n")
+                            if (element in allowedElements) {
+                                append("$station,$element,$timestamp,$value,$flag,$quality\n")
+                            }
+
                         }
                     }
 
                     repository.saveLatestMeasurements(csvData)
+                    }
+                    catch (e: Exception) {
+                        println("Error processing station files: ${e.message}")
+                    }
+
                 }
+
             }
 
-        } catch (e: Exception) {
-            println("Error processing station files: ${e.message}")
-        }
+
     }
 
 }
