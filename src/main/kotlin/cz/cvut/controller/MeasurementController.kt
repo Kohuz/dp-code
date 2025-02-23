@@ -3,7 +3,6 @@ package cz.cvut.controller
 import cz.cvut.resources.*
 import cz.cvut.service.MeasurementService
 import cz.cvut.service.StationService
-import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.resources.*
 import io.ktor.server.routing.*

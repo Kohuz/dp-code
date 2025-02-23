@@ -17,6 +17,9 @@ class StationRecordEntity(id: EntityID<Int>) : IntEntity(id) {
     var recordType by StationRecordTable.recordType
     var value by StationRecordTable.value
     var recordDate by StationRecordTable.recordDate
+
+    var station by StationEntity referencedOn MeasurementDailyTable.stationId
+
 }
 
 fun StationRecordEntity.toStationRecord(): StationRecord {

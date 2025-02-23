@@ -58,11 +58,11 @@
         measurementDownloadService: MeasurementDownloadService,
         recordService: RecordService
     ) {
-//        runBlocking {
-//            stationDownloadService.processAndSaveStations()
-//            stationElementService.processAndSaveStationElements()
-//            stationElementService.downloadElementCodelist()
-//        }
+        runBlocking {
+            stationDownloadService.processAndSaveStations()
+            stationElementService.processAndSaveStationElements()
+            stationElementService.downloadElementCodelist()
+        }
         launch {
             processStationsAndMeasurements(stationService, measurementDownloadService, recordService)
         }
@@ -82,12 +82,12 @@
         val stationIds = stationService.getAllStations().map { it.stationId }
         val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
 
-//        runBlocking {
-//
-//            processHistoricalMeasurements(stationIds, measurementDownloadService, recordService)
-//            processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
-//
-//        }
+        runBlocking {
+
+            processHistoricalMeasurements(stationIds, measurementDownloadService, recordService)
+            processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
+
+        }
 
         stationIds.forEach { stationId ->
             recordService.calculateAndInsertRecords(stationId)
