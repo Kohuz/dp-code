@@ -4,6 +4,8 @@ import cz.cvut.database.StationElementTable
 import cz.cvut.database.table.StationTable
 import cz.cvut.model.stationElement.StationElementEntity
 import cz.cvut.model.stationElement.toStationElement
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -49,4 +51,27 @@ fun Station.toStationEntity(): StationEntity {
                 latitude = this@toStationEntity.latitude
                 elevation = this@toStationEntity.elevation
         }
+}
+
+fun Station.toGeoJSONFeature(): GeoJSONFeature {
+        val properties = mapOf(
+                "stationId" to Json.encodeToJsonElement(this.stationId),
+                "code" to Json.encodeToJsonElement(this.code),
+                "startDate" to Json.encodeToJsonElement(this.startDate),
+                "endDate" to Json.encodeToJsonElement(this.endDate),
+                "location" to Json.encodeToJsonElement(this.location),
+                "elevation" to Json.encodeToJsonElement(this.elevation)
+        )
+
+        return GeoJSONFeature(
+                geometry = GeoJSONPoint(
+                        coordinates = listOf(this.longitude, this.latitude)
+                ),
+                properties = properties
+        )
+}
+fun List<Station>.toGeoJSONFeatureCollection(): GeoJSONFeatureCollection {
+        return GeoJSONFeatureCollection(
+                features = this.map { it.toGeoJSONFeature() }
+        )
 }

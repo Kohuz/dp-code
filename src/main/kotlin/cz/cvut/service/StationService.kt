@@ -1,6 +1,9 @@
 package cz.cvut.service
 
+import cz.cvut.model.station.GeoJSONFeature
 import cz.cvut.model.station.Station
+import cz.cvut.model.station.toGeoJSONFeature
+import cz.cvut.model.station.toGeoJSONFeatureCollection
 import cz.cvut.repository.station.StationRepository
 import cz.cvut.utils.StationUtils.parseLocalDateTime
 import io.ktor.client.*
@@ -14,12 +17,19 @@ import kotlin.math.sqrt
 class StationService(private val stationRepository: StationRepository) {
 
 
-    fun getAllStations(elevationMin: Double? = null, elevationMax: Double?  = null, active: Boolean? = null, name: String? = null): List<Station> {
-        return stationRepository.getStationsFiltered(elevationMin, elevationMax, active, name)
+    fun getAllStations(active: Boolean? = null): List<Station> {
+        return stationRepository.getStationsFiltered(active)
     }
 
-    fun getStationById(stationId: String): Station? {
-        return stationRepository.getStationById(stationId)
+    fun getStationsAsGeoJSON(): String {
+        val stations = getAllStations()
+        val geoJSON = stations.toGeoJSONFeatureCollection()
+        return Json.encodeToString(geoJSON)
+    }
+
+    fun getStationById(stationId: String): GeoJSONFeature? {
+        val station = stationRepository.getStationById(stationId)
+        return station?.toGeoJSONFeature()
     }
 
     fun getClosestStations(latitude: Double, longitude: Double, count: Int): List<Station> {

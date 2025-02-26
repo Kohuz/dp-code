@@ -4,11 +4,11 @@ import io.ktor.resources.*
 
 @Resource("/stations")
 data class StationsResource(
-    val elevationMin: Double? = null,
-    val elevationMax: Double? = null,
-    val active: Boolean? = null,
-    val name: String? = null
+    val active: Boolean? = null
 )
+
+@Resource("/geostations")
+class StationsGeoResource
 
 @Resource("/stations/{id}")
 class StationByIdResource(val id: String)
