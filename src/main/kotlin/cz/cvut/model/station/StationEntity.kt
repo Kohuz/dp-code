@@ -21,7 +21,6 @@ class StationEntity(id: EntityID<Int>) : IntEntity(id){
         var longitude by StationTable.longitude
         var latitude by StationTable.latitude
         var elevation by StationTable.elevation
-
         val stationElements by StationElementEntity referrersOn StationElementTable.stationId
 }
 
@@ -36,7 +35,8 @@ fun StationEntity.toStation(): Station {
                 longitude = this.longitude,
                 latitude = this.latitude,
                 elevation = this.elevation,
-                stationElements = this.stationElements.map { it.toStationElement() } // If applicable
+                stationElements = this.stationElements.map { it.toStationElement() }
+
         )
 }
 
@@ -53,25 +53,3 @@ fun Station.toStationEntity(): StationEntity {
         }
 }
 
-fun Station.toGeoJSONFeature(): GeoJSONFeature {
-        val properties = mapOf(
-                "stationId" to Json.encodeToJsonElement(this.stationId),
-                "code" to Json.encodeToJsonElement(this.code),
-                "startDate" to Json.encodeToJsonElement(this.startDate),
-                "endDate" to Json.encodeToJsonElement(this.endDate),
-                "location" to Json.encodeToJsonElement(this.location),
-                "elevation" to Json.encodeToJsonElement(this.elevation)
-        )
-
-        return GeoJSONFeature(
-                geometry = GeoJSONPoint(
-                        coordinates = listOf(this.longitude, this.latitude)
-                ),
-                properties = properties
-        )
-}
-fun List<Station>.toGeoJSONFeatureCollection(): GeoJSONFeatureCollection {
-        return GeoJSONFeatureCollection(
-                features = this.map { it.toGeoJSONFeature() }
-        )
-}

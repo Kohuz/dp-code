@@ -1,13 +1,11 @@
 package cz.cvut.repository.measurement
 
 import cz.cvut.database.table.*
-import cz.cvut.model.measurement.MeasurementLatestEntity
-import cz.cvut.model.measurement.MeasurementMonthlyEntity
-import cz.cvut.model.measurement.MeasurementYearlyEntity
-import cz.cvut.model.measurement.toMeasurement
+import cz.cvut.model.measurement.*
 import cz.cvut.model.measurment.MeasurementDaily
 import cz.cvut.model.measurment.MeasurementDailyEntity
 import cz.cvut.model.measurment.toMeasurement
+import cz.cvut.model.stationElement.StationElement
 import kotlinx.datetime.LocalDate
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
@@ -126,14 +124,19 @@ class MeasurementRepository {
         }
     }
 
-    fun getLatestMeasurement(stationId: String): MeasurementLatestEntity? {
+    fun getLatestMeasurement(element: StationElement, stationId: String): MeasurementLatest? {
         return transaction {
-            MeasurementLatestEntity.find { MeasurementLatestTable.stationId eq stationId }
-                .orderBy(MeasurementLatestTable.timestamp to SortOrder.DESC)
-                .limit(1)
-                .firstOrNull()
+            MeasurementLatestEntity.find {
+                        (MeasurementLatestTable.stationId eq stationId) and
+                                (MeasurementLatestTable.element eq element.elementAbbreviation)
+                    }
+                        .orderBy(MeasurementLatestTable.timestamp to SortOrder.DESC)
+                        .limit(1)
+                        .firstOrNull()?.toMeasurement()
         }
     }
+
+
 
     fun getStatsDayLongTerm(stationId: String): List<MeasurementDaily> {
         return MeasurementDailyEntity

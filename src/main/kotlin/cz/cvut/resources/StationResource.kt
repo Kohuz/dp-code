@@ -7,9 +7,6 @@ data class StationsResource(
     val active: Boolean? = null
 )
 
-@Resource("/geostations")
-class StationsGeoResource
-
 @Resource("/stations/{id}")
 class StationByIdResource(val id: String)
 

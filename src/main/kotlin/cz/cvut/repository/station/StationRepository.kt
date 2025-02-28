@@ -27,11 +27,6 @@ class StationRepository {
         }
     }
 
-    fun getAllStations(): List<Station> {
-        return transaction {
-            StationEntity.all().map { it.toStation() }
-        }
-    }
 
     fun getStationsFiltered(active: Boolean? = null): List<Station> {
         return transaction {

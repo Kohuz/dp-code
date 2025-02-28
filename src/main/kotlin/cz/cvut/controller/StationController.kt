@@ -14,11 +14,6 @@ fun Route.stationRoutes(stationService: StationService) {
         call.respond(stations)
     }
 
-    get<StationsGeoResource> {
-        val stations = stationService.getStationsAsGeoJSON()
-        call.respond(stations)
-    }
-
     get<StationByIdResource> { params ->
         if (params.id.isBlank()) {
             return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: id")

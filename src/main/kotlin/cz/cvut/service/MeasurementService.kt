@@ -1,20 +1,31 @@
 package cz.cvut.service
 
+import cz.cvut.model.measurement.MeasurementLatest
+import cz.cvut.model.measurement.MeasurementLatestEntity
 import cz.cvut.model.measurment.MeasurementDaily
 import cz.cvut.repository.measurement.MeasurementRepository
+import cz.cvut.repository.stationElement.StationElementRepository
 import kotlinx.datetime.LocalDate
 
-class MeasurementService(private val measurementRepository: MeasurementRepository) {
+class MeasurementService(private val measurementRepository: MeasurementRepository, private val stationElementRepository: StationElementRepository) {
     fun getMeasurements(stationId: String, dateFrom: String, dateTo: String, element: String, resolution: String) { //TODO: resolution
-        measurementRepository.getMeasurementsByStationandDateandElement(stationId, LocalDate.parse(dateFrom), LocalDate.parse(dateTo), element, resolution)
+        return measurementRepository.getMeasurementsByStationandDateandElement(stationId, LocalDate.parse(dateFrom), LocalDate.parse(dateTo), element, resolution)
     }
 
-    fun getActualMeasurements(stationId: String) {
-        measurementRepository.getLatestMeasurement(stationId)
+    fun getActualMeasurements(stationId: String): List<MeasurementLatest> {
+        val elements = stationElementRepository.getStationElementsByStationId(stationId)
+        val measurements: MutableList<MeasurementLatest> = mutableListOf()
+        elements.forEach{ element ->
+            val measurement = measurementRepository.getLatestMeasurement(element, stationId)
+            if (measurement != null) {
+                measurements.add(measurement)
+            }
+        }
+        return measurements
     }
 
     fun getRecentMeasurements(stationId: String) {
-        measurementRepository.getRecentMeasurements(stationId)
+        return measurementRepository.getRecentMeasurements(stationId)
     }
 
     fun getStatsDayLongTerm(stationId: String, date: String): List<Pair<MeasurementDaily?, MeasurementDaily?>> {

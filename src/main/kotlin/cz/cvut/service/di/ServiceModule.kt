@@ -5,9 +5,9 @@ import org.koin.dsl.module
 
 val ServiceModule = module {
     single { StationElementService(get()) }
-    single { StationService(get()) }
-    single { MeasurementService(get()) }
+    single { StationService(get(), get()) }
+    single { MeasurementService(get(), get()) }
     single { MeasurementDownloadService(get())}
-    single { RecordService(get())}
+    single { RecordService(get(), get())}
     single { StationDownloadService(get())}
 }
