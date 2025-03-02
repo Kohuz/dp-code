@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 data class MeasurementLatest(
     val stationId: String,
     val element: String,
-    val timestamp: LocalDate,
+    val timestamp: LocalDateTime,
     val value: Double?,
     val flag: String? = null,
     val quality: Double?,

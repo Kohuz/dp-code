@@ -10,7 +10,7 @@ import io.ktor.server.routing.*
 
 fun Route.stationElementCodelist(stationElementService: StationElementService) {
     get<ElementCodelistResource> {
-        val stations = stationElementService.getElementsCodelist()
-        call.respond(stations)
+        val elements = stationElementService.getElementsCodelist()
+        call.respond(elements)
     }
 }
