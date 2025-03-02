@@ -8,6 +8,11 @@ import kotlinx.datetime.LocalDate
 import org.jetbrains.exposed.sql.SortOrder
 
 class RecordService(private val recordRepository: RecordRepository, private val stationElementRepository: StationElementRepository) {
+    data class RecordStats(
+        val highest: StationRecord?,
+        val lowest: StationRecord?,
+        val average: Double?
+    )
 
     private fun getHighestAndLowest(records: List<StationRecord>): Pair<StationRecord?, StationRecord?> {
         val highest = records.maxByOrNull { it.value ?: Double.MIN_VALUE }
@@ -15,16 +20,23 @@ class RecordService(private val recordRepository: RecordRepository, private val 
         return Pair(highest, lowest)
     }
 
-    fun getAllTimeRecords(): List<Pair<StationRecord?, StationRecord?>> {
-        val allRecords = recordRepository.getAllTimeRecords()
-        return allRecords.groupBy { it.element }
-            .map { (_, records) -> getHighestAndLowest(records) }
+    private fun getStats(records: List<StationRecord>): RecordStats {
+        val highest = records.maxByOrNull { it.value ?: Double.MIN_VALUE }
+        val lowest = records.minByOrNull { it.value ?: Double.MAX_VALUE }
+        val average = records.mapNotNull { it.value }.average().takeIf { !it.isNaN() }
+        return RecordStats(highest, lowest, average)
     }
 
-    fun getAllTimeRecordsForStation(stationId: String): List<Pair<StationRecord?, StationRecord?>> {
+    fun getAllTimeRecords(): List<RecordStats> {
+        val allRecords = recordRepository.getAllTimeRecords()
+        return allRecords.groupBy { it.element }
+            .map { (_, records) -> getStats(records) }
+    }
+
+    fun getAllTimeRecordsForStation(stationId: String): List<RecordStats> {
         val stationRecords = recordRepository.getAllTimeRecordsForStation(stationId)
         return stationRecords.groupBy { it.element }
-            .map { (_, records) -> getHighestAndLowest(records) }
+            .map { (_, records) -> getStats(records) }
     }
 
     fun getDailyRecords(date: LocalDate): List<Pair<StationRecord?, StationRecord?>> {

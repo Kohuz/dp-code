@@ -31,7 +31,7 @@
         val stationDownloadService = get<StationDownloadService>()
 
         launchBackgroundProcessing(stationService, stationDownloadService, stationElementService, measurementDownloadService, recordService)
-       // schedulePeriodicTasks(measurementDownloadService, stationService, recordService)
+        schedulePeriodicTasks(measurementDownloadService, stationService, recordService)
     }
 
     private fun Application.installDependencies() {
@@ -58,14 +58,14 @@
         measurementDownloadService: MeasurementDownloadService,
         recordService: RecordService
     ) {
-        runBlocking {
-            stationDownloadService.processAndSaveStations()
-            stationElementService.processAndSaveStationElements()
-            stationElementService.downloadElementCodelist()
-        }
-        launch {
-            processStationsAndMeasurements(stationService, measurementDownloadService, recordService)
-        }
+//        runBlocking {
+//            stationDownloadService.processAndSaveStations()
+//            stationElementService.processAndSaveStationElements()
+//            stationElementService.downloadElementCodelist()
+//        }
+//        launch {
+//            processStationsAndMeasurements(stationService, measurementDownloadService, recordService)
+//        }
 
 
 

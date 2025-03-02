@@ -7,7 +7,6 @@ import org.jetbrains.exposed.dao.id.EntityID
 @Serializable
 data class StationElement(
     val stationId: String,
-    val observationType: String,
     val beginDate: LocalDateTime?,
     val endDate: LocalDateTime,
     val elementAbbreviation: String,

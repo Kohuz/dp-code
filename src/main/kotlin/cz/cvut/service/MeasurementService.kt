@@ -13,7 +13,7 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
     }
 
     fun getActualMeasurements(stationId: String): List<MeasurementLatest> {
-        val elements = stationElementRepository.getStationElementsByStationId(stationId)
+        val elements = stationElementRepository.getElementsForStation(stationId)
         val measurements: MutableList<MeasurementLatest> = mutableListOf()
         elements.forEach{ element ->
             val measurement = measurementRepository.getLatestMeasurement(element, stationId)
@@ -22,6 +22,13 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
             }
         }
         return measurements
+    }
+    fun getActualTemperatures(stationId: String): Double? {
+        val measurement = measurementRepository.getLatestMeasurement("T", stationId)
+        if (measurement != null) {
+            return measurement.value
+        }
+        return null
     }
 
     fun getRecentMeasurements(stationId: String) {

@@ -9,7 +9,6 @@ class StationElementEntity(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<StationElementEntity>(StationElementTable)
 
     var stationId by StationElementTable.stationId
-    var observationType by StationElementTable.observationType
     var beginDate by StationElementTable.beginDate
     var endDate by StationElementTable.endDate
     var elementAbbreviation by StationElementTable.elementAbbreviation
@@ -22,7 +21,6 @@ class StationElementEntity(id: EntityID<Int>) : IntEntity(id) {
 fun StationElementEntity.toStationElement(): StationElement {
     return StationElement(
         stationId = this.stationId,
-        observationType = this.observationType,
         beginDate = this.beginDate,
         endDate = this.endDate,
         elementAbbreviation = this.elementAbbreviation,
@@ -36,7 +34,6 @@ fun StationElementEntity.toStationElement(): StationElement {
 fun StationElement.toStationElementEntity(): StationElementEntity {
     return StationElementEntity.new {
         stationId = this@toStationElementEntity.stationId
-        observationType = this@toStationElementEntity.observationType
         beginDate = this@toStationElementEntity.beginDate
         endDate = this@toStationElementEntity.endDate
         elementAbbreviation = this@toStationElementEntity.elementAbbreviation

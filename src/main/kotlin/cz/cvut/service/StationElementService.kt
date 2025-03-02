@@ -69,7 +69,6 @@ class StationElementService(private val stationElementRepository: StationElement
         return valuesArray.map { recordArray ->
             val record = recordArray.jsonArray
             StationElement(
-                observationType = record[0].jsonPrimitive.content,
                 stationId = record[1].jsonPrimitive.content,
                 beginDate = parseLocalDateTime(record[2].jsonPrimitive.content),
                 endDate = parseLocalDateTime(record[3].jsonPrimitive.content),
@@ -101,7 +100,7 @@ class StationElementService(private val stationElementRepository: StationElement
 
     private fun deduplicateStationElements(elements: List<StationElement>): List<StationElement> {
         return elements
-            .groupBy { Triple(it.stationId, it.elementAbbreviation, it.observationType) }
+            .groupBy { Pair(it.stationId, it.elementAbbreviation) }
             .mapValues { (_, records) -> records.maxByOrNull { it.endDate } }
             .values
             .filterNotNull()

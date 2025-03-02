@@ -7,7 +7,6 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object StationElementTable : IntIdTable() {
-    val observationType = varchar("observation_type", 10)
     val stationId = reference("station_id", StationTable.stationId)
     val beginDate = datetime("begin_date").nullable()
     val endDate = datetime("end_date")

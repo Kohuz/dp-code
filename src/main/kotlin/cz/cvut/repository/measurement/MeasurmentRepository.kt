@@ -124,11 +124,11 @@ class MeasurementRepository {
         }
     }
 
-    fun getLatestMeasurement(element: StationElement, stationId: String): MeasurementLatest? {
+    fun getLatestMeasurement(elementAbbreviation: String, stationId: String): MeasurementLatest? {
         return transaction {
             MeasurementLatestEntity.find {
                         (MeasurementLatestTable.stationId eq stationId) and
-                                (MeasurementLatestTable.element eq element.elementAbbreviation)
+                                (MeasurementLatestTable.element eq elementAbbreviation)
                     }
                         .orderBy(MeasurementLatestTable.timestamp to SortOrder.DESC)
                         .limit(1)

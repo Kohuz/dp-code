@@ -17,6 +17,7 @@ class MeasurementLatestEntity(id: EntityID<Int>) : IntEntity(id) {
     var value by MeasurementLatestTable.value
     var flag by MeasurementLatestTable.flag
     var quality by MeasurementLatestTable.quality
+    var createdAt by MeasurementLatestTable.createdAt
 
     var station by StationEntity referencedOn MeasurementDailyTable.stationId
 }
@@ -28,7 +29,8 @@ fun MeasurementLatestEntity.toMeasurement(): cz.cvut.model.measurement.Measureme
         timestamp = this.timestamp,
         value = this.value,
         flag = this.flag,
-        quality = this.quality
+        quality = this.quality,
+        createdAt = this.createdAt
     )
 }
 

@@ -6,19 +6,45 @@ info:
 servers:
 - url: "https://DP"
 paths:
-  /:
+  /dayRecords:
+    get:
+      description: ""
+      parameters:
+      - name: "date"
+        in: "query"
+        required: true
+        schema:
+          type: "object"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required parameter: date"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Pair"
+  /elementsCodelist:
     get:
       description: ""
       responses:
         "200":
           description: "OK"
           content:
-            text/plain:
+            '*/*':
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Hello World!"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ElementCodelist"
   /measurements/{stationId}:
     get:
       description: ""
@@ -57,8 +83,19 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "Missing required query parameters: dateFrom, dateTo, resolution\
+                  value: "Missing required query parameters: dateFrom, dateTo, resolution,\
                     \ and element"
+                Example#2:
+                  value: "Missing required parameter: stationId"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
         "200":
           description: "OK"
           content:
@@ -84,12 +121,23 @@ paths:
               examples:
                 Example#1:
                   value: "Missing required parameter: stationId"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Unit"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/MeasurementLatest"
   /measurements/{stationId}/recent:
     get:
       description: ""
@@ -109,19 +157,24 @@ paths:
               examples:
                 Example#1:
                   value: "Missing required parameter: stationId"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Unit"
-  /measurements/{stationId}/statsDayLongTerm:
+  /measurements/{stationId}/statsDay:
     get:
-      description: "get<MeasurementResource.AllTimeRecordsStation> { resource -> <br>\
-        \ val stationId = resource.parent.stationId <br> if (stationId.isBlank())\
-        \ { <br> return@get call.respond( <br> HttpStatusCode.BadRequest, <br> \"\
-        Missing required parameter: stationId\" <br> ) <br> } <br> val records = measurementService.getAllTimeRecordsStation(stationId)\
-        \ <br> call.respond(records) <br> }"
+      description: ""
       parameters:
       - name: "stationId"
         in: "path"
@@ -142,27 +195,158 @@ paths:
                 type: "string"
               examples:
                 Example#1:
-                  value: "Missing required parameter: date"
+                  value: "Missing required parameter: stationId"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/Unit"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Pair"
+  /measurements/{stationId}/statsDayLongTerm:
+    get:
+      description: ""
+      parameters:
+      - name: "stationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "date"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required parameter: stationId"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Pair"
+  /recordsAllTime:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/RecordStats"
+  /stationAllTimeRecords/{stationId}:
+    get:
+      description: ""
+      parameters:
+      - name: "stationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required parameter: stationId"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/RecordStats"
+  /stationDayRecords/{stationId}:
+    get:
+      description: ""
+      parameters:
+      - name: "stationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "date"
+        in: "query"
+        required: true
+        schema:
+          type: "object"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required parameters: stationId and/or date"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Pair"
   /stations:
     get:
       description: ""
       parameters:
-      - name: "elevationMin"
-        in: "query"
-        required: false
-        schema:
-          type: "number"
-      - name: "elevationMax"
-        in: "query"
-        required: false
-        schema:
-          type: "number"
       - name: "active"
         in: "query"
         required: false
@@ -187,15 +371,24 @@ paths:
         schema:
           type: "string"
       responses:
-        "404":
-          description: "Not Found"
+        "400":
+          description: "Bad Request"
           content:
-            text/plain:
+            '*/*':
               schema:
                 type: "string"
               examples:
                 Example#1:
-                  value: "Station not found"
+                  value: "Missing required parameter: id"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
         "200":
           description: "OK"
           content:
@@ -222,15 +415,26 @@ paths:
         schema:
           type: "integer"
       responses:
-        "404":
-          description: "Not Found"
+        "400":
+          description: "Bad Request"
           content:
-            text/plain:
+            '*/*':
               schema:
                 type: "string"
               examples:
                 Example#1:
-                  value: "No stations found"
+                  value: "Count must be greater than 0"
+                Example#2:
+                  value: "Invalid latitude or longitude"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
         "200":
           description: "OK"
           content:
@@ -251,9 +455,78 @@ paths:
                 $ref: "#/components/schemas/Map_String"
 components:
   schemas:
+    Pair:
+      type: "object"
+      properties: {}
+    ElementCodelist:
+      type: "object"
+      properties:
+        abbreviation:
+          type: "string"
+        name:
+          type: "string"
+        unit:
+          type: "string"
+      required:
+      - "abbreviation"
+      - "name"
+      - "unit"
     Unit:
       type: "object"
       properties: {}
+    LocalDate:
+      type: "object"
+      properties: {}
+    MeasurementLatest:
+      type: "object"
+      properties:
+        stationId:
+          type: "string"
+        element:
+          type: "string"
+        timestamp:
+          $ref: "#/components/schemas/LocalDate"
+        value:
+          type: "number"
+          format: "double"
+        flag:
+          type: "string"
+        quality:
+          type: "number"
+          format: "double"
+      required:
+      - "stationId"
+      - "element"
+      - "timestamp"
+    StationRecord:
+      type: "object"
+      properties:
+        stationId:
+          type: "string"
+        element:
+          type: "string"
+        recordType:
+          type: "string"
+        value:
+          type: "number"
+          format: "double"
+        recordDate:
+          $ref: "#/components/schemas/LocalDate"
+      required:
+      - "stationId"
+      - "element"
+      - "recordType"
+      - "recordDate"
+    RecordStats:
+      type: "object"
+      properties:
+        highest:
+          $ref: "#/components/schemas/StationRecord"
+        lowest:
+          $ref: "#/components/schemas/StationRecord"
+        average:
+          type: "number"
+          format: "double"
     LocalDateTime:
       type: "object"
       properties: {}
@@ -261,8 +534,6 @@ components:
       type: "object"
       properties:
         stationId:
-          type: "string"
-        observationType:
           type: "string"
         beginDate:
           $ref: "#/components/schemas/LocalDateTime"
@@ -281,7 +552,6 @@ components:
           type: "string"
       required:
       - "stationId"
-      - "observationType"
       - "endDate"
       - "elementAbbreviation"
       - "elementName"
