@@ -16,9 +16,11 @@ import kotlinx.serialization.json.*
 
 class StationElementService(private val stationElementRepository: StationElementRepository){
     private val jsonConfig = Json { ignoreUnknownKeys = true }
+    val allowedElements = setOf("TMA", "TMI", "T", "Fmax","F", "SNO", "SCE", "SVH")
 
     suspend fun processAndSaveStationElements() {
         val stationElements = downloadStationElements()
+        val filteredStationElements = stationElements.filter { it.elementAbbreviation in allowedElements }
         val deduplicatedStationElements = deduplicateStationElements(stationElements)
         stationElementRepository.saveStationElements(deduplicatedStationElements)
         saveUniqueElements(deduplicatedStationElements)
@@ -34,6 +36,8 @@ class StationElementService(private val stationElementRepository: StationElement
                 json(jsonConfig)
             }
         }
+
+
 
         val response: HttpResponse = client.get(API_URL)
         val rawData = response.bodyAsText()

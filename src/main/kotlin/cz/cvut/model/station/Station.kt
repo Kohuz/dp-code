@@ -12,7 +12,7 @@ import kotlinx.serialization.json.JsonElement
 data class Station(
     val stationId: String,
     val code: String,
-    val startDate: LocalDateTime?,
+    val startDate: LocalDateTime,
     val endDate: LocalDateTime,
     val location: String,
     val longitude: Double,

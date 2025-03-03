@@ -39,7 +39,7 @@ class StationDownloadService(private val stationRepository: StationRepository) {
             Station(
                 stationId = stationData[0].jsonPrimitive.content,
                 code = stationData[1].jsonPrimitive.content,
-                startDate = stationData[2].jsonPrimitive.content.takeIf { it.isNotEmpty() }?.let { parseLocalDateTime(it) },
+                startDate = parseLocalDateTime(stationData[2].jsonPrimitive.content),
                 endDate = parseLocalDateTime(stationData[3].jsonPrimitive.content),
                 location = stationData[4].jsonPrimitive.content,
                 longitude = stationData[5].jsonPrimitive.double,
@@ -52,9 +52,16 @@ class StationDownloadService(private val stationRepository: StationRepository) {
     private fun deduplicateStations(stations: List<Station>): List<Station> {
         return stations
             .groupBy { it.stationId }
-            .mapValues { (_, records) -> records.maxByOrNull { it.endDate } }
+            .mapValues { (_, records) ->
+                val earliestStartDate = records.minByOrNull { it.startDate }!!.startDate
+                val latestEndDate = records.maxByOrNull { it.endDate }!!.endDate
+                records.first().copy(
+                    startDate = earliestStartDate,
+                    endDate = latestEndDate
+                )
+            }
             .values
-            .filterNotNull()
+            .toList()
     }
 
     suspend fun processAndSaveStations() {

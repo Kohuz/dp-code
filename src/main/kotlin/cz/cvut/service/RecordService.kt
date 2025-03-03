@@ -5,9 +5,11 @@ import cz.cvut.repository.measurement.MeasurementRepository
 import cz.cvut.repository.record.RecordRepository
 import cz.cvut.repository.stationElement.StationElementRepository
 import kotlinx.datetime.LocalDate
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.SortOrder
 
 class RecordService(private val recordRepository: RecordRepository, private val stationElementRepository: StationElementRepository) {
+    @Serializable
     data class RecordStats(
         val highest: StationRecord?,
         val lowest: StationRecord?,

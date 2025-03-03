@@ -12,7 +12,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 class StationRecordEntity(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<StationRecordEntity>(StationRecordTable)
 
-    var stationId by MeasurementDailyTable.stationId
+    var stationId by StationRecordTable.stationId
     var element by StationRecordTable.element
     var recordType by StationRecordTable.recordType
     var value by StationRecordTable.value
