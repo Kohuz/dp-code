@@ -18,11 +18,11 @@ fun Route.measurementRoutes(measurementService: MeasurementService, stationServi
             return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${params.stationId} not found")
         }
 
-        val dateFrom = call.request.queryParameters["dateFrom"]
-        val dateTo = call.request.queryParameters["dateTo"]
-        val element = call.request.queryParameters["element"]
+        val dateFrom = params.dateFrom
+        val dateTo = params.dateTo
+        val element = params.element
 
-        if (dateFrom.isNullOrBlank() || dateTo.isNullOrBlank() || element.isNullOrBlank()) {
+        if (dateFrom.isBlank() || dateTo.isBlank() || element.isBlank()) {
             return@get call.respond(
                 HttpStatusCode.BadRequest,
                 "Missing required query parameters: dateFrom, dateTo, and element"
@@ -40,11 +40,11 @@ fun Route.measurementRoutes(measurementService: MeasurementService, stationServi
             return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${params.stationId} not found")
         }
 
-        val dateFrom = call.request.queryParameters["dateFrom"]
-        val dateTo = call.request.queryParameters["dateTo"]
-        val element = call.request.queryParameters["element"]
+        val dateFrom = params.dateFrom
+        val dateTo = params.dateTo
+        val element = params.element
 
-        if (dateFrom.isNullOrBlank() || dateTo.isNullOrBlank() || element.isNullOrBlank()) {
+        if (dateFrom.isBlank() || dateTo.isBlank() || element.isBlank()) {
             return@get call.respond(
                 HttpStatusCode.BadRequest,
                 "Missing required query parameters: dateFrom, dateTo, and element"
@@ -62,11 +62,11 @@ fun Route.measurementRoutes(measurementService: MeasurementService, stationServi
             return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${params.stationId} not found")
         }
 
-        val dateFrom = call.request.queryParameters["dateFrom"]
-        val dateTo = call.request.queryParameters["dateTo"]
-        val element = call.request.queryParameters["element"]
+        val dateFrom = params.dateFrom
+        val dateTo = params.dateTo
+        val element = params.element
 
-        if (dateFrom.isNullOrBlank() || dateTo.isNullOrBlank() || element.isNullOrBlank()) {
+        if (dateFrom.isBlank() || dateTo.isBlank() || element.isBlank()) {
             return@get call.respond(
                 HttpStatusCode.BadRequest,
                 "Missing required query parameters: dateFrom, dateTo, and element"

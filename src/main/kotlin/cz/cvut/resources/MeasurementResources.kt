@@ -3,13 +3,13 @@ package cz.cvut.resources
 import io.ktor.resources.*
 
 @Resource("/measurements/{stationId}/daily")
-class MeasurementResourceDaily(val stationId: String)
+class MeasurementResourceDaily(val stationId: String, val dateFrom: String, val dateTo: String, val element: String)
 
 @Resource("/measurements/{stationId}/monthly")
-class MeasurementResourceMonthly(val stationId: String)
+class MeasurementResourceMonthly(val stationId: String, val dateFrom: String, val dateTo: String, val element: String)
 
 @Resource("/measurements/{stationId}/yearly")
-class MeasurementResourceYearly(val stationId: String)
+class MeasurementResourceYearly(val stationId: String, val dateFrom: String, val dateTo: String, val element: String)
 
 @Resource("/measurements/{stationId}/statsDayLongTerm")
 class MeasurementStatsDayLongTermResource(val stationId: String, val date: String)

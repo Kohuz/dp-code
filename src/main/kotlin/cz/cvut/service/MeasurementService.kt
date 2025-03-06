@@ -73,17 +73,10 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
         )
     }
 
-    fun getStatsDay(stationId: String, date: String): List<Pair<MeasurementDaily?, MeasurementDaily?>> {
+    fun getStatsDay(stationId: String, date: String): List<MeasurementDaily> {
         val parsedDate = LocalDate.parse(date)
-        val records = measurementRepository.getStatsDay(stationId, parsedDate)
+        return measurementRepository.getStatsDay(stationId, parsedDate)
 
-        return records
-            .groupBy { it.element }
-            .map { (_, elementRecords) ->
-                val highest = elementRecords.maxByOrNull { it.value ?: Double.MIN_VALUE }
-                val lowest = elementRecords.minByOrNull { it.value ?: Double.MAX_VALUE }
-                Pair(highest, lowest)
-            }
     }
 
     fun getMeasurementsForDayAndMonth(stationId: String, date: String): List<MeasurementDaily> {
