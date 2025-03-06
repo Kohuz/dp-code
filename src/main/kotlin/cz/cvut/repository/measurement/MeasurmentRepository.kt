@@ -5,17 +5,13 @@ import cz.cvut.model.measurement.*
 import cz.cvut.model.measurment.MeasurementDaily
 import cz.cvut.model.measurment.MeasurementDailyEntity
 import cz.cvut.model.measurment.toMeasurement
-import cz.cvut.model.stationElement.StationElement
 import kotlinx.datetime.LocalDate
 import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
 import java.io.StringReader
-import java.util.*
 
 
 class MeasurementRepository {
@@ -71,14 +67,12 @@ class MeasurementRepository {
     }
 
 
-    fun getMeasurementsByStationandDateandElement(
+    fun getMeasurementsDailyByStationandDateandElement(
         stationId: String,
         dateFrom: LocalDate,
         dateTo: LocalDate,
-        element: String,
-        resolution: String) {
+        element: String) {
         return transaction {
-            if(resolution == "daily"){
             MeasurementDailyEntity
                     .find {
                 MeasurementDailyTable.stationId eq stationId and
@@ -88,8 +82,15 @@ class MeasurementRepository {
             }
                 .map { it.toMeasurement() }
         }
-            else if (resolution == "monthly") {
-                MeasurementMonthlyEntity
+    }
+
+    fun getMeasurementsMonthlyByStationandDateandElement(
+        stationId: String,
+        dateFrom: LocalDate,
+        dateTo: LocalDate,
+        element: String) {
+        return transaction {
+             MeasurementMonthlyEntity
                     .find {
                         MeasurementMonthlyTable.stationId eq stationId and
                                 (MeasurementMonthlyTable.year greaterEq dateFrom.year) and
@@ -100,7 +101,14 @@ class MeasurementRepository {
                     }
                     .map { it.toMeasurement() }
             }
-            else if (resolution == "yearly") {
+        }
+
+    fun getMeasurementsYearlyByStationandDateandElement(
+        stationId: String,
+        dateFrom: LocalDate,
+        dateTo: LocalDate,
+        element: String) {
+        return transaction {
                 MeasurementYearlyEntity
                     .find {
                         MeasurementYearlyTable.stationId eq stationId and
@@ -111,8 +119,6 @@ class MeasurementRepository {
                     .map { it.toMeasurement() }
             }
         }
-
-    }
 
 
     fun getRecentMeasurements(stationId: String) {
@@ -138,8 +144,14 @@ class MeasurementRepository {
 
 
 
-    fun getStatsDayLongTerm(stationId: String): List<MeasurementDaily> {
+    fun getLongTermMeasurementsDaily(stationId: String): List<MeasurementDaily> {
         return MeasurementDailyEntity
+            .find { MeasurementDailyTable.stationId eq stationId }
+            .map { it.toMeasurement()}
+    }
+
+    fun getLongTermMeasurementsMonthly(stationId: String): List<MeasurementMonthly> {
+        return MeasurementMonthlyEntity
             .find { MeasurementDailyTable.stationId eq stationId }
             .map { it.toMeasurement()}
     }
@@ -164,9 +176,5 @@ class MeasurementRepository {
 //            }
 //        }
 //    }
-
-
-
-
 
 }

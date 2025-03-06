@@ -10,7 +10,7 @@ import io.ktor.http.*
 
 fun Route.measurementRoutes(measurementService: MeasurementService, stationService: StationService) {
 
-    get<MeasurementResource> { params ->
+    get<MeasurementResourceDaily> { params ->
         if (params.stationId.isBlank()) {
             return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: stationId")
         }
@@ -21,16 +21,59 @@ fun Route.measurementRoutes(measurementService: MeasurementService, stationServi
         val dateFrom = call.request.queryParameters["dateFrom"]
         val dateTo = call.request.queryParameters["dateTo"]
         val element = call.request.queryParameters["element"]
-        val resolution = call.request.queryParameters["resolution"]
 
-        if (dateFrom.isNullOrBlank() || dateTo.isNullOrBlank() || element.isNullOrBlank() || resolution.isNullOrBlank()) {
+        if (dateFrom.isNullOrBlank() || dateTo.isNullOrBlank() || element.isNullOrBlank()) {
             return@get call.respond(
                 HttpStatusCode.BadRequest,
-                "Missing required query parameters: dateFrom, dateTo, resolution, and element"
+                "Missing required query parameters: dateFrom, dateTo, and element"
             )
         }
 
-        val measurements = measurementService.getMeasurements(params.stationId, dateFrom, dateTo, element, resolution)
+        val measurements = measurementService.getMeasurementsDaily(params.stationId, dateFrom, dateTo, element)
+        call.respond(measurements)
+    }
+    get<MeasurementResourceMonthly> { params ->
+        if (params.stationId.isBlank()) {
+            return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: stationId")
+        }
+        if (!stationService.exists(params.stationId)) {
+            return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${params.stationId} not found")
+        }
+
+        val dateFrom = call.request.queryParameters["dateFrom"]
+        val dateTo = call.request.queryParameters["dateTo"]
+        val element = call.request.queryParameters["element"]
+
+        if (dateFrom.isNullOrBlank() || dateTo.isNullOrBlank() || element.isNullOrBlank()) {
+            return@get call.respond(
+                HttpStatusCode.BadRequest,
+                "Missing required query parameters: dateFrom, dateTo, and element"
+            )
+        }
+
+        val measurements = measurementService.getMeasurementsMonthly(params.stationId, dateFrom, dateTo, element)
+        call.respond(measurements)
+    }
+    get<MeasurementResourceYearly> { params ->
+        if (params.stationId.isBlank()) {
+            return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: stationId")
+        }
+        if (!stationService.exists(params.stationId)) {
+            return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${params.stationId} not found")
+        }
+
+        val dateFrom = call.request.queryParameters["dateFrom"]
+        val dateTo = call.request.queryParameters["dateTo"]
+        val element = call.request.queryParameters["element"]
+
+        if (dateFrom.isNullOrBlank() || dateTo.isNullOrBlank() || element.isNullOrBlank()) {
+            return@get call.respond(
+                HttpStatusCode.BadRequest,
+                "Missing required query parameters: dateFrom, dateTo, and element"
+            )
+        }
+
+        val measurements = measurementService.getMeasurementsYearly(params.stationId, dateFrom, dateTo, element)
         call.respond(measurements)
     }
 
@@ -45,6 +88,32 @@ fun Route.measurementRoutes(measurementService: MeasurementService, stationServi
         val statsLongTerm = measurementService.getStatsDayLongTerm(resource.stationId, resource.date)
         call.respond(statsLongTerm)
     }
+
+    get<MeasurementResourceDayAndMonth> { resource ->
+        if (resource.stationId.isBlank()) {
+            return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: stationId")
+        }
+        if (!stationService.exists(resource.stationId)) {
+            return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${resource.stationId} not found")
+        }
+
+        val statsLongTerm = measurementService.getMeasurementsForDayAndMonth(resource.stationId, resource.date)
+        call.respond(statsLongTerm)
+    }
+
+    get<MeasurementResourceMonth> { resource ->
+        if (resource.stationId.isBlank()) {
+            return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: stationId")
+        }
+        if (!stationService.exists(resource.stationId)) {
+            return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${resource.stationId} not found")
+        }
+
+        val statsLongTerm = measurementService.getMeasurementsForMonth(resource.stationId, resource.date)
+        call.respond(statsLongTerm)
+    }
+
+
 
     get<MeasurementStatsDayResource> { resource ->
         if (resource.stationId.isBlank()) {
