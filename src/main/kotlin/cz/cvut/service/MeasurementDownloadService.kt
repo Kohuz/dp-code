@@ -149,7 +149,6 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
 
         val now = YearMonth.now()
         val currentYear = now.year
-        val previousYear = currentYear - 1
         val currentMonth = now.monthValue
 
         val filePatterns = mutableListOf<String>()
@@ -157,15 +156,14 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
         // Add the current month's file (located in the root)
         filePatterns.add("$BASE_URL_RECENT/dly-$stationId-$currentYear${"%02d".format(currentMonth)}.json")
 
-        // Add past months (in their respective folders, but for last year)
-        (1..12).forEach { month ->
-            if (month != currentMonth) { // Skip the current month (already added above)
-                val formattedMonth = "%02d".format(month)
-                val fileUrl = "$BASE_URL_RECENT$formattedMonth/dly-$stationId-$previousYear$formattedMonth.json"
-                filePatterns.add(fileUrl)
-            }
+        // Add files for the previous months (in their respective folders)
+        for (month in 1 until currentMonth) {
+            val formattedMonth = "%02d".format(month)
+            val fileUrl = "$BASE_URL_RECENT$formattedMonth/dly-$stationId-$currentYear$formattedMonth.json"
+            filePatterns.add(fileUrl)
         }
 
+        // Process each URL
         for (url in filePatterns) {
             try {
                 val response: HttpResponse = client.get(url)

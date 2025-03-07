@@ -11,12 +11,13 @@ import org.jetbrains.exposed.dao.id.EntityID
 class MeasurementDailyEntity(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<MeasurementDailyEntity>(MeasurementDailyTable)
 
-    var stationId by MeasurementLatestTable.stationId
-    var element by MeasurementLatestTable.element
-    var date by MeasurementLatestTable.timestamp
-    var value by MeasurementLatestTable.value
-    var flag by MeasurementLatestTable.flag
-    var quality by MeasurementLatestTable.quality
+    var stationId by MeasurementDailyTable.stationId
+    var element by MeasurementDailyTable.element
+    var date by MeasurementDailyTable.date
+    var vtype by MeasurementDailyTable.vtype
+    var value by MeasurementDailyTable.value
+    var flag by MeasurementDailyTable.flag
+    var quality by MeasurementDailyTable.quality
 
     var station by StationEntity referencedOn MeasurementDailyTable.stationId
 
@@ -27,6 +28,7 @@ fun MeasurementDailyEntity.toMeasurement(): MeasurementDaily {
         stationId = this.stationId,
         element = this.element,
         date = this.date,
+        vtype = this.vtype,
         value = this.value,
         flag = this.flag,
         quality = this.quality,
@@ -39,6 +41,7 @@ fun MeasurementDaily.toMeasurementEntity(): MeasurementDailyEntity {
         stationId = this@toMeasurementEntity.stationId
         element = this@toMeasurementEntity.element
         date = this@toMeasurementEntity.date
+        vtype = this@toMeasurementEntity.vtype
         value = this@toMeasurementEntity.value
         flag = this@toMeasurementEntity.flag
         quality = this@toMeasurementEntity.quality

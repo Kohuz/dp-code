@@ -21,7 +21,7 @@ class StationElementService(private val stationElementRepository: StationElement
     suspend fun processAndSaveStationElements() {
         val stationElements = downloadStationElements()
         val filteredStationElements = stationElements.filter { it.elementAbbreviation in allowedElements }
-        val deduplicatedStationElements = deduplicateStationElements(stationElements)
+        val deduplicatedStationElements = deduplicateStationElements(filteredStationElements)
         stationElementRepository.saveStationElements(deduplicatedStationElements)
         saveUniqueElements(deduplicatedStationElements)
     }

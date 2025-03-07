@@ -12,6 +12,8 @@
     import org.jetbrains.exposed.sql.SchemaUtils
     import org.koin.ktor.ext.get
     import org.koin.ktor.plugin.Koin
+    import java.time.Duration
+    import java.time.LocalDateTime
     import kotlin.time.Duration.Companion.days
     import kotlin.time.Duration.Companion.hours
 
@@ -30,8 +32,13 @@
         val recordService = get<RecordService>()
         val stationDownloadService = get<StationDownloadService>()
 
-        launchBackgroundProcessing(stationService, stationDownloadService, stationElementService, measurementDownloadService, recordService)
-        schedulePeriodicTasks(measurementDownloadService, stationService, recordService)
+        runBlocking {
+            stationElementService.processAndSaveStationElements()
+            stationElementService.downloadElementCodelist()
+
+        }
+           // launchBackgroundProcessing(stationService, stationDownloadService, stationElementService, measurementDownloadService, recordService)
+        schedulePeriodicTasks(measurementDownloadService, stationService, recordService, measurementService)
     }
 
     private fun Application.installDependencies() {
@@ -63,9 +70,10 @@
 //            stationElementService.processAndSaveStationElements()
 //            stationElementService.downloadElementCodelist()
 //        }
-//        launch {
-//            processStationsAndMeasurements(stationService, measurementDownloadService, recordService)
-//        }
+
+        launch {
+            processStationsAndMeasurements(stationService, measurementDownloadService, recordService)
+        }
 
 
 
@@ -79,19 +87,19 @@
     ) {
 
 
-        val stationIds = stationService.getAllStations().map { it.stationId }
-        val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
-
+//        val stationIds = stationService.getAllStations().map { it.stationId }
+       val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
+//
         runBlocking {
 
-            processHistoricalMeasurements(stationIds, measurementDownloadService, recordService)
             processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
 
         }
+//
 
-        stationIds.forEach { stationId ->
-            recordService.calculateAndInsertRecords(stationId)
-        }
+//        stationIds.forEach { stationId ->
+//            recordService.calculateAndInsertRecords(stationId)
+//        }
 
         measurementDownloadService.proccessLatestJsonAndInsert()
     }
@@ -106,6 +114,7 @@
             measurementDownloadService.processHistoricalDailyJsonAndInsert(stationId)
             measurementDownloadService.processHistoricalMonthlyJsonAndInsert(stationId)
             measurementDownloadService.processHistoricalYearlyJsonAndInsert(stationId)
+            //measurementDownloadService.proccessLatestJsonAndInsert(false)
         }
 
 
@@ -123,38 +132,64 @@
         }
     }
 
-//    private suspend fun deleteOldLatestMeasurements(measurementService: MeasurementService) {
-//        measurementService.deleteOldLatest()
-//    }
-
-
     fun Application.schedulePeriodicTasks(
         measurementDownloadService: MeasurementDownloadService,
         stationService: StationService,
-        recordService: RecordService
+        recordService: RecordService,
+        measurementService: MeasurementService
     ) {
         val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
         scope.launch {
             while (isActive) {
                 try {
+                    // Calculate the delay until the next xx:05
+                    val now = LocalDateTime.now()
+                    val nextRun = now.withMinute(5).withSecond(0).withNano(0)
+                    val delayMillis = if (now.isBefore(nextRun)) {
+                        Duration.between(now, nextRun).toMillis()
+                    } else {
+                        Duration.between(now, nextRun.plusHours(1)).toMillis()
+                    }
+
+                    // Delay until the next xx:05
+                    delay(delayMillis)
+
+                    // Execute the task
                     measurementDownloadService.proccessLatestJsonAndInsert(true)
                 } catch (e: Exception) {
                     log.error("Error processing latest measurements", e)
                 }
-                delay(1.hours)
             }
         }
 
         scope.launch {
             while (isActive) {
                 try {
+                    // Calculate the delay until the next 3:00
+                    val now = LocalDateTime.now()
+                    val nextRun = now.withHour(3).withMinute(0).withSecond(0).withNano(0)
+                    val delayMillis = if (now.isBefore(nextRun)) {
+                        Duration.between(now, nextRun).toMillis()
+                    } else {
+                        Duration.between(now, nextRun.plusDays(1)).toMillis()
+                    }
+
+                    // Delay until the next 3:00
+                    delay(delayMillis)
+
+                    // Execute the task
                     val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
                     processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
                 } catch (e: Exception) {
                     log.error("Error processing daily stats", e)
                 }
-                delay(1.days)
+
+                try {
+                    measurementService.deleteOldLatest()
+                } catch (e: Exception) {
+                    log.error("Error deleting measurements")
+                }
             }
         }
     }

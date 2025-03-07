@@ -6,12 +6,19 @@ import cz.cvut.model.measurment.MeasurementDaily
 import cz.cvut.model.measurment.MeasurementDailyEntity
 import cz.cvut.model.measurment.toMeasurement
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toKotlinInstant
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
 import java.io.StringReader
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 
 class MeasurementRepository {
@@ -71,7 +78,7 @@ class MeasurementRepository {
         stationId: String,
         dateFrom: LocalDate,
         dateTo: LocalDate,
-        element: String) {
+        element: String): List<MeasurementDaily> {
         return transaction {
             MeasurementDailyEntity
                     .find {
@@ -165,16 +172,15 @@ class MeasurementRepository {
 
     }
 
-//    fun deleteOldLatest(threshold: Int) {
-//        val calendar = Calendar.getInstance()
-//        calendar.add(Calendar.DATE, -threshold)
-//        val today: LocalDate = LocalDate()
-//
-//        transaction {
-//            MeasurementLatestTable.deleteWhere {
-//                MeasurementLatestTable.timestamp lessEq calendar.time
-//            }
-//        }
-//    }
+
+    fun deleteOldLatest(threshold: Int = 2) {
+        val twoDaysAgo = Instant.now().minus(threshold.toLong(), ChronoUnit.DAYS)
+        val kotlinInstant = twoDaysAgo.toKotlinInstant()
+        transaction {
+            MeasurementLatestTable.deleteWhere {
+                MeasurementLatestTable.timestamp lessEq kotlinInstant.toLocalDateTime(TimeZone.UTC)
+            }
+        }
+    }
 
 }

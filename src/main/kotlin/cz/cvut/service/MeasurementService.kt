@@ -16,7 +16,7 @@ data class ValueStats(
 )
 
 class MeasurementService(private val measurementRepository: MeasurementRepository, private val stationElementRepository: StationElementRepository) {
-    fun getMeasurementsDaily(stationId: String, dateFrom: String, dateTo: String, element: String) {
+    fun getMeasurementsDaily(stationId: String, dateFrom: String, dateTo: String, element: String): List<MeasurementDaily> {
         return measurementRepository.getMeasurementsDailyByStationandDateandElement(stationId, LocalDate.parse(dateFrom), LocalDate.parse(dateTo), element)
     }
 
@@ -108,8 +108,8 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
         return filteredRecords
     }
 
-//    fun deleteOldLatest() {
-//        measurementRepository.deleteOldLatest()
-//    }
+    fun deleteOldLatest() {
+        measurementRepository.deleteOldLatest()
+    }
 
 }

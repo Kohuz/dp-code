@@ -34,11 +34,11 @@ fun MeasurementLatestEntity.toMeasurement(): cz.cvut.model.measurement.Measureme
     )
 }
 
-fun MeasurementLatest.toMeasurementEntity(): MeasurementDailyEntity {
-    return MeasurementDailyEntity.new {
+fun MeasurementLatest.toMeasurementEntity(): MeasurementLatestEntity {
+    return MeasurementLatestEntity.new {
         stationId = this@toMeasurementEntity.stationId
         element = this@toMeasurementEntity.element
-        date = this@toMeasurementEntity.timestamp
+        timestamp = this@toMeasurementEntity.timestamp
         value = this@toMeasurementEntity.value
         flag = this@toMeasurementEntity.flag
         quality = this@toMeasurementEntity.quality

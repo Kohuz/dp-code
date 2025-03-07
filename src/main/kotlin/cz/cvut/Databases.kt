@@ -9,7 +9,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 fun configureDatabases() {
     Database.connect(
-        "jdbc:postgresql://localhost:5433/dp",
+        "jdbc:postgresql://localhost:5432/dp",
         user = "postgres",
         password = "123456"
     )
@@ -44,9 +44,26 @@ fun configureDatabases() {
 //            MeasurementLatestTable
 //        )
 //
-//        exec("""
-//            CREATE INDEX IF NOT EXISTS idx_measurementdaily_station_element_value
-//            ON measurementdaily (station_id, element, value DESC);
-//        """.trimIndent())
+   transaction {
+       exec("DROP TABLE IF EXISTS elementcodelist")
+              exec("DROP TABLE IF EXISTS stationelement")
+       SchemaUtils.create(StationElementTable)
+       SchemaUtils.create(ElementCodelistTable)
+
+       exec(
+           """
+            CREATE INDEX IF NOT EXISTS idx_measurementdaily_station_element_value
+            ON measurementdaily (station_id, element, value DESC);
+        """.trimIndent()
+       )
+
+       exec(
+           """
+                CREATE INDEX IF NOT EXISTS idx_measurementlatest_id_element
+                ON measurementlatest (station_id, element, timestamp DESC);
+            """.trimIndent()
+       )
+   }
+
 //    }
 }
