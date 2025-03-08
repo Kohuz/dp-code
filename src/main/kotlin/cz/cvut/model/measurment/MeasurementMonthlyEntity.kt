@@ -20,7 +20,7 @@ class MeasurementMonthlyEntity(id: EntityID<Int>) : IntEntity(id) {
     var flagRepeat by MeasurementMonthlyTable.flagRepeat
     var flagInterrupted by MeasurementMonthlyTable.flagInterrupted
 
-    var station by StationEntity referencedOn MeasurementDailyTable.stationId
+    var station by StationEntity referencedOn MeasurementMonthlyTable.stationId
 
 }
 

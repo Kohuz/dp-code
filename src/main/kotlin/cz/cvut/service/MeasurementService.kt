@@ -8,7 +8,9 @@ import cz.cvut.repository.stationElement.StationElementRepository
 import cz.cvut.service.RecordService.*
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ValueStats(
     val highest: Double?, // Highest value
     val lowest: Double?,  // Lowest value

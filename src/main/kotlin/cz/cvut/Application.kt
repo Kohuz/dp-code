@@ -181,15 +181,17 @@
                     // Execute the task
                     val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
                     processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
+
+                    try {
+                        measurementService.deleteOldLatest()
+                    } catch (e: Exception) {
+                        log.error("Error deleting measurements")
+                    }
                 } catch (e: Exception) {
                     log.error("Error processing daily stats", e)
                 }
 
-                try {
-                    measurementService.deleteOldLatest()
-                } catch (e: Exception) {
-                    log.error("Error deleting measurements")
-                }
+
             }
         }
     }

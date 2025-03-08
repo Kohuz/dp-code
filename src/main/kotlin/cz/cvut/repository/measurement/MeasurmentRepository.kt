@@ -152,24 +152,30 @@ class MeasurementRepository {
 
 
     fun getLongTermMeasurementsDaily(stationId: String): List<MeasurementDaily> {
-        return MeasurementDailyEntity
-            .find { MeasurementDailyTable.stationId eq stationId }
-            .map { it.toMeasurement()}
+        return transaction {
+            MeasurementDailyEntity
+                .find { MeasurementDailyTable.stationId eq stationId }
+                .map { it.toMeasurement() }
+        }
     }
 
     fun getLongTermMeasurementsMonthly(stationId: String): List<MeasurementMonthly> {
-        return MeasurementMonthlyEntity
-            .find { MeasurementDailyTable.stationId eq stationId }
-            .map { it.toMeasurement()}
+        return transaction {
+            MeasurementMonthlyEntity
+                .find { MeasurementMonthlyTable.stationId eq stationId }
+                .map { it.toMeasurement() }
+        }
     }
 
     // Fetches all measurements for a specific station on a given date (day-specific) without filtering by element
     fun getStatsDay(stationId: String, date: LocalDate): List<MeasurementDaily> {
-        return MeasurementDailyEntity
-            .find {
-                (MeasurementDailyTable.stationId eq stationId) and (MeasurementDailyTable.date eq date) }
-            .map { it.toMeasurement()}
-
+        return transaction {
+            MeasurementDailyEntity
+                .find {
+                    (MeasurementDailyTable.stationId eq stationId) and (MeasurementDailyTable.date eq date)
+                }
+                .map { it.toMeasurement() }
+        }
     }
 
 
