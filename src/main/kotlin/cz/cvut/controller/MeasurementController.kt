@@ -89,6 +89,18 @@ fun Route.measurementRoutes(measurementService: MeasurementService, stationServi
         call.respond(statsLongTerm)
     }
 
+    get<MeasurementStatsMonthLongTermResource> { resource ->
+        if (resource.stationId.isBlank()) {
+            return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: stationId")
+        }
+        if (!stationService.exists(resource.stationId)) {
+            return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${resource.stationId} not found")
+        }
+
+        val statsLongTerm = measurementService.getStatsMonthLongTerm(resource.stationId, resource.date)
+        call.respond(statsLongTerm)
+    }
+
     get<MeasurementResourceDayAndMonth> { resource ->
         if (resource.stationId.isBlank()) {
             return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: stationId")

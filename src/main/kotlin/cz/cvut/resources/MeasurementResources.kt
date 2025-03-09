@@ -14,6 +14,9 @@ class MeasurementResourceYearly(val stationId: String, val dateFrom: String, val
 @Resource("/measurements/{stationId}/statsDayLongTerm")
 class MeasurementStatsDayLongTermResource(val stationId: String, val date: String)
 
+@Resource("/measurements/{stationId}/statsMonthLongTerm")
+class MeasurementStatsMonthLongTermResource(val stationId: String, val date: String)
+
 @Resource("/measurements/{stationId}/mesurementsDayAndMonth")
 class MeasurementResourceDayAndMonth(val stationId: String, val date: String)
 
