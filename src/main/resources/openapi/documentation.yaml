@@ -45,63 +45,6 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/ElementCodelist"
-  /measurements/{stationId}:
-    get:
-      description: ""
-      parameters:
-      - name: "dateFrom"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      - name: "dateTo"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      - name: "element"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      - name: "resolution"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      - name: "stationId"
-        in: "path"
-        required: true
-        schema:
-          type: "string"
-      responses:
-        "400":
-          description: "Bad Request"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Missing required query parameters: dateFrom, dateTo, resolution,\
-                    \ and element"
-                Example#2:
-                  value: "Missing required parameter: stationId"
-        "404":
-          description: "Not Found"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: ""
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Unit"
   /measurements/{stationId}/actual:
     get:
       description: ""
@@ -138,6 +81,194 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/MeasurementLatest"
+  /measurements/{stationId}/daily:
+    get:
+      description: ""
+      parameters:
+      - name: "stationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "dateFrom"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "dateTo"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "element"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required query parameters: dateFrom, dateTo, and\
+                    \ element"
+                Example#2:
+                  value: "Missing required parameter: stationId"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/MeasurementDaily"
+  /measurements/{stationId}/measurementsMonth:
+    get:
+      description: ""
+      parameters:
+      - name: "stationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "date"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required parameter: stationId"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/MeasurementMonthly"
+  /measurements/{stationId}/mesurementsDayAndMonth:
+    get:
+      description: ""
+      parameters:
+      - name: "stationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "date"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required parameter: stationId"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/MeasurementDaily"
+  /measurements/{stationId}/monthly:
+    get:
+      description: ""
+      parameters:
+      - name: "stationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "dateFrom"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "dateTo"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "element"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required query parameters: dateFrom, dateTo, and\
+                    \ element"
+                Example#2:
+                  value: "Missing required parameter: stationId"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
   /measurements/{stationId}/recent:
     get:
       description: ""
@@ -212,7 +343,7 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/Pair"
+                  $ref: "#/components/schemas/MeasurementDaily"
   /measurements/{stationId}/statsDayLongTerm:
     get:
       description: ""
@@ -253,7 +384,100 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/Pair"
+                  $ref: "#/components/schemas/ValueStats"
+  /measurements/{stationId}/statsMonthLongTerm:
+    get:
+      description: ""
+      parameters:
+      - name: "stationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "date"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required parameter: stationId"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ValueStats"
+  /measurements/{stationId}/yearly:
+    get:
+      description: ""
+      parameters:
+      - name: "stationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      - name: "dateFrom"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "dateTo"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      - name: "element"
+        in: "query"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Missing required query parameters: dateFrom, dateTo, and\
+                    \ element"
+                Example#2:
+                  value: "Missing required parameter: stationId"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Unit"
   /recordsAllTime:
     get:
       description: ""
@@ -471,10 +695,10 @@ components:
       - "abbreviation"
       - "name"
       - "unit"
-    Unit:
+    LocalDateTime:
       type: "object"
       properties: {}
-    LocalDate:
+    Instant:
       type: "object"
       properties: {}
     MeasurementLatest:
@@ -485,6 +709,35 @@ components:
         element:
           type: "string"
         timestamp:
+          $ref: "#/components/schemas/LocalDateTime"
+        value:
+          type: "number"
+          format: "double"
+        flag:
+          type: "string"
+        quality:
+          type: "number"
+          format: "double"
+        createdAt:
+          $ref: "#/components/schemas/Instant"
+      required:
+      - "stationId"
+      - "element"
+      - "timestamp"
+      - "createdAt"
+    LocalDate:
+      type: "object"
+      properties: {}
+    MeasurementDaily:
+      type: "object"
+      properties:
+        stationId:
+          type: "string"
+        element:
+          type: "string"
+        vtype:
+          type: "string"
+        date:
           $ref: "#/components/schemas/LocalDate"
         value:
           type: "number"
@@ -494,10 +747,61 @@ components:
         quality:
           type: "number"
           format: "double"
+        schedule:
+          type: "string"
       required:
       - "stationId"
       - "element"
-      - "timestamp"
+      - "vtype"
+      - "date"
+    MeasurementMonthly:
+      type: "object"
+      properties:
+        stationId:
+          type: "string"
+        element:
+          type: "string"
+        year:
+          type: "integer"
+          format: "int32"
+        month:
+          type: "integer"
+          format: "int32"
+        timeFunction:
+          type: "string"
+        mdFunction:
+          type: "string"
+        value:
+          type: "number"
+          format: "double"
+        flagRepeat:
+          type: "string"
+        flagInterrupted:
+          type: "string"
+      required:
+      - "stationId"
+      - "element"
+      - "timeFunction"
+      - "mdFunction"
+    Unit:
+      type: "object"
+      properties: {}
+    ValueStats:
+      type: "object"
+      properties:
+        element:
+          type: "string"
+        highest:
+          type: "number"
+          format: "double"
+        lowest:
+          type: "number"
+          format: "double"
+        average:
+          type: "number"
+          format: "double"
+      required:
+      - "element"
     StationRecord:
       type: "object"
       properties:
@@ -527,9 +831,6 @@ components:
         average:
           type: "number"
           format: "double"
-    LocalDateTime:
-      type: "object"
-      properties: {}
     StationElement:
       type: "object"
       properties:
@@ -583,12 +884,18 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/StationElement"
+        stationLatestMeasurements:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/MeasurementLatest"
       required:
       - "stationId"
       - "code"
+      - "startDate"
       - "endDate"
       - "location"
       - "stationElements"
+      - "stationLatestMeasurements"
     Map:
       type: "object"
       properties: {}

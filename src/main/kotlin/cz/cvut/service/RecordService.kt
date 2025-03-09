@@ -41,16 +41,16 @@ class RecordService(private val recordRepository: RecordRepository, private val 
             .map { (_, records) -> getStats(records) }
     }
 
-    fun getDailyRecords(date: LocalDate): List<Pair<StationRecord?, StationRecord?>> {
+    fun getDailyRecords(date: LocalDate): List<RecordStats> {
         val dailyRecords = recordRepository.getDailyRecords(date)
         return dailyRecords.groupBy { it.element }
-            .map { (_, records) -> getHighestAndLowest(records) }
+            .map { (_, records) -> getStats(records) }
     }
 
-    fun getDailyRecordsForStation(stationId: String, date: LocalDate): List<Pair<StationRecord?, StationRecord?>> {
+    fun getDailyRecordsForStation(stationId: String, date: LocalDate): List<RecordStats> {
         val stationRecords = recordRepository.getDailyRecordsForStation(stationId, date)
         return stationRecords.groupBy { it.element }
-            .map { (_, records) -> getHighestAndLowest(records) }
+            .map { (_, records) -> getStats(records) }
     }
 
     fun calculateAndInsertRecords(stationId: String) {
