@@ -91,6 +91,19 @@ class MeasurementRepository {
         }
     }
 
+    fun getMeasurementsDailyByStationandandElement(
+        stationId: String,
+        element: String): List<MeasurementDaily> {
+        return transaction {
+            MeasurementDailyEntity
+                .find {
+                    MeasurementDailyTable.stationId eq stationId and
+                            (MeasurementDailyTable.element eq element)
+                }
+                .map { it.toMeasurement() }
+        }
+    }
+
     fun getMeasurementsMonthlyByStationandDateandElement(
         stationId: String,
         dateFrom: LocalDate,
