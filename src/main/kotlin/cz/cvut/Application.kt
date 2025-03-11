@@ -32,13 +32,8 @@
         val recordService = get<RecordService>()
         val stationDownloadService = get<StationDownloadService>()
 
-        runBlocking {
-            stationElementService.processAndSaveStationElements()
-            stationElementService.downloadElementCodelist()
-
-        }
-           // launchBackgroundProcessing(stationService, stationDownloadService, stationElementService, measurementDownloadService, recordService)
-        schedulePeriodicTasks(measurementDownloadService, stationService, recordService, measurementService)
+       // launchBackgroundProcessing(stationService, stationDownloadService, stationElementService, measurementDownloadService, recordService)
+        //schedulePeriodicTasks(measurementDownloadService, stationService, recordService, measurementService)
     }
 
     private fun Application.installDependencies() {
@@ -65,11 +60,11 @@
         measurementDownloadService: MeasurementDownloadService,
         recordService: RecordService
     ) {
-//        runBlocking {
-//            stationDownloadService.processAndSaveStations()
-//            stationElementService.processAndSaveStationElements()
-//            stationElementService.downloadElementCodelist()
-//        }
+        runBlocking {
+            stationDownloadService.processAndSaveStations()
+            stationElementService.processAndSaveStationElements()
+            stationElementService.downloadElementCodelist()
+        }
 
         launch {
             processStationsAndMeasurements(stationService, measurementDownloadService, recordService)
@@ -86,20 +81,16 @@
         recordService: RecordService
     ) {
 
-
-//        val stationIds = stationService.getAllStations().map { it.stationId }
+        val stationIds = stationService.getAllStations().map { it.stationId }
        val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
 //
         runBlocking {
-
-            processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
-
+            processHistoricalMeasurements(stationIds, measurementDownloadService, recordService)
         }
-//
+        runBlocking {
+            processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
+        }
 
-//        stationIds.forEach { stationId ->
-//            recordService.calculateAndInsertRecords(stationId)
-//        }
 
         measurementDownloadService.proccessLatestJsonAndInsert()
     }
@@ -114,7 +105,7 @@
             measurementDownloadService.processHistoricalDailyJsonAndInsert(stationId)
             measurementDownloadService.processHistoricalMonthlyJsonAndInsert(stationId)
             measurementDownloadService.processHistoricalYearlyJsonAndInsert(stationId)
-            //measurementDownloadService.proccessLatestJsonAndInsert(false)
+            recordService.calculateAndInsertRecords(stationId)
         }
 
 
