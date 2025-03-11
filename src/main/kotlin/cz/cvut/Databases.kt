@@ -9,7 +9,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 fun configureDatabases() {
     Database.connect(
-        "jdbc:postgresql://localhost:5432/dp",
+        "jdbc:postgresql://localhost:5433/dp",
         user = "postgres",
         password = "123456"
     )
@@ -19,31 +19,32 @@ fun configureDatabases() {
 //        user = "root",
 //        password = "temp_password"
 //    )
-//    transaction {
-//        exec("DROP TABLE IF EXISTS stationelement CASCADE")
-//        exec("DROP TABLE IF EXISTS station CASCADE")
-//        exec("DROP TABLE IF EXISTS measurementdaily CASCADE")
-//        exec("DROP TABLE IF EXISTS measurementmonthly CASCADE")
-//        exec("DROP TABLE IF EXISTS measurementyearly CASCADE")
-//        exec("DROP TABLE IF EXISTS elementcodelist CASCADE")
-//
-//
-//        exec("DROP TABLE IF EXISTS measurementlatest")
-//
-//        SchemaUtils.create(
-//            StationTable,
-//            StationElementTable,
-//            MeasurementDailyTable,
-//            MeasurementMonthlyTable,
-//            MeasurementYearlyTable,
-//            MeasurementLatestTable,
-//            ElementCodelistTable,
-//            StationRecordTable
-//        )
-//        SchemaUtils.create(
-//            MeasurementLatestTable
-//        )
-//
+    transaction {
+        exec("DROP TABLE IF EXISTS stationelement CASCADE")
+        exec("DROP TABLE IF EXISTS station CASCADE")
+        exec("DROP TABLE IF EXISTS measurementdaily CASCADE")
+        exec("DROP TABLE IF EXISTS measurementmonthly CASCADE")
+        exec("DROP TABLE IF EXISTS measurementyearly CASCADE")
+        exec("DROP TABLE IF EXISTS elementcodelist CASCADE")
+
+
+        exec("DROP TABLE IF EXISTS measurementlatest")
+
+        SchemaUtils.create(
+            StationTable,
+            StationElementTable,
+            MeasurementDailyTable,
+            MeasurementMonthlyTable,
+            MeasurementYearlyTable,
+            MeasurementLatestTable,
+            ElementCodelistTable,
+            StationRecordTable
+        )
+        SchemaUtils.create(
+            MeasurementLatestTable
+        )
+    }
+
    transaction {
        exec("DROP TABLE IF EXISTS elementcodelist")
               exec("DROP TABLE IF EXISTS stationelement")
