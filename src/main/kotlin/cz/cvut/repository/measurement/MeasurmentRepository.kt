@@ -10,9 +10,11 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toKotlinInstant
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
@@ -108,26 +110,33 @@ class MeasurementRepository {
         stationId: String,
         dateFrom: LocalDate,
         dateTo: LocalDate,
-        element: String) {
+        element: String
+    ): List<MeasurementMonthly> {
         return transaction {
-             MeasurementMonthlyEntity
-                    .find {
-                        MeasurementMonthlyTable.stationId eq stationId and
-                                (MeasurementMonthlyTable.year greaterEq dateFrom.year) and
-                                (MeasurementMonthlyTable.month greaterEq dateFrom.monthNumber) and
-                                (MeasurementMonthlyTable.year lessEq dateTo.year) and
-                                (MeasurementMonthlyTable.month lessEq dateTo.monthNumber) and
-                                (MeasurementMonthlyTable.element eq element)
-                    }
-                    .map { it.toMeasurement() }
-            }
+            MeasurementMonthlyEntity
+                .find {
+                    (MeasurementMonthlyTable.stationId eq stationId) and
+                            (MeasurementMonthlyTable.element eq element) and
+                            (
+                                    (MeasurementMonthlyTable.year greaterEq dateFrom.year) and
+                                            (MeasurementMonthlyTable.month greaterEq dateFrom.monthNumber) or
+                                            (MeasurementMonthlyTable.year greater dateFrom.year)
+                                    ) and
+                            (
+                                    (MeasurementMonthlyTable.year lessEq dateTo.year) and
+                                            (MeasurementMonthlyTable.month lessEq dateTo.monthNumber) or
+                                            (MeasurementMonthlyTable.year less dateTo.year)
+                                    )
+                }
+                .map { it.toMeasurement() }
         }
+    }
 
     fun getMeasurementsYearlyByStationandDateandElement(
         stationId: String,
         dateFrom: LocalDate,
         dateTo: LocalDate,
-        element: String) {
+        element: String): List<MeasurementYearly> {
         return transaction {
                 MeasurementYearlyEntity
                     .find {
@@ -164,18 +173,32 @@ class MeasurementRepository {
 
 
 
-    fun getLongTermMeasurementsDaily(stationId: String): List<MeasurementDaily> {
+    fun getLongTermMeasurementsDaily(stationId: String, element: String?): List<MeasurementDaily> {
         return transaction {
+            val query = MeasurementDailyTable.stationId eq stationId
+
+            val finalQuery = if (element != null) {
+                query and (MeasurementDailyTable.element eq element)
+            } else {
+                query
+            }
+
             MeasurementDailyEntity
-                .find { MeasurementDailyTable.stationId eq stationId }
+                .find { finalQuery }
                 .map { it.toMeasurement() }
         }
     }
 
-    fun getLongTermMeasurementsMonthly(stationId: String): List<MeasurementMonthly> {
+    fun getLongTermMeasurementsMonthly(stationId: String, element: String?): List<MeasurementMonthly> {
         return transaction {
+            val query = MeasurementMonthlyTable.stationId eq stationId
+            val finalQuery = if (element != null) {
+                query and (MeasurementMonthlyTable.element eq element)
+            } else {
+                query
+            }
             MeasurementMonthlyEntity
-                .find { MeasurementMonthlyTable.stationId eq stationId }
+                .find { finalQuery }
                 .map { it.toMeasurement() }
         }
     }

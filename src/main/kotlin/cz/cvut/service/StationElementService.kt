@@ -16,7 +16,7 @@ import kotlinx.serialization.json.*
 
 class StationElementService(private val stationElementRepository: StationElementRepository){
     private val jsonConfig = Json { ignoreUnknownKeys = true }
-    val allowedElements = setOf("TMA", "TMI", "T", "Fmax","F", "SNO", "SCE", "SVH")
+    val allowedElements = setOf("TMA", "TMI", "T", "Fmax","F", "SNO", "SCE", "SRA")
 
     suspend fun processAndSaveStationElements() {
         val stationElements = downloadStationElements()
@@ -105,9 +105,13 @@ class StationElementService(private val stationElementRepository: StationElement
     private fun deduplicateStationElements(elements: List<StationElement>): List<StationElement> {
         return elements
             .groupBy { Pair(it.stationId, it.elementAbbreviation) }
-            .mapValues { (_, records) -> records.maxByOrNull { it.endDate } }
+            .mapValues { (_, records) ->
+                val oldestBeginDate = records.minByOrNull { it.beginDate!! }?.beginDate
+                val youngestEndDate = records.maxByOrNull { it.endDate }?.endDate
+                records.first().copy(beginDate = oldestBeginDate, endDate = youngestEndDate!!)
+            }
             .values
-            .filterNotNull()
+            .toList()
     }
 
     private fun saveUniqueElements(elements: List<StationElement>) {

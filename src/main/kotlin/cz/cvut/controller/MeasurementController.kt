@@ -109,7 +109,7 @@ fun Route.measurementRoutes(measurementService: MeasurementService, stationServi
             return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${resource.stationId} not found")
         }
 
-        val statsLongTerm = measurementService.getMeasurementsForDayAndMonth(resource.stationId, resource.date)
+        val statsLongTerm = measurementService.getMeasurementsForDayAndMonth(resource.stationId, resource.date, resource.element)
         call.respond(statsLongTerm)
     }
 
@@ -121,7 +121,7 @@ fun Route.measurementRoutes(measurementService: MeasurementService, stationServi
             return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${resource.stationId} not found")
         }
 
-        val statsLongTerm = measurementService.getMeasurementsForMonth(resource.stationId, resource.date)
+        val statsLongTerm = measurementService.getMeasurementsForMonth(resource.stationId, resource.date, resource.element)
         call.respond(statsLongTerm)
     }
 

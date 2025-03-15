@@ -14,11 +14,6 @@ class StationService(private val stationRepository: StationRepository, private v
 
     fun getAllStations(active: Boolean? = null): List<Station> {
         val stations =  stationRepository.getStationsFiltered(active)
-//        stations.forEach{ station ->
-//            if(station.isActive() && station.stationElements.isNotEmpty()){
-//                station.latestTemp = measurementService.getActualTemperatures(station.stationId)
-//            }
-//        }
         return stations
     }
 

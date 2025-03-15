@@ -66,4 +66,6 @@ dependencies {
     implementation("org.litote.kmongo:kmongo-root:5.2.1")
     implementation("org.postgresql:postgresql:42.7.2")
     implementation("io.ktor:ktor-server-cors:$ktor_version")
+    implementation("org.locationtech.proj4j:proj4j:1.3.0")
+    implementation("org.locationtech.proj4j:proj4j-epsg:1.3.0")
 }

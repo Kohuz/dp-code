@@ -9,7 +9,8 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.*
-import kotlin.math.sqrt
+import org.locationtech.proj4j.*
+
 
 class StationDownloadService(private val stationRepository: StationRepository) {
     private val API_URL = "https://opendata.chmi.cz/meteorology/climate/historical/metadata/meta1.json"
@@ -66,8 +67,36 @@ class StationDownloadService(private val stationRepository: StationRepository) {
 
     suspend fun processAndSaveStations() {
         val stations = downloadStations()
+
+
+//        val transformedStations = stations.map { station ->
+//            val (latitude, longitude) = transformSJTSKtoWGS84(station.latitude, station.longitude)
+//            station.copy(latitude = latitude, longitude = longitude)
+//        }
         val deduplicatedStations = deduplicateStations(stations)
         stationRepository.saveStations(deduplicatedStations)
     }
 
+    fun transformSJTSKtoWGS84(x: Double, y: Double): Pair<Double, Double> {
+        val crsFactory = CRSFactory()
+
+        val destCrs = crsFactory.createFromParameters(
+            "krovak","+proj=krovak"
+        )
+        val srcCrs = crsFactory.createFromParameters(
+            "WGS84",
+            "+proj=longlat +datum=WGS84 +no_defs"
+        )
+
+
+        val transform = CoordinateTransformFactory().createTransform(srcCrs, destCrs)
+
+        val srcCoord = ProjCoordinate(x, y)
+        val destCoord = ProjCoordinate()
+        transform.transform(srcCoord, destCoord)
+        return Pair(destCoord.x, destCoord.y)
     }
+
+}
+
+

@@ -17,11 +17,11 @@ class MeasurementStatsDayLongTermResource(val stationId: String, val date: Strin
 @Resource("/measurements/{stationId}/statsMonthLongTerm")
 class MeasurementStatsMonthLongTermResource(val stationId: String, val date: String)
 
-@Resource("/measurements/{stationId}/mesurementsDayAndMonth")
-class MeasurementResourceDayAndMonth(val stationId: String, val date: String)
+@Resource("/measurements/{stationId}/measurementsDayAndMonth")
+class MeasurementResourceDayAndMonth(val stationId: String, val date: String, val element: String)
 
 @Resource("/measurements/{stationId}/measurementsMonth")
-class MeasurementResourceMonth(val stationId: String, val date: String)
+class MeasurementResourceMonth(val stationId: String, val date: String, val element: String)
 
 @Resource("/measurements/{stationId}/statsDay")
 class MeasurementStatsDayResource(val stationId: String, val date: String)

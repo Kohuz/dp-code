@@ -2,6 +2,7 @@ package cz.cvut.service
 
 import cz.cvut.model.measurement.MeasurementLatest
 import cz.cvut.model.measurement.MeasurementMonthly
+import cz.cvut.model.measurement.MeasurementYearly
 import cz.cvut.model.measurment.MeasurementDaily
 import cz.cvut.repository.measurement.MeasurementRepository
 import cz.cvut.repository.stationElement.StationElementRepository
@@ -23,11 +24,11 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
         return measurementRepository.getMeasurementsDailyByStationandDateandElement(stationId, LocalDate.parse(dateFrom), LocalDate.parse(dateTo), element)
     }
 
-    fun getMeasurementsMonthly(stationId: String, dateFrom: String, dateTo: String, element: String) {
+    fun getMeasurementsMonthly(stationId: String, dateFrom: String, dateTo: String, element: String): List<MeasurementMonthly> {
         return measurementRepository.getMeasurementsMonthlyByStationandDateandElement(stationId, LocalDate.parse(dateFrom), LocalDate.parse(dateTo), element)
     }
 
-    fun getMeasurementsYearly(stationId: String, dateFrom: String, dateTo: String, element: String) {
+    fun getMeasurementsYearly(stationId: String, dateFrom: String, dateTo: String, element: String): List<MeasurementYearly> {
         return measurementRepository.getMeasurementsYearlyByStationandDateandElement(stationId, LocalDate.parse(dateFrom), LocalDate.parse(dateTo), element)
     }
 
@@ -56,7 +57,7 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
 
     fun getStatsDayLongTerm(stationId: String, date: String): List<ValueStats> {
         val parsedDate = LocalDate.parse(date)
-        val records = measurementRepository.getLongTermMeasurementsDaily(stationId)
+        val records = measurementRepository.getLongTermMeasurementsDaily(stationId, null)
 
         // Filter records for the same day and month across different years
         val filteredRecords = records.filter {
@@ -87,7 +88,7 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
     //TODO
     fun getStatsMonthLongTerm(stationId: String, date: String): List<ValueStats> {
         val parsedDate = LocalDate.parse(date)
-        val records = measurementRepository.getLongTermMeasurementsMonthly(stationId)
+        val records = measurementRepository.getLongTermMeasurementsMonthly(stationId, null)
 
         // Filter records for the same day and month across different years
         val filteredRecords = records.filter {
@@ -136,9 +137,9 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
 
     }
 
-    fun getMeasurementsForDayAndMonth(stationId: String, date: String): List<MeasurementDaily> {
+    fun getMeasurementsForDayAndMonth(stationId: String, date: String, element: String): List<MeasurementDaily> {
         // Fetch all long-term records for the station
-        val records = measurementRepository.getLongTermMeasurementsDaily(stationId)
+        val records = measurementRepository.getLongTermMeasurementsDaily(stationId, element)
 
         val parsedDate = LocalDate.parse(date)
 
@@ -151,9 +152,9 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
         return filteredRecords
     }
 
-    fun getMeasurementsForMonth(stationId: String, date: String): List<MeasurementMonthly> {
+    fun getMeasurementsForMonth(stationId: String, date: String, element: String): List<MeasurementMonthly> {
         // Fetch all long-term records for the station
-        val records = measurementRepository.getLongTermMeasurementsMonthly(stationId)
+        val records = measurementRepository.getLongTermMeasurementsMonthly(stationId, element)
 
         val parsedDate = LocalDate.parse(date)
 
