@@ -3,15 +3,20 @@ package cz.cvut
 import cz.cvut.database.StationElementTable
 import cz.cvut.database.table.*
 import cz.cvut.model.measurement.MeasurementLatest
+import io.ktor.server.config.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 
-fun configureDatabases() {
+fun configureDatabases(config: ApplicationConfig) {
+    val url = config.property("storage.jdbcURL").getString()
+    val user = config.property("storage.user").getString()
+    val password = config.property("storage.password").getString()
+
     Database.connect(
-        "jdbc:postgresql://localhost:5433/dp",
-        user = "postgres",
-        password = "123456"
+        url,
+        user = user,
+        password = password
     )
 
 //    Database.connect(

@@ -1,16 +1,21 @@
 services:
-  postgres:
-    image: postgres:17
-    container_name: postgres-db
+  web:
+    build: .
+    ports:
+      - "8081:8081"
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: temp_password
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: temp_password
-      POSTGRES_DB: dp
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - C:/Users/Jakub/Desktop/DP/DP:/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 1s
 
-volumes:
-  postgres_data:
+

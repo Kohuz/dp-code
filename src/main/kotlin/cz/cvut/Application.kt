@@ -24,7 +24,6 @@
     fun Application.module() {
         installDependencies()
         configureServer()
-
         val stationService = get<StationService>()
         val stationElementService = get<StationElementService>()
         val measurementDownloadService = get<MeasurementDownloadService>()
@@ -32,8 +31,10 @@
         val recordService = get<RecordService>()
         val stationDownloadService = get<StationDownloadService>()
 
-       // launchBackgroundProcessing(stationService, stationDownloadService, stationElementService, measurementDownloadService, recordService)
-        //schedulePeriodicTasks(measurementDownloadService, stationService, recordService, measurementService)
+
+
+        launchBackgroundProcessing(stationService, stationDownloadService, stationElementService, measurementDownloadService, recordService)
+        schedulePeriodicTasks(measurementDownloadService, stationService, recordService, measurementService)
     }
 
     private fun Application.installDependencies() {
@@ -49,7 +50,7 @@
     private fun Application.configureServer() {
         configureHTTP()
         configureSerialization()
-        configureDatabases()
+        configureDatabases(environment.config)
         configureRouting(get(), get(), get(), get())
     }
 
