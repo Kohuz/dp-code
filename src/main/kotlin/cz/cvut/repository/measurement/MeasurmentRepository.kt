@@ -225,4 +225,38 @@ class MeasurementRepository {
         }
     }
 
+    fun getTopMeasurementsDailyByElementAndStationOrDate(
+        element: String,
+        stationId: String?,
+        date: LocalDate?,
+        count: Int? = 10
+    ): List<MeasurementDaily> {
+        return transaction {
+            val query = when {
+                stationId != null && date != null -> {
+                    (MeasurementDailyTable.element eq element) and
+                            (MeasurementDailyTable.stationId eq stationId) and
+                            (MeasurementDailyTable.date eq date)
+                }
+                stationId != null -> {
+                    (MeasurementDailyTable.element eq element) and
+                            (MeasurementDailyTable.stationId eq stationId)
+                }
+                date != null -> {
+                    (MeasurementDailyTable.element eq element) and
+                            (MeasurementDailyTable.date eq date)
+                }
+                else -> {
+                    MeasurementDailyTable.element eq element
+                }
+            }
+
+            MeasurementDailyEntity
+                .find { query }
+                .orderBy(MeasurementDailyTable.value to SortOrder.DESC)
+                .limit(count ?: 10)
+                .map { it.toMeasurement() }
+        }
+    }
+
 }

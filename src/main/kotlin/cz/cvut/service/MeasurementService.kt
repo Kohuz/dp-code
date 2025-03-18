@@ -170,4 +170,9 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
         measurementRepository.deleteOldLatest()
     }
 
+    fun getTopMeasurements(element: String, stationId: String? = null, date: String? = null): List<MeasurementDaily> {
+        return measurementRepository.getTopMeasurementsDailyByElementAndStationOrDate(element, stationId,
+            date?.let { LocalDate.parse(it) })
+    }
+
 }
