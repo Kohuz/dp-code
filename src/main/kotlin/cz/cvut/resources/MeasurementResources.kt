@@ -30,7 +30,11 @@ class MeasurementStatsDayResource(val stationId: String, val date: String)
 class MeasurementActualResource(val stationId: String)
 
 @Resource("/measurements/{element}/top")
-class MeasurementResourceTop(val element: String, val stationId: String, val date: String)
+class MeasurementResourceTop(
+    val element: String,
+    val stationId: String? = null,
+    val date: String? = null
+)
 
 @Resource("/measurements/{stationId}/recent")
 class MeasurementRecentResource(val stationId: String)
