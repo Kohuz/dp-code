@@ -74,7 +74,8 @@ class StationDownloadService(private val stationRepository: StationRepository) {
 //            station.copy(latitude = latitude, longitude = longitude)
 //        }
         val deduplicatedStations = deduplicateStations(stations)
-        stationRepository.saveStations(deduplicatedStations)
+        val stationsWithoutReykjavik = deduplicatedStations.filter { it.code != "ZIS04030" }
+        stationRepository.saveStations(stationsWithoutReykjavik)
     }
 
     fun transformSJTSKtoWGS84(x: Double, y: Double): Pair<Double, Double> {

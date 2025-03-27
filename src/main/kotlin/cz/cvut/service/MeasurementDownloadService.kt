@@ -16,7 +16,7 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
             json()
         }
     }
-    val allowedElements = setOf("TMA", "TMI", "T", "Fmax","F", "SNO", "SCE", "SRA")
+    val allowedElements = setOf("TMA", "TMI", "T", "Fmax","F", "SNO", "SCE", "SRA", "SRA1H")
 
 
     suspend fun processHistoricalDailyJsonAndInsert(stationId: String) {

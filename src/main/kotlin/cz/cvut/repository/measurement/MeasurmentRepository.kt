@@ -162,15 +162,14 @@ class MeasurementRepository {
     fun getLatestMeasurement(elementAbbreviation: String, stationId: String): MeasurementLatest? {
         return transaction {
             MeasurementLatestEntity.find {
-                        (MeasurementLatestTable.stationId eq stationId) and
-                                (MeasurementLatestTable.element eq elementAbbreviation)
-                    }
-                        .orderBy(MeasurementLatestTable.timestamp to SortOrder.DESC)
-                        .limit(1)
-                        .firstOrNull()?.toMeasurement()
+                (MeasurementLatestTable.stationId eq stationId) and
+                        (MeasurementLatestTable.element eq elementAbbreviation)
+            }
+                .orderBy(MeasurementLatestTable.timestamp to SortOrder.DESC)
+                .limit(1)
+                .firstOrNull()?.toMeasurement()
         }
     }
-
 
 
     fun getLongTermMeasurementsDaily(stationId: String, element: String?): List<MeasurementDaily> {
@@ -238,25 +237,29 @@ class MeasurementRepository {
                             (MeasurementDailyTable.stationId eq stationId) and
                             (MeasurementDailyTable.date eq date)
                 }
+
                 stationId != null -> {
                     (MeasurementDailyTable.element eq element) and
                             (MeasurementDailyTable.stationId eq stationId)
                 }
+
                 date != null -> {
                     (MeasurementDailyTable.element eq element) and
                             (MeasurementDailyTable.date eq date)
                 }
+
                 else -> {
                     MeasurementDailyTable.element eq element
                 }
             }
 
+            val sortOrder = if (element == "TMI") SortOrder.DESC else SortOrder.ASC
+
             MeasurementDailyEntity
                 .find { query }
-                .orderBy(MeasurementDailyTable.value to SortOrder.DESC)
+                .orderBy(MeasurementDailyTable.value to sortOrder)
                 .limit(count ?: 10)
                 .map { it.toMeasurement() }
         }
     }
-
 }

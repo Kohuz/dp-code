@@ -85,7 +85,6 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
         return statsList
     }
 
-    //TODO
     fun getStatsMonthLongTerm(stationId: String, date: String): List<ValueStats> {
         val parsedDate = LocalDate.parse(date)
         val records = measurementRepository.getLongTermMeasurementsMonthly(stationId, null)

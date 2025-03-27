@@ -20,9 +20,9 @@ fun configureDatabases(config: ApplicationConfig) {
     )
 
 //    Database.connect(
-//        "jdbc:postgresql://localhost:5432/dp",
-//        user = "root",
-//        password = "temp_password"
+//        "jdbc:postgresql://localhost:5433/dp",
+//        user = "postgres",
+//        password = "123456"
 //    )
     transaction {
         exec("DROP TABLE IF EXISTS stationelement CASCADE")
@@ -69,7 +69,53 @@ fun configureDatabases(config: ApplicationConfig) {
                 ON measurementlatest (station_id, element, timestamp DESC);
             """.trimIndent()
        )
+
+       exec(
+           """
+        CREATE INDEX IF NOT EXISTS idx_measurementdaily_element_station
+        ON measurementdaily (element, station_id);
+        """.trimIndent()
+       )
+
+       // Date-specific index
+       exec(
+           """
+        CREATE INDEX IF NOT EXISTS idx_measurementdaily_element_date
+        ON measurementdaily (element, date);
+        """.trimIndent()
+       )
+
+       exec(
+           """
+        CREATE INDEX IF NOT EXISTS idx_measurementdaily_tmi_value_asc
+        ON measurementdaily (element, value ASC) 
+        WHERE element = 'TMI';
+        """.trimIndent()
+       )
+
+       exec(
+           """
+        CREATE INDEX IF NOT EXISTS idx_measurementlatest_id_element
+        ON measurementlatest (station_id, element, timestamp DESC);
+        """.trimIndent()
+       )
+
+       exec(
+           """
+    CREATE INDEX IF NOT EXISTS idx_measurementdaily_station_element_date
+    ON measurementdaily (station_id, element, date DESC);
+    """.trimIndent()
+       )
+
+       exec(
+           """
+    CREATE INDEX IF NOT EXISTS idx_measurementdaily_station_date
+    ON measurementdaily (station_id, date DESC);
+    """.trimIndent()
+       )
    }
+
+
 
 //    }
 }
