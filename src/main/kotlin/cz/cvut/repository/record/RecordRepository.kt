@@ -22,36 +22,9 @@ class RecordRepository {
         StationRecordEntity.all().map { it.toStationRecord() }
     }
 
-    fun getDailyRecords(date: LocalDate): List<StationRecord> = transaction {
-        StationRecordEntity.find { StationRecordTable.recordDate eq date }
-            .map { it.toStationRecord() }
-    }
-
     fun getAllTimeRecordsForStation(stationId: String): List<StationRecord> = transaction {
         StationRecordEntity.find { StationRecordTable.stationId eq stationId }
             .map { it.toStationRecord() }
-    }
-
-    fun getDailyRecordsForStation(stationId: String, date: LocalDate): List<StationRecord> = transaction {
-        StationRecordEntity.find {
-            (StationRecordTable.stationId eq stationId) and (StationRecordTable.recordDate eq date)
-        }.map { it.toStationRecord() }
-    }
-
-    fun getRecord(stationId: String, element: String, order: SortOrder): Pair<Double?, String>? {
-        return transaction {
-            MeasurementDailyEntity
-                .find {
-                    (MeasurementDailyTable.stationId eq stationId) and
-                            (MeasurementDailyTable.element eq element) and
-                            (MeasurementDailyTable.value.isNotNull()) // Exclude rows where value is null
-                }
-                .orderBy(MeasurementDailyTable.value to order)
-                .limit(1)
-                .firstOrNull()?.let {
-                    it.value to it.date.toString() // value is guaranteed to be non-null
-                }
-        }
     }
 
     fun insertRecord(stationRecord: StationRecord) {

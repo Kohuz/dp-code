@@ -151,17 +151,6 @@ fun Route.measurementRoutes(measurementService: MeasurementService, stationServi
         call.respond(actualMeasurements)
     }
 
-    get<MeasurementRecentResource> { params ->
-        if (params.stationId.isBlank()) {
-            return@get call.respond(HttpStatusCode.BadRequest, "Missing required parameter: stationId")
-        }
-        if (!stationService.exists(params.stationId)) {
-            return@get call.respond(HttpStatusCode.NotFound, "Station with ID ${params.stationId} not found")
-        }
-
-        val recentMeasurements = measurementService.getRecentMeasurements(params.stationId)
-        call.respond(recentMeasurements)
-    }
 
     get<MeasurementResourceTop> { params ->
         val measurements = measurementService.getTopMeasurements(params.element, params.stationId, params.date)

@@ -150,14 +150,6 @@ class MeasurementRepository {
         }
 
 
-    fun getRecentMeasurements(stationId: String) {
-        return transaction {
-            MeasurementLatestEntity.find { MeasurementLatestTable.stationId eq stationId }
-                .orderBy(MeasurementLatestTable.timestamp to SortOrder.DESC)
-                .limit(24)
-                .toList()
-        }
-    }
 
     fun getLatestMeasurement(elementAbbreviation: String, stationId: String): MeasurementLatest? {
         return transaction {

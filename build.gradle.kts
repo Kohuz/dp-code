@@ -68,4 +68,22 @@ dependencies {
     implementation("io.ktor:ktor-server-cors:$ktor_version")
     implementation("org.locationtech.proj4j:proj4j:1.3.0")
     implementation("org.locationtech.proj4j:proj4j-epsg:1.3.0")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.14.2")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+}
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+    filter {
+        includeTestsMatching("cz.cvut.service.*")
+        includeTestsMatching("*Test")
+        isFailOnNoMatchingTests
+    }
 }

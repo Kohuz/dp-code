@@ -43,22 +43,10 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
         }
         return measurements
     }
-    fun getActualTemperatures(stationId: String): Double? {
-        val measurement = measurementRepository.getLatestMeasurement("T", stationId)
-        if (measurement != null) {
-            return measurement.value
-        }
-        return null
-    }
-
-    fun getRecentMeasurements(stationId: String) {
-        return measurementRepository.getRecentMeasurements(stationId)
-    }
 
     fun getStatsDayLongTerm(stationId: String, date: String): List<ValueStats> {
         val parsedDate = LocalDate.parse(date)
         val records = measurementRepository.getLongTermMeasurementsDaily(stationId, null)
-
         // Filter records for the same day and month across different years
         val filteredRecords = records.filter {
             it.date.dayOfMonth == parsedDate.dayOfMonth &&
@@ -133,13 +121,11 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
     fun getStatsDay(stationId: String, date: String): List<MeasurementDaily> {
         val parsedDate = LocalDate.parse(date)
         return measurementRepository.getStatsDay(stationId, parsedDate)
-
     }
 
     fun getMeasurementsForDayAndMonth(stationId: String, date: String, element: String): List<MeasurementDaily> {
         // Fetch all long-term records for the station
         val records = measurementRepository.getLongTermMeasurementsDaily(stationId, element)
-
         val parsedDate = LocalDate.parse(date)
 
         // Filter records for the same day and month across different years
@@ -173,5 +159,4 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
         return measurementRepository.getTopMeasurementsDailyByElementAndStationOrDate(element, stationId,
             date?.let { LocalDate.parse(it) })
     }
-
 }

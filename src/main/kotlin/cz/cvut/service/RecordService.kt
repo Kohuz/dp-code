@@ -1,14 +1,10 @@
 package cz.cvut.service
 
-import cz.cvut.model.measurment.MeasurementDaily
 import cz.cvut.model.record.StationRecord
 import cz.cvut.repository.measurement.MeasurementRepository
 import cz.cvut.repository.record.RecordRepository
 import cz.cvut.repository.stationElement.StationElementRepository
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.toKotlinLocalDate
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.SortOrder
 
 class RecordService(private val recordRepository: RecordRepository, private val stationElementRepository: StationElementRepository, private val measurementRepository: MeasurementRepository) {
     @Serializable
@@ -21,7 +17,7 @@ class RecordService(private val recordRepository: RecordRepository, private val 
 
 
 
-    private fun getStats(records: List<StationRecord>, element: String): RecordStats {
+    fun getStats(records: List<StationRecord>, element: String): RecordStats {
         val highest = records.maxByOrNull { it.value ?: Double.MIN_VALUE }
         val lowest = records.minByOrNull { it.value ?: Double.MAX_VALUE }
         val average = records.mapNotNull { it.value }.average().takeIf { !it.isNaN() }
@@ -38,18 +34,6 @@ class RecordService(private val recordRepository: RecordRepository, private val 
         val stationRecords = recordRepository.getAllTimeRecordsForStation(stationId)
         return stationRecords.groupBy { it.element }
             .map { (element, records) -> getStats(records,element) }
-    }
-
-    fun getDailyRecords(date: LocalDate): List<RecordStats> {
-        val dailyRecords = recordRepository.getDailyRecords(date)
-        return dailyRecords.groupBy { it.element }
-            .map { (element, records) -> getStats(records, element) }
-    }
-
-    fun getDailyRecordsForStation(stationId: String, date: LocalDate): List<RecordStats> {
-        val stationRecords = recordRepository.getDailyRecordsForStation(stationId, date)
-        return stationRecords.groupBy { it.element }
-            .map { (element, records) -> getStats(records, element) }
     }
 
     fun calculateAndInsertRecords(stationId: String) {
