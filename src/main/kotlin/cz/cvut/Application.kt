@@ -103,10 +103,18 @@
     ) {
 
         stationIds.forEach { stationId ->
-            measurementDownloadService.processHistoricalDailyJsonAndInsert(stationId)
-            measurementDownloadService.processHistoricalMonthlyJsonAndInsert(stationId)
-            measurementDownloadService.processHistoricalYearlyJsonAndInsert(stationId)
-            recordService.calculateAndInsertRecords(stationId)
+            coroutineScope {
+                val daily = async { measurementDownloadService.processHistoricalDailyJsonAndInsert(stationId) }
+                val monthly = async { measurementDownloadService.processHistoricalMonthlyJsonAndInsert(stationId) }
+                val yearly = async { measurementDownloadService.processHistoricalYearlyJsonAndInsert(stationId) }
+
+                // Wait for all measurement processing to complete before calculating records
+                daily.await()
+                monthly.await()
+                yearly.await()
+
+                recordService.calculateAndInsertRecords(stationId)
+            }
         }
 
 
