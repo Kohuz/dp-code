@@ -36,5 +36,3 @@ class MeasurementResourceTop(
     val date: String? = null
 )
 
-@Resource("/measurements/{stationId}/recent")
-class MeasurementRecentResource(val stationId: String)

@@ -10,6 +10,7 @@
     import io.ktor.server.resources.*
     import kotlinx.coroutines.*
     import org.jetbrains.exposed.sql.SchemaUtils
+    import org.jetbrains.exposed.sql.transactions.transaction
     import org.koin.ktor.ext.get
     import org.koin.ktor.plugin.Koin
     import java.time.Duration
@@ -94,6 +95,40 @@
 
 
         measurementDownloadService.proccessLatestJsonAndInsert()
+
+        createIndexes()
+
+    }
+
+    fun createIndexes() {
+        transaction {
+            exec(
+                """
+                CREATE INDEX IF NOT EXISTS idx_measurementlatest_id_element
+                ON measurementlatest (station_id, element, timestamp DESC);
+            """.trimIndent()
+            )
+
+            // Date-specific index
+            exec(
+                """
+        CREATE INDEX idx_measurementdaily_station_date_element ON measurementdaily 
+            (station_id, date, element);
+        """.trimIndent()
+            )
+            exec(
+                """
+                    CREATE INDEX idx_measurementdaily_element_date_value 
+                    ON measurementdaily(element, date, value DESC);
+                """.trimIndent()
+            )
+            exec(
+                """
+                    CREATE INDEX idx_measurementdaily_element_date_value 
+                    ON measurementdaily(element, date, value ASC);
+                """.trimIndent()
+            )
+        }
     }
 
     private suspend fun processHistoricalMeasurements(
@@ -123,7 +158,8 @@
     private suspend fun processRecentMeasurements(
         activeStationIds: List<String>,
         measurementDownloadService: MeasurementDownloadService,
-        recordService: RecordService
+        recordService: RecordService,
+        onlyYesterday: Boolean = false
     ) {
         activeStationIds.forEach { stationId ->
            measurementDownloadService.processRecentDailyJsonAndInsert(stationId)
@@ -163,35 +199,35 @@
             }
         }
 
-        scope.launch {
-            while (isActive) {
-                try {
-                    // Calculate the delay until the next 3:00
-                    val now = LocalDateTime.now()
-                    val nextRun = now.withHour(3).withMinute(0).withSecond(0).withNano(0)
-                    val delayMillis = if (now.isBefore(nextRun)) {
-                        Duration.between(now, nextRun).toMillis()
-                    } else {
-                        Duration.between(now, nextRun.plusDays(1)).toMillis()
-                    }
-
-                    // Delay until the next 3:00
-                    delay(delayMillis)
-
-                    // Execute the task
-                    val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
-                    processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
-
-                    try {
-                        measurementService.deleteOldLatest()
-                    } catch (e: Exception) {
-                        log.error("Error deleting measurements")
-                    }
-                } catch (e: Exception) {
-                    log.error("Error processing daily stats", e)
-                }
-
-
-            }
-        }
+//        scope.launch {
+//            while (isActive) {
+//                try {
+//                    // Calculate the delay until the next 3:00
+//                    val now = LocalDateTime.now()
+//                    val nextRun = now.withHour(3).withMinute(0).withSecond(0).withNano(0)
+//                    val delayMillis = if (now.isBefore(nextRun)) {
+//                        Duration.between(now, nextRun).toMillis()
+//                    } else {
+//                        Duration.between(now, nextRun.plusDays(1)).toMillis()
+//                    }
+//
+//                    // Delay until the next 3:00
+//                    delay(delayMillis)
+//
+//                    // Execute the task
+//                    val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
+//                    processRecentMeasurements(activeStationIds, measurementDownloadService, recordService, true)
+//
+//                    try {
+//                        measurementService.deleteOldLatest()
+//                    } catch (e: Exception) {
+//                        log.error("Error deleting measurements")
+//                    }
+//                } catch (e: Exception) {
+//                    log.error("Error processing daily stats", e)
+//                }
+//
+//
+//            }
+//        }
     }

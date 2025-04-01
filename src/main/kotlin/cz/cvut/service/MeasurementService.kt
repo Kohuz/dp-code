@@ -145,7 +145,7 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
 
         // Filter records for the same day and month across different years
         val filteredRecords = records.filter {
-            Month.of(it.month) == parsedDate.month && it.mdFunction == "AVG" && it.timeFunction == "AVG"
+            Month.of(it.month) == parsedDate.month && it.mdFunction == "AVG"
         }
 
         return filteredRecords

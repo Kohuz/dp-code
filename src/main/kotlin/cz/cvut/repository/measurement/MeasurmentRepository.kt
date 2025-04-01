@@ -245,7 +245,7 @@ class MeasurementRepository {
                 }
             }
 
-            val sortOrder = if (element == "TMI") SortOrder.DESC else SortOrder.ASC
+            val sortOrder = if (element == "TMI") SortOrder.ASC else SortOrder.DESC
 
             MeasurementDailyEntity
                 .find { query }

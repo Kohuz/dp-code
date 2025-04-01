@@ -32,12 +32,21 @@ class StationService(private val stationRepository: StationRepository, private v
 
     fun getClosestStations(latitude: Double, longitude: Double, count: Int): List<Station> {
         val stations = stationRepository.getStationsList()
-
         if(count == 1) {
             val activeStations = stations.filter { station: Station -> station.isActive()  }
-            return activeStations.sortedBy {
+            val closestActive =  activeStations.sortedBy {
                 calculateApproximateDistance(latitude, longitude, it.latitude, it.longitude)
-            }.take(count)
+            }.take(1)
+
+            val stationElements = stationElementRepository.getElementsForStation(closestActive[0].stationId)
+            val measurements: MutableList<MeasurementLatest> = mutableListOf()
+
+            stationElements.forEach { element ->
+                measurementRepository.getLatestMeasurement(element, closestActive[0].stationId)?.let { measurements.add(it) }
+            }
+
+            closestActive[0].stationLatestMeasurements = measurements
+            return closestActive
         }
         val closestStations = stations.sortedBy {
             calculateApproximateDistance(latitude, longitude, it.latitude, it.longitude)

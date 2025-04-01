@@ -144,7 +144,7 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
     }
 
 
-    suspend fun processRecentDailyJsonAndInsert(stationId: String) {
+    suspend fun processRecentDailyJsonAndInsert(stationId: String, onlyYesterday: Boolean? = false) {
         val BASE_URL_RECENT = "https://opendata.chmi.cz/meteorology/climate/recent/data/daily/"
 
         val now = YearMonth.now()
