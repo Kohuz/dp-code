@@ -85,7 +85,7 @@
 
         val stationIds = stationService.getAllStations().map { it.stationId }
        val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
-//
+
         runBlocking {
             processHistoricalMeasurements(stationIds, measurementDownloadService, recordService)
         }
@@ -95,6 +95,11 @@
 
 
         measurementDownloadService.proccessLatestJsonAndInsert()
+
+        stationIds.forEach{
+            recordService.calculateAndInsertRecords(it)
+        }
+
 
         createIndexes()
 
@@ -148,7 +153,6 @@
                 monthly.await()
                 yearly.await()
 
-                recordService.calculateAndInsertRecords(stationId)
             }
         }
 
@@ -163,8 +167,6 @@
     ) {
         activeStationIds.forEach { stationId ->
            measurementDownloadService.processRecentDailyJsonAndInsert(stationId)
-
-           recordService.calculateAndInsertRecords(stationId)
         }
     }
 

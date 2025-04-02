@@ -93,87 +93,67 @@ class RecordServiceTest {
     }
 
     @Test
-    fun `calculateAndInsertRecords should process all elements and insert records`() {
-        // Arrange
+    fun `should insert min record for TMI element`() {
         val stationId = "ST001"
-        val elements = listOf("T", "P")
-        val date = java.time.LocalDate.parse("2023-06-15")
-
-        val tempMeasurements = listOf(
-            MeasurementDaily(stationId, "T", "AVG", date.toKotlinLocalDate(), 25.0, null, 1.0),
-            MeasurementDaily(stationId, "T", "AVG", date.minusDays(1).toKotlinLocalDate(), 30.0, null, 1.0),
-            MeasurementDaily(stationId, "T", "AVG", date.minusDays(2).toKotlinLocalDate(), 15.0, null, 1.0)
+        val date = java.time.LocalDate.now()
+        val measurements = listOf(
+            MeasurementDaily(stationId, "TMI", "D", date.minusDays(2).toKotlinLocalDate(), 5.0, null, 1.0),
+            MeasurementDaily(stationId, "TMI", "D", date.minusDays(1).toKotlinLocalDate(), 3.0, null, 1.0), // min value
+            MeasurementDaily(stationId, "TMI", "D", date.toKotlinLocalDate(), 4.0, null, 1.0)
         )
 
-        val pressureMeasurements = listOf(
-            MeasurementDaily(stationId, "P", "AVG", date.toKotlinLocalDate(), 1010.0, null, 1.0),
-            MeasurementDaily(stationId, "P", "AVG", date.minusDays(1).toKotlinLocalDate(), 1020.0, null, 1.0),
-            MeasurementDaily(stationId, "P", "AVG", date.minusDays(2).toKotlinLocalDate(), 1000.0, null, 1.0)
-        )
+        whenever(stationElementRepository.getElementsForStation(stationId)).thenReturn(listOf("TMI"))
+        whenever(measurementRepository.getMeasurementsDailyByStationandandElement(stationId, "TMI")).thenReturn(measurements)
+        doNothing().`when`(recordRepository).insertRecord(any())
 
-        whenever(stationElementRepository.getElementsForStation(stationId)).thenReturn(elements)
-        whenever(measurementRepository.getMeasurementsDailyByStationandandElement(stationId, "T"))
-            .thenReturn(tempMeasurements)
-        whenever(measurementRepository.getMeasurementsDailyByStationandandElement(stationId, "P"))
-            .thenReturn(pressureMeasurements)
-
-        // Act
         recordService.calculateAndInsertRecords(stationId)
 
-        // Assert
-        verify(recordRepository).insertRecord(
-            StationRecord(
-                stationId = stationId,
-                element = "T",
-                recordType = "max",
-                value = 30.0,
-                recordDate = date.minusDays(1).toKotlinLocalDate()
-            )
+        val expectedRecord = StationRecord(
+            stationId = stationId,
+            element = "TMI",
+            recordType = "min",
+            value = 3.0,
+            recordDate = date.minusDays(1).toKotlinLocalDate()
         )
-        verify(recordRepository).insertRecord(
-            StationRecord(
-                stationId = stationId,
-                element = "T",
-                recordType = "min",
-                value = 15.0,
-                recordDate = date.minusDays(2).toKotlinLocalDate()
-            )
-        )
-        verify(recordRepository).insertRecord(
-            StationRecord(
-                stationId = stationId,
-                element = "P",
-                recordType = "max",
-                value = 1020.0,
-                recordDate = date.minusDays(1).toKotlinLocalDate()
-            )
-        )
-        verify(recordRepository).insertRecord(
-            StationRecord(
-                stationId = stationId,
-                element = "P",
-                recordType = "min",
-                value = 1000.0,
-                recordDate = date.minusDays(2).toKotlinLocalDate()
-            )
-        )
+        verify(recordRepository).insertRecord(argThat {
+            stationId == expectedRecord.stationId &&
+                    element == expectedRecord.element &&
+                    recordType == expectedRecord.recordType &&
+                    value == expectedRecord.value &&
+                    recordDate == expectedRecord.recordDate
+        })
     }
 
     @Test
-    fun `calculateAndInsertRecords should handle empty measurements`() {
-        // Arrange
+    fun `should insert max record for TMA element`() {
         val stationId = "ST001"
-        val elements = listOf("T")
+        val date = java.time.LocalDate.now()
+        val measurements = listOf(
+            MeasurementDaily(stationId, "TMA", "D", date.minusDays(2).toKotlinLocalDate(), 25.0, null, 1.0),
+            MeasurementDaily(stationId, "TMA", "D", date.minusDays(1).toKotlinLocalDate(), 28.0, null, 1.0), // max value
+            MeasurementDaily(stationId, "TMA", "D", date.toKotlinLocalDate(), 26.0, null, 1.0)
+        )
 
-        whenever(stationElementRepository.getElementsForStation(stationId)).thenReturn(elements)
-        whenever(measurementRepository.getMeasurementsDailyByStationandandElement(stationId, "T"))
-            .thenReturn(emptyList())
+        whenever(stationElementRepository.getElementsForStation(stationId)).thenReturn(listOf("TMA"))
+        whenever(measurementRepository.getMeasurementsDailyByStationandandElement(stationId, "TMA")).thenReturn(measurements)
+        doNothing().`when`(recordRepository).insertRecord(any())
 
-        // Act
         recordService.calculateAndInsertRecords(stationId)
 
-        // Assert
-        verify(recordRepository, never()).insertRecord(any())
+        val expectedRecord = StationRecord(
+            stationId = stationId,
+            element = "TMA",
+            recordType = "max",
+            value = 28.0,
+            recordDate = date.minusDays(1).toKotlinLocalDate()
+        )
+        verify(recordRepository).insertRecord(argThat {
+            stationId == expectedRecord.stationId &&
+                    element == expectedRecord.element &&
+                    recordType == expectedRecord.recordType &&
+                    value == expectedRecord.value &&
+                    recordDate == expectedRecord.recordDate
+        })
     }
 
     @Test

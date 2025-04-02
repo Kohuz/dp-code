@@ -153,7 +153,7 @@ fun Route.measurementRoutes(measurementService: MeasurementService, stationServi
 
 
     get<MeasurementResourceTop> { params ->
-        val measurements = measurementService.getTopMeasurements(params.element, params.stationId, params.date)
+        val measurements = measurementService.getTopMeasurements(params.element,params.date)
         call.respond(measurements)
     }
 }

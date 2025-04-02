@@ -11,6 +11,7 @@ import kotlinx.datetime.toKotlinInstant
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNotNull
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
@@ -218,30 +219,19 @@ class MeasurementRepository {
 
     fun getTopMeasurementsDailyByElementAndStationOrDate(
         element: String,
-        stationId: String?,
         date: LocalDate?,
         count: Int? = 10
     ): List<MeasurementDaily> {
         return transaction {
+            val baseQuery = MeasurementDailyTable.element eq element
+
             val query = when {
-                stationId != null && date != null -> {
-                    (MeasurementDailyTable.element eq element) and
-                            (MeasurementDailyTable.stationId eq stationId) and
-                            (MeasurementDailyTable.date eq date)
-                }
-
-                stationId != null -> {
-                    (MeasurementDailyTable.element eq element) and
-                            (MeasurementDailyTable.stationId eq stationId)
-                }
-
                 date != null -> {
-                    (MeasurementDailyTable.element eq element) and
-                            (MeasurementDailyTable.date eq date)
+                    baseQuery and (MeasurementDailyTable.date eq date) and
+                            (MeasurementDailyTable.value.isNotNull())
                 }
-
                 else -> {
-                    MeasurementDailyTable.element eq element
+                    baseQuery and (MeasurementDailyTable.value.isNotNull())
                 }
             }
 

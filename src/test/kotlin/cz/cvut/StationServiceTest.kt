@@ -39,31 +39,31 @@ class StationServiceTest {
 
     @Test
     fun `getAllStations should return all stations when active is null`() {
-        // Given
+        // Arrange
         val stations = listOf(
             createTestStation("ST001", active = true),
             createTestStation("ST002", active = false)
         )
         whenever(stationRepository.getStationsFiltered(null)).thenReturn(stations)
 
-        // When
+        // Act
         val result = stationService.getAllStations()
 
-        // Then
+        // Assert
         assertEquals(2, result.size)
         verify(stationRepository).getStationsFiltered(null)
     }
 
     @Test
     fun `getAllStations should filter active stations when active is true`() {
-        // Given
+        // Arrange
         val activeStation = createTestStation("ST001", active = true)
         whenever(stationRepository.getStationsFiltered(true)).thenReturn(listOf(activeStation))
 
-        // When
+        // Act
         val result = stationService.getAllStations(active = true)
 
-        // Then
+        // Assert
         assertEquals(1, result.size)
         assertEquals("ST001", result[0].stationId)
         verify(stationRepository).getStationsFiltered(true)
@@ -71,14 +71,14 @@ class StationServiceTest {
 
     @Test
     fun `getAllStations should filter inactive stations when active is false`() {
-        // Given
+        // Arrange
         val inactiveStation = createTestStation("ST002", active = false)
         whenever(stationRepository.getStationsFiltered(false)).thenReturn(listOf(inactiveStation))
 
-        // When
+        // Act
         val result = stationService.getAllStations(active = false)
 
-        // Then
+        // Assert
         assertEquals(1, result.size)
         assertEquals("ST002", result[0].stationId)
         verify(stationRepository).getStationsFiltered(false)
@@ -86,19 +86,19 @@ class StationServiceTest {
 
     @Test
     fun `getStationById should return null for non-existent station`() {
-        // Given
+        // Arrange
         whenever(stationRepository.getStationById("NON_EXISTENT")).thenReturn(null)
 
-        // When
+        // Act
         val result = stationService.getStationById("NON_EXISTENT")
 
-        // Then
+        // Assert
         assertNull(result)
     }
 
     @Test
     fun `getStationById should return station with measurements for active station with elements`() {
-        // Given
+        // Arrange
         val stationId = "ST001"
         val station = createTestStation(stationId, active = true)
         val elements = listOf("T", "H")
@@ -112,10 +112,10 @@ class StationServiceTest {
         whenever(measurementRepository.getLatestMeasurement("T", stationId)).thenReturn(measurements[0])
         whenever(measurementRepository.getLatestMeasurement("H", stationId)).thenReturn(measurements[1])
 
-        // When
+        // Act
         val result = stationService.getStationById(stationId)
 
-        // Then
+        // Assert
         assertNotNull(result)
         assertEquals(2, result?.stationLatestMeasurements?.size)
         assertEquals("T", result?.stationLatestMeasurements?.get(0)?.element)
@@ -125,7 +125,7 @@ class StationServiceTest {
 
     @Test
     fun `getClosestStations should return single closest active station when count is 1`() {
-        // Given
+        // Arrange
         val latitude = 50.0
         val longitude = 14.0
         val activeStation = createTestStation("ST001", 50.1, 14.1, active = true)
@@ -133,17 +133,17 @@ class StationServiceTest {
 
         whenever(stationRepository.getStationsList()).thenReturn(listOf(activeStation, inactiveStation))
 
-        // When
+        // Act
         val result = stationService.getClosestStations(latitude, longitude, 1)
 
-        // Then
+        // Assert
         assertEquals(1, result.size)
         assertEquals("ST001", result[0].stationId)
     }
 
     @Test
     fun `getClosestStations should return multiple stations with measurements when active`() {
-        // Given
+        // Arrange
         val latitude = 50.0
         val longitude = 14.0
         val station1 = createTestStation("ST001", 50.1, 14.1, active = true)
@@ -162,10 +162,10 @@ class StationServiceTest {
         whenever(measurementRepository.getLatestMeasurement("H", "ST001")).thenReturn(measurements[1])
         whenever(measurementRepository.getLatestMeasurement("T", "ST002")).thenReturn(measurements[2])
 
-        // When
+        // Act
         val result = stationService.getClosestStations(latitude, longitude, 2)
 
-        // Then
+        // Assert
         assertEquals(2, result.size)
         assertEquals("ST001", result[0].stationId)
         assertEquals(2, result[0].stationLatestMeasurements.size)
@@ -175,27 +175,27 @@ class StationServiceTest {
 
     @Test
     fun `exists should return true for existing station`() {
-        // Given
+        // Arrange
         val stationId = "ST001"
         whenever(stationRepository.getStationById(stationId)).thenReturn(createTestStation(stationId))
 
-        // When
+        // Act
         val result = stationService.exists(stationId)
 
-        // Then
+        // Assert
         assertTrue(result)
     }
 
     @Test
     fun `exists should return false for non-existent station`() {
-        // Given
+        // Arrange
         val stationId = "NON_EXISTENT"
         whenever(stationRepository.getStationById(stationId)).thenReturn(null)
 
-        // When
+        // Act
         val result = stationService.exists(stationId)
 
-        // Then
+        // Assert
         assertFalse(result)
     }
 
