@@ -48,7 +48,7 @@ class RecordService(private val recordRepository: RecordRepository, private val 
             when (element) {
                 "TMI" -> {
                     // Only insert MIN record for TMI
-                    measurements.minByOrNull { it.value!! }?.let { record ->
+                    measurements.filter { it.value != null }.minByOrNull { it.value!! }?.let { record ->
                         recordRepository.insertRecord(
                             StationRecord(
                                 stationId = stationId,
@@ -63,7 +63,7 @@ class RecordService(private val recordRepository: RecordRepository, private val 
 
                 else -> {
                     // Only insert MAX record for other elements
-                    measurements.maxByOrNull { it.value!! }?.let { record ->
+                    measurements.filter { it.value != null }.maxByOrNull { it.value!! }?.let { record ->
                         recordRepository.insertRecord(
                             StationRecord(
                                 stationId = stationId,
