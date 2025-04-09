@@ -76,33 +76,32 @@
 
     }
 
-    private suspend fun processStationsAndMeasurements(
+    private fun processStationsAndMeasurements(
         stationService: StationService,
-
         measurementDownloadService: MeasurementDownloadService,
         recordService: RecordService
-    ) {
-
+    ) = runBlocking {
         val stationIds = stationService.getAllStations().map { it.stationId }
-       val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
+        val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
 
-        runBlocking {
-            processHistoricalMeasurements(stationIds, measurementDownloadService, recordService)
+        coroutineScope {
+            val historicalJob = launch {
+                processHistoricalMeasurements(stationIds, measurementDownloadService, recordService)
+            }
+            val recentJob = launch {
+                processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
+            }
+            historicalJob.join()
+            recentJob.join()
         }
-        runBlocking {
-            processRecentMeasurements(activeStationIds, measurementDownloadService, recordService)
-        }
-
 
         measurementDownloadService.proccessLatestJsonAndInsert()
 
-        stationIds.forEach{
+        stationIds.forEach {
             recordService.calculateAndInsertRecords(it)
         }
 
-
         createIndexes()
-
     }
 
     fun createIndexes() {

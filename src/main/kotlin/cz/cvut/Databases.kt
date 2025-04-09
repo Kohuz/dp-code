@@ -26,7 +26,7 @@ fun configureDatabases(config: ApplicationConfig) {
 //    )
 //
 //    Database.connect(
-//        "jdbc:postgresql://localhost:5433/dp",
+//        "jdbc:postgresql://localhost:5432/dp",
 //        user = "postgres",
 //        password = "123456"
 //    )
@@ -39,8 +39,10 @@ fun configureDatabases(config: ApplicationConfig) {
         exec("DROP TABLE IF EXISTS elementcodelist CASCADE")
 
 
+
         exec("DROP TABLE IF EXISTS measurementlatest")
 
+        SchemaUtils.drop(StationRecordTable)
         SchemaUtils.create(
             StationTable,
             StationElementTable,
