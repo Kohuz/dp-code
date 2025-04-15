@@ -6,6 +6,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.*
+import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
@@ -150,17 +151,22 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
         val now = YearMonth.now()
         val currentYear = now.year
         val currentMonth = now.monthValue
+        val yesterday = LocalDate.now().minusDays(1)
+        val yesterdayFormatted = yesterday.format(DateTimeFormatter.BASIC_ISO_DATE) // yyyyMMdd format
 
         val filePatterns = mutableListOf<String>()
 
         // Add the current month's file (located in the root)
         filePatterns.add("$BASE_URL_RECENT/dly-$stationId-$currentYear${"%02d".format(currentMonth)}.json")
 
-        // Add files for the previous months (in their respective folders)
-        for (month in 1 until currentMonth) {
-            val formattedMonth = "%02d".format(month)
-            val fileUrl = "$BASE_URL_RECENT$formattedMonth/dly-$stationId-$currentYear$formattedMonth.json"
-            filePatterns.add(fileUrl)
+        // When onlyYesterday is false or null, include previous months
+        if (onlyYesterday != true) {
+            // Add files for the previous months (in their respective folders)
+            for (month in 1 until currentMonth) {
+                val formattedMonth = "%02d".format(month)
+                val fileUrl = "$BASE_URL_RECENT$formattedMonth/dly-$stationId-$currentYear$formattedMonth.json"
+                filePatterns.add(fileUrl)
+            }
         }
 
         // Process each URL
@@ -187,13 +193,21 @@ class MeasurementDownloadService (private val repository: MeasurementRepository)
                         val flag = row[5].jsonPrimitive.contentOrNull ?: ""
                         val quality = row[6].jsonPrimitive.doubleOrNull ?: 0.0
 
+                        // Skip if onlyYesterday is true and the date doesn't match yesterday
+                        if (onlyYesterday == true && dt != yesterdayFormatted) {
+                            continue
+                        }
+
                         if (element in allowedElements) {
                             append("$station,$element,$vtype,$dt,$valCol,$flag,$quality\n")
                         }
                     }
                 }
 
-                repository.saveHistoricalDaily(csvData)
+                // Only save if we have data (especially important for onlyYesterday mode)
+                if (csvData.lines().size > 1) { // More than just the header line
+                    repository.saveHistoricalDaily(csvData)
+                }
 
             } catch (e: Exception) {
                 println("Error fetching or saving measurements for $url: ${e.message}")

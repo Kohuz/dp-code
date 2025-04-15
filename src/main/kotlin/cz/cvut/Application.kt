@@ -200,35 +200,35 @@
             }
         }
 
-//        scope.launch {
-//            while (isActive) {
-//                try {
-//                    // Calculate the delay until the next 3:00
-//                    val now = LocalDateTime.now()
-//                    val nextRun = now.withHour(3).withMinute(0).withSecond(0).withNano(0)
-//                    val delayMillis = if (now.isBefore(nextRun)) {
-//                        Duration.between(now, nextRun).toMillis()
-//                    } else {
-//                        Duration.between(now, nextRun.plusDays(1)).toMillis()
-//                    }
-//
-//                    // Delay until the next 3:00
-//                    delay(delayMillis)
-//
-//                    // Execute the task
-//                    val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
-//                    processRecentMeasurements(activeStationIds, measurementDownloadService, recordService, true)
-//
-//                    try {
-//                        measurementService.deleteOldLatest()
-//                    } catch (e: Exception) {
-//                        log.error("Error deleting measurements")
-//                    }
-//                } catch (e: Exception) {
-//                    log.error("Error processing daily stats", e)
-//                }
-//
-//
-//            }
-//        }
+        scope.launch {
+            while (isActive) {
+                try {
+                    // Calculate the delay until the next 3:00
+                    val now = LocalDateTime.now()
+                    val nextRun = now.withHour(3).withMinute(0).withSecond(0).withNano(0)
+                    val delayMillis = if (now.isBefore(nextRun)) {
+                        Duration.between(now, nextRun).toMillis()
+                    } else {
+                        Duration.between(now, nextRun.plusDays(1)).toMillis()
+                    }
+
+                    // Delay until the next 3:00
+                    delay(delayMillis)
+
+                    // Execute the task
+                    val activeStationIds = stationService.getAllStations(active = true).map { it.stationId }
+                    processRecentMeasurements(activeStationIds, measurementDownloadService, recordService, true)
+
+                    try {
+                        measurementService.deleteOldLatest()
+                    } catch (e: Exception) {
+                        log.error("Error deleting measurements")
+                    }
+                } catch (e: Exception) {
+                    log.error("Error processing daily stats", e)
+                }
+
+
+            }
+        }
     }
