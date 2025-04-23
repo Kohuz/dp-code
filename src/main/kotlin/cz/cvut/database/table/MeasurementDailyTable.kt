@@ -11,5 +11,5 @@ object MeasurementDailyTable : IntIdTable() {
     val flag = varchar("flag", 10).nullable()
     val quality = double("quality").nullable()
     val stationId = reference("station_id", StationTable.stationId)
-    val schedule = varchar("schedule", 50).nullable() // Added if needed
+    val schedule = varchar("schedule", 50).nullable()
 }

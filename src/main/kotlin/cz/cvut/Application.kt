@@ -165,7 +165,7 @@
         onlyYesterday: Boolean = false
     ) {
         activeStationIds.forEach { stationId ->
-           measurementDownloadService.processRecentDailyJsonAndInsert(stationId)
+           measurementDownloadService.processRecentDailyJsonAndInsert(stationId, onlyYesterday)
         }
     }
 

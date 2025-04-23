@@ -50,10 +50,10 @@ class StationElementRepository {
     fun getElementsForStation(stationId: String): List<String> {
         return transaction {
             StationElementTable
-                .select(StationElementTable.elementAbbreviation) // Select only the elementName column
-                .where { StationElementTable.stationId eq stationId } // Filter by stationId
-                .distinctBy { it[StationElementTable.elementAbbreviation] } // Ensure distinct element names
-                .map { it[StationElementTable.elementAbbreviation] } // Map to a list of element names
+                .select(StationElementTable.elementAbbreviation)
+                .where { StationElementTable.stationId eq stationId }
+                .distinctBy { it[StationElementTable.elementAbbreviation] }
+                .map { it[StationElementTable.elementAbbreviation] }
         }
     }
 

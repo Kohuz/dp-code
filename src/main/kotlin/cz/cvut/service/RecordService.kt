@@ -39,9 +39,7 @@ class RecordService(private val recordRepository: RecordRepository, private val 
     fun calculateAndInsertRecords(stationId: String) {
         val elements = stationElementRepository.getElementsForStation(stationId)
         val allowedElements = setOf("TMA", "TMI", "Fmax", "SNO", "SCE", "SRA")
-        // Process each element
         elements.filter { it in allowedElements }.forEach { element ->
-            // Retrieve measurements for the current element
             val measurements = measurementRepository.getMeasurementsDailyByStationandandElement(stationId, element)
 
 

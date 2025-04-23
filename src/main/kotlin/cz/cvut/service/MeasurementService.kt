@@ -14,9 +14,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ValueStats(
     val element: String,
-    val highest: Double?, // Highest value
-    val lowest: Double?,  // Lowest value
-    val average: Double?  // Average value
+    val highest: Double?,
+    val lowest: Double?,
+    val average: Double?
 )
 
 class MeasurementService(private val measurementRepository: MeasurementRepository, private val stationElementRepository: StationElementRepository) {
@@ -47,16 +47,13 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
     fun getStatsDayLongTerm(stationId: String, date: String): List<ValueStats> {
         val parsedDate = LocalDate.parse(date)
         val records = measurementRepository.getLongTermMeasurementsDaily(stationId, null)
-        // Filter records for the same day and month across different years
         val filteredRecords = records.filter {
             it.date.dayOfMonth == parsedDate.dayOfMonth &&
                     it.date.month == parsedDate.month
         }
 
-        // Group records by measurement type (assuming each record has a 'type' field)
         val groupedRecords = filteredRecords.groupBy { it.element }
 
-        // Calculate stats for each group
         val statsList = groupedRecords.map { (element, recordsForType) ->
             val highest = recordsForType.maxByOrNull { it.value ?: Double.MIN_VALUE }
             val lowest = recordsForType.minByOrNull { it.value ?: Double.MAX_VALUE }
@@ -77,34 +74,28 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
         val parsedDate = LocalDate.parse(date)
         val records = measurementRepository.getLongTermMeasurementsMonthly(stationId, null)
 
-        // Filter records for the same day and month across different years
         val filteredRecords = records.filter {
             Month.of(it.month) == parsedDate.month && it.timeFunction == "AVG"
         }
 
-        // Group records by measurement type (assuming each record has a 'type' field)
         val groupedRecords = filteredRecords.groupBy { it.element }
 
-        // Calculate stats for each group
         val statsList = groupedRecords.map { (element, recordsForType) ->
-            // Calculate highest value (for records where mdFunction is "MAX")
             val highest = recordsForType
-                .filter { it.mdFunction == "MAX" } // Filter for MAX records
-                .maxByOrNull { it.value ?: Double.MIN_VALUE } // Find the max value
-                ?.value // Extract the value
+                .filter { it.mdFunction == "MAX" }
+                .maxByOrNull { it.value ?: Double.MIN_VALUE }
+                ?.value
 
-            // Calculate lowest value (for records where mdFunction is "MIN")
             val lowest = recordsForType
-                .filter { it.mdFunction == "MIN" } // Filter for MIN records
-                .minByOrNull { it.value ?: Double.MAX_VALUE } // Find the min value
-                ?.value // Extract the value
+                .filter { it.mdFunction == "MIN" }
+                .minByOrNull { it.value ?: Double.MAX_VALUE }
+                ?.value
 
-            // Calculate average value (for records where mdFunction is "AVG")
             val average = recordsForType
-                .filter { it.mdFunction == "AVG" } // Filter for AVG records
-                .mapNotNull { it.value } // Extract non-null values
-                .takeIf { it.isNotEmpty() } // Check if the list is not empty
-                ?.average() // Calculate the average
+                .filter { it.mdFunction == "AVG" }
+                .mapNotNull { it.value }
+                .takeIf { it.isNotEmpty() }
+                ?.average()
 
             // Return ValueStats for this element
             ValueStats(
@@ -124,11 +115,9 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
     }
 
     fun getMeasurementsForDayAndMonth(stationId: String, date: String, element: String): List<MeasurementDaily> {
-        // Fetch all long-term records for the station
         val records = measurementRepository.getLongTermMeasurementsDaily(stationId, element)
         val parsedDate = LocalDate.parse(date)
 
-        // Filter records for the same day and month across different years
         val filteredRecords = records.filter {
             it.date.dayOfMonth == parsedDate.dayOfMonth &&
                     it.date.month == parsedDate.month
@@ -138,12 +127,10 @@ class MeasurementService(private val measurementRepository: MeasurementRepositor
     }
 
     fun getMeasurementsForMonth(stationId: String, date: String, element: String): List<MeasurementMonthly> {
-        // Fetch all long-term records for the station
         val records = measurementRepository.getLongTermMeasurementsMonthly(stationId, element)
 
         val parsedDate = LocalDate.parse(date)
 
-        // Filter records for the same day and month across different years
         val filteredRecords = records.filter {
             Month.of(it.month) == parsedDate.month && it.mdFunction == "AVG"
         }

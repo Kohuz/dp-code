@@ -68,36 +68,10 @@ class StationDownloadService(private val stationRepository: StationRepository) {
     suspend fun processAndSaveStations() {
         val stations = downloadStations()
 
-
-//        val transformedStations = stations.map { station ->
-//            val (latitude, longitude) = transformSJTSKtoWGS84(station.latitude, station.longitude)
-//            station.copy(latitude = latitude, longitude = longitude)
-//        }
         val deduplicatedStations = deduplicateStations(stations)
         val stationsWithoutReykjavik = deduplicatedStations.filter { it.code != "ZIS04030" }
         stationRepository.saveStations(stationsWithoutReykjavik)
     }
-
-    fun transformSJTSKtoWGS84(x: Double, y: Double): Pair<Double, Double> {
-        val crsFactory = CRSFactory()
-
-        val destCrs = crsFactory.createFromParameters(
-            "krovak","+proj=krovak"
-        )
-        val srcCrs = crsFactory.createFromParameters(
-            "WGS84",
-            "+proj=longlat +datum=WGS84 +no_defs"
-        )
-
-
-        val transform = CoordinateTransformFactory().createTransform(srcCrs, destCrs)
-
-        val srcCoord = ProjCoordinate(x, y)
-        val destCoord = ProjCoordinate()
-        transform.transform(srcCoord, destCoord)
-        return Pair(destCoord.x, destCoord.y)
-    }
-
 }
 
 

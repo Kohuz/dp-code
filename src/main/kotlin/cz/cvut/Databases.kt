@@ -18,18 +18,6 @@ fun configureDatabases(config: ApplicationConfig) {
         user = user,
         password = password
     )
-
-//    Database.connect(
-//        url,
-//        user = user,
-//        password = password
-//    )
-//
-//    Database.connect(
-//        "jdbc:postgresql://localhost:5432/dp",
-//        user = "postgres",
-//        password = "123456"
-//    )
     transaction {
         exec("DROP TABLE IF EXISTS stationelement CASCADE")
         exec("DROP TABLE IF EXISTS station CASCADE")
@@ -37,9 +25,6 @@ fun configureDatabases(config: ApplicationConfig) {
         exec("DROP TABLE IF EXISTS measurementmonthly CASCADE")
         exec("DROP TABLE IF EXISTS measurementyearly CASCADE")
         exec("DROP TABLE IF EXISTS elementcodelist CASCADE")
-
-
-
         exec("DROP TABLE IF EXISTS measurementlatest")
 
         SchemaUtils.drop(StationRecordTable)
@@ -64,28 +49,4 @@ fun configureDatabases(config: ApplicationConfig) {
        SchemaUtils.create(StationElementTable)
        SchemaUtils.create(ElementCodelistTable)
    }
-
-//       exec(
-//           """
-//                CREATE INDEX IF NOT EXISTS idx_measurementlatest_id_element
-//                ON measurementlatest (station_id, element, timestamp DESC);
-//            """.trimIndent()
-//       )
-//
-//       // Date-specific index
-//       exec(
-//           """
-//        CREATE INDEX IF NOT EXISTS idx_measurementdaily_element_date
-//        ON measurementdaily (element, date);
-//        """.trimIndent()
-//       )
-
-
-
-
-
-
-
-
-//    }
 }

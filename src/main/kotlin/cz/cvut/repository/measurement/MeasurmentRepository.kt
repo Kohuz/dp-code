@@ -25,8 +25,6 @@ import java.time.temporal.ChronoUnit
 
 
 class MeasurementRepository {
-    data class StationStat (val record: Double, val average: Double)
-
     fun saveHistoricalDaily(csvData: String) {
         transaction {
             val connection = this.connection.connection as BaseConnection
@@ -195,7 +193,6 @@ class MeasurementRepository {
         }
     }
 
-    // Fetches all measurements for a specific station on a given date (day-specific) without filtering by element
     fun getStatsDay(stationId: String, date: LocalDate): List<MeasurementDaily> {
         return transaction {
             MeasurementDailyEntity
